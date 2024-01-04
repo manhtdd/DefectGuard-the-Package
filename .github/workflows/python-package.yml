@@ -38,4 +38,4 @@ jobs:
           pip install -i https://test.pypi.org/simple/ defectguard==0.1.32
       - name: Run DefectGuard
         run: |
-          defectguard -models deepjit -dataset platform -repo . -top 20 -main_language Python -sort
+          defectguard -models deepjit -dataset platform -repo . -top 20 -main_language Python -sort -threshold 0.1
