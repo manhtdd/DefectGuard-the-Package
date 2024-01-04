@@ -70,6 +70,19 @@ def vsc_output(data):
 
     return data
 
+def check_threshold(data, threshold):
+    output = {}
+    for model, predicts in data.items():
+        if model == "no_code_change_commit":
+            continue
+        else:
+            output[model] = []
+        for predict in predicts:
+            if predict['predict'] >= threshold:
+                output[model].append(predict)
+    
+    return output
+
 def create_download_list(model_name, dataset, project):
     download_list = []
     dictionary = f'{dataset}_dictionary_{project}'

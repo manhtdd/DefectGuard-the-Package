@@ -13,6 +13,18 @@ class CC2Vec(BaseWraper):
         self.deepjit_extended = None
         self.device = device
         download_folder(self.model_name, self.dataset, self.project)
+
+    def __call__(self, message, code):
+        return self.model(message, code)
+    
+    def get_cc2vec_parameters(self):
+        return self.cc2vec.parameters()
+    
+    def get_deepjit_extended_parameters(self):
+        return self.deepjit_extended.parameters()
+    
+    def set_device(self, device):
+        self.device = device
         
     def initialize(self):
         # Load dictionary
