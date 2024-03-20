@@ -1,4 +1,4 @@
-import argparse, os, getpass, time, json, warnings
+import argparse, os, getpass, time, json, random
 from urllib.parse import urlparse
 from .extractor.RepositoryExtractor import RepositoryExtractor
 from .utils.utils import commit_to_info, SRC_PATH, sort_by_predict, vsc_output, check_threshold
@@ -11,9 +11,22 @@ from .models.jitline.warper import JITLine
 from argparse import Namespace
 from .utils.logger import ic
 from datetime import datetime
+import numpy as np
+import torch
 
 __version__ = "0.1.32"
 
+def seed_torch(seed=42):
+	random.seed(seed)
+	os.environ['PYTHONHASHSEED'] = str(seed) 
+	np.random.seed(seed)
+	torch.manual_seed(seed)
+	torch.cuda.manual_seed(seed)
+	#torch.cuda.manual_seed_all(seed) # if you are using multi-GPU.
+	torch.backends.cudnn.benchmark = False
+	torch.backends.cudnn.deterministic = True
+
+seed_torch()
 
 def read_args():
     available_languages = [
@@ -29,7 +42,7 @@ def read_args():
         "Go",
         "Swift",
     ]
-    models = ["deepjit", "cc2vec", "simcom", "lapredict", "tlel", "jitline"]
+    models = ["deepjit", "cc2vec", "simcom", "lapredict", "tlel", "jitline", "la"]
     dataset = ["gerrit", "go", "platform", "jdt", "qt", "openstack"]
     parser = argparse.ArgumentParser()
 
@@ -100,6 +113,8 @@ def init_model(model_name, dataset, cross, device):
             return TLEL(dataset=dataset, project=project, device=device)
         case "jitline":
             return JITLine(dataset=dataset, project=project, device=device)
+        case "la":
+            return LAPredict(dataset=dataset, project=project, device=device)
         case _:
             raise Exception("No such model")
 
@@ -235,7 +250,8 @@ def main():
             defect_outputs = check_threshold(outputs, params.threshold)
             for model, commits in defect_outputs.items():
                 for commit in commits:
-                    warnings.warn(f"{model}: commit {commit['commit_hash']} has {commit['predict']} chance of being defect. Please review it.")
+                    raise Exception(f"{model}: commit {commit['commit_hash']} has {commit['predict']} chance of being defect. Please review it.")
+
 
 
     end_whole_process_time = time.time()
