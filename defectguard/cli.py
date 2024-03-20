@@ -6,6 +6,7 @@ from .models.deepjit.warper import DeepJIT
 from .models.cc2vec.warper import CC2Vec
 from .models.simcom.warper import SimCom
 from .models.lapredict.warper import LAPredict
+from .models.lr.warper import LogisticRegression
 from .models.tlel.warper import TLEL
 from .models.jitline.warper import JITLine
 from argparse import Namespace
@@ -42,7 +43,7 @@ def read_args():
         "Go",
         "Swift",
     ]
-    models = ["deepjit", "cc2vec", "simcom", "lapredict", "tlel", "jitline", "la"]
+    models = ["deepjit", "cc2vec", "simcom", "lapredict", "tlel", "jitline", "la", "lr"]
     dataset = ["gerrit", "go", "platform", "jdt", "qt", "openstack"]
     parser = argparse.ArgumentParser()
 
@@ -115,6 +116,8 @@ def init_model(model_name, dataset, cross, device):
             return JITLine(dataset=dataset, project=project, device=device)
         case "la":
             return LAPredict(dataset=dataset, project=project, device=device)
+        case "lr":
+            return LogisticRegression(dataset=dataset, project=project, device=device)
         case _:
             raise Exception("No such model")
 

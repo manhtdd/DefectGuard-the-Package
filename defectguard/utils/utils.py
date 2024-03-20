@@ -19,7 +19,7 @@ IDS = {
     },
     'simcom': {
         'hyperparameters': '1Y9pt5EShp5Z2Q2Ff6EjHp0fxByXWViw6',
-        'sim_qt': '1zee0mzb1bjnnim-WMer2K6e3WlWMNC0D',
+        'sim_qt': '1ToELcINTQwmek24M8VvB-4xfiB-TZbkc',
         'sim_platform': '1SJ8UnaMQlaB58E7VsQWbHFmh2ms0QFg_',
         'sim_openstack': '1iJDpDLL19d_dp7mdjxu0ADqN25Hgyxuk',
         'sim_jdt': '1PPz385vq3cuuTf5pqM4k4c018rXoN1If',
@@ -29,7 +29,7 @@ IDS = {
         'com_platform': '1KmUkYFVaH34kBA4pW8qXgv1JV9qCRtkx',
     },
     'tlel': {
-        'qt': '1ZvwEQ6lbb_43_JBgEB6VnRxR7HNQZlOk',
+        'qt': '1jQ5Uv-7t-qHjV0O3zAYaLB29QCZPY8nE',
         'platform': '1vS26ng_kZ5gdYESyWrfciMacXz74AzhZ',
         'openstack': '1yCOI_5inFnxH1EDS2JpA282UN7Zc1AXV',
         'jdt': '1GUEC7kFCybuoEetr-1Tis_6EmaWXgWwG',
@@ -39,6 +39,14 @@ IDS = {
     'jitline': '',
     'lapredict': {
         'qt': '1sginH8lVsEupRtEXsBpFJWR3HHGoW7MS',
+        'platform': '',
+        'openstack': '',
+        'jdt': '',
+        'go': '',
+        'gerrit': '',
+    },
+    'lr': {
+        'qt': '1xpBW5KZ18E-2teMTCsIrBjGDuO89ceDf',
         'platform': '',
         'openstack': '',
         'jdt': '',
