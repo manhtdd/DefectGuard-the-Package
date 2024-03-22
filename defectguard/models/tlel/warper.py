@@ -1,9 +1,10 @@
 from defectguard.models.BaseWraper import BaseWraper
-import pickle
-from .TLEL import TLEL
+import pickle, sys
 from defectguard.utils.utils import download_folder, SRC_PATH
+sys.path.append(f"{SRC_PATH}/models/tlel/model")
+from .model.TLEL import TLEL
 
-class TLEL(BaseWraper):
+class TLELModel(BaseWraper):
     def __init__(self, dataset='platform', project='within', device="cpu"):
         self.model_name = 'tlel'
         self.dataset = dataset

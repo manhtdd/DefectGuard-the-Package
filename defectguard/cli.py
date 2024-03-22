@@ -7,7 +7,7 @@ from .models.cc2vec.warper import CC2Vec
 from .models.simcom.warper import SimCom
 from .models.lapredict.warper import LAPredict
 from .models.lr.warper import LogisticRegression
-from .models.tlel.warper import TLEL
+from .models.tlel.warper import TLELModel
 from .models.jitline.warper import JITLine
 from argparse import Namespace
 from .utils.logger import ic
@@ -111,7 +111,7 @@ def init_model(model_name, dataset, cross, device):
         case "lapredict":
             return LAPredict(dataset=dataset, project=project, device=device)
         case "tlel":
-            return TLEL(dataset=dataset, project=project, device=device)
+            return TLELModel(dataset=dataset, project=project, device=device)
         case "jitline":
             return JITLine(dataset=dataset, project=project, device=device)
         case "la":
