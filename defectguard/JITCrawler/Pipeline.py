@@ -1,5 +1,5 @@
 from .core import Repository, Extractor
-from .utils import clone_repo
+from .core.utils import clone_repo
 
 
 class BasicPipeline:
