@@ -7,7 +7,6 @@ from .utils.utils import (
     check_threshold,
 )
 from .JITCrawler import BasicPipeline
-from .JITCrawler.utils import clone_repo
 from .models import (
     DeepJIT,
     CC2Vec,
