@@ -1,7 +1,7 @@
 import logging
 import os
 import yaml
-from utils import exec_cmd, load_json, LANG2EXT
+from .utils import exec_cmd, load_json, LANG2EXT
 
 
 class PySZZ:

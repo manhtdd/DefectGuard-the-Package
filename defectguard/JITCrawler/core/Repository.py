@@ -1,4 +1,4 @@
-from utils import load_json, load_pkl, save_json, save_pkl
+from .utils import load_json, load_pkl, save_json, save_pkl
 import os
 
 

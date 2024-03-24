@@ -1,5 +1,5 @@
 from .Repository import Repository
-from utils import *
+from .utils import *
 import time
 from tqdm import tqdm
 import numpy as np

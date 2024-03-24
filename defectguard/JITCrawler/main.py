@@ -1,6 +1,6 @@
 from argparse import ArgumentParser
 from .Pipeline import BasicPipeline
-from .utils import is_supported_language
+from .core.utils import is_supported_language
 import os
 
 

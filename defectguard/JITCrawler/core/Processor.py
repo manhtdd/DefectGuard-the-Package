@@ -1,6 +1,6 @@
 from .Repository import Repository
 from .Dict import create_dict
-from utils import save_pkl, split_sentence
+from .utils import save_pkl, split_sentence
 from datetime import datetime
 import time
 import pandas as pd
