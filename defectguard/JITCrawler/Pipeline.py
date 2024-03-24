@@ -1,4 +1,4 @@
-from .core import Repository, Extractor
+from .core import Repository, Extractor, Processor, PySZZ
 from .core.utils import clone_repo
 
 
@@ -12,6 +12,20 @@ class BasicPipeline:
             check_uncommit=cfg.extractor_check_uncommit,
         )
 
+        if cfg.create_dataset:
+            self.create_dataset = True
+            # init pyszz
+            self.pyszz = PySZZ(
+                pyszz_path=cfg.pyszz_path,
+                keep_output=20,
+                pyszz_conf="bszz",
+            )
+
+            # init processor
+            self.processor = Processor(
+                cfg.dataset_save_path,
+                cfg.processor_save,
+            )
 
     def set_repo(self, cfg):
         assert cfg.mode in ["local", "remote"], "Invalid mode: {}".format(cfg.mode)
@@ -51,3 +65,11 @@ class BasicPipeline:
         # extract repo
         self.extractor.set_repo(self.repo)
         self.extractor.run()
+        
+        if self.create_dataset:
+            # run pyszz
+            self.pyszz.set_repo(self.repo)
+            self.pyszz.run()
+            # process dataset
+            self.processor.set_repo(self.repo)
+            self.processor.run()

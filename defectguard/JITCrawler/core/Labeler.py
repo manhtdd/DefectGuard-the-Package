@@ -8,7 +8,7 @@ class PySZZ:
     def __init__(
         self,
         pyszz_path: str,
-        log_path: str = "log",
+        # log_path: str = "log",
         pyszz_conf: str = "bszz",
         keep_output: int = 50,
     ):
@@ -19,7 +19,7 @@ class PySZZ:
             pyszz_path
         )
         self.path = os.path.abspath(pyszz_path)
-        self.log_path = os.path.abspath(log_path)
+        # self.log_path = os.path.abspath(log_path)
         self.set_conf(pyszz_conf)
         self.keep_output = keep_output
 
@@ -33,12 +33,12 @@ class PySZZ:
             self.base_conf = yaml.load(f, Loader=yaml.FullLoader)
 
     def run(self, bug_fix_path, szz_conf_path, repo_path, repo_language):
-        logging.basicConfig(
-            filename=os.path.join(self.log_path, "pyszz_log.log"),
-            level=logging.DEBUG,
-            format="%(asctime)s %(message)s",
-            filemode="w",
-        )
+        # logging.basicConfig(
+        #     filename=os.path.join(self.log_path, "pyszz_log.log"),
+        #     level=logging.DEBUG,
+        #     format="%(asctime)s %(message)s",
+        #     filemode="w",
+        # )
         cur_dir = os.getcwd()
         os.chdir(self.path)
 
@@ -57,9 +57,9 @@ class PySZZ:
 
         # run pyszz
         cmd = "python3 main.py {} {} {}".format(bug_fix_path, szz_conf_path, repo_path)
-        logging.debug(cmd)
+        # logging.debug(cmd)
         out = exec_cmd(cmd)
-        logging.debug(out)
+        # logging.debug(out)
         os.chdir(cur_dir)
 
     def get_outputs(self):

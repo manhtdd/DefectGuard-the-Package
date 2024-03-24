@@ -75,13 +75,14 @@ def read_args():
     )
     parser.add_argument("-top", type=int, default=0, help="Number of top commits")
     parser.add_argument(
-        "-main_language",
+        "-repo_language",
         type=str,
         default="",
         choices=available_languages,
         help="Main language of repo",
     )
-
+    parser.add_argument("-create_dataset", action="store_true", help="Create dataset")
+    parser.add_argument("-pyszz_path", type=str, default="", help="Path to pyszz")
     parser.add_argument(
         "-models",
         nargs="+",
@@ -196,14 +197,22 @@ def main():
         "repo_owner": params.repo_owner,
         "repo_name": params.repo_name,
         "repo_path": params.repo_path,
-        "repo_language": params.main_language,
+        "repo_language": params.repo_language,
         "repo_save_path": os.path.join(params.dg_save_folder, "save"),
         "extractor_save": True,
-        "extractor_check_uncommit": params.uncommit,
     }
     if params.mode == "remote":
         cfg["repo_clone_path"] = os.path.join(params.dg_save_folder, "repo")
         cfg["repo_clone_url"] = f"https://github.com/{params.repo_owner}/{params.repo_name}.git"
+    else:
+        cfg["extractor_check_uncommit"] = params.uncommit
+        
+    if params.create_dataset:
+        cfg["create_dataset"] = True
+        cfg["pyszz_path"] = params.pyszz_path
+        cfg["create_dataset"] = os.path.join(params.dg_save_folder, "dataset")
+        cfg["processor_save"] = True
+        
     cfg = Namespace(**cfg)
 
     # extract repo
