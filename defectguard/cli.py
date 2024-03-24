@@ -195,7 +195,7 @@ def main():
         "repo_owner": params.repo_owner,
         "repo_name": params.repo_name,
         "repo_path": params.repo_path,
-        "main_language": params.main_language,
+        "repo_language": params.main_language,
         "repo_save_path": os.path.join(params.dg_save_folder, "save"),
         "extractor_save": True,
         "extractor_check_uncommit": params.uncommit,
