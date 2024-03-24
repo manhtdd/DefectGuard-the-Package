@@ -210,6 +210,7 @@ def main():
     start_extract_time = time.time()
     
     crawler = BasicPipeline(cfg)
+    crawler.set_repo(cfg)
     crawler.run()
     if len(params.commit_hash) == 0:
         params.commit_hash = crawler.extractor.get_top_commits(params.top)    
