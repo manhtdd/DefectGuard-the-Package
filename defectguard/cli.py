@@ -178,7 +178,8 @@ def main():
     # create save folders
     folders = ["save", "repo", "dataset"]
     for folder in folders:
-        os.mkdir(os.path.join(params.dg_save_folder, folder))
+        if not os.path.exists(os.path.join(params.dg_save_folder, folder)):
+            os.mkdir(os.path.join(params.dg_save_folder, folder))
 
     user_input = {
         "models": params.models,
