@@ -1,29 +1,12 @@
-import argparse, os, time, json, random
-from .utils.utils import (
-    commit_to_info,
-    SRC_PATH,
-    sort_by_predict,
-    vsc_output,
-    check_threshold,
-)
-from .JITCrawler import BasicPipeline
-from .models import (
-    DeepJIT,
-    CC2Vec,
-    SimCom,
-    LAPredict,
-    LogisticRegression,
-    TLELModel,
-    JITLine,
-)
-from .utils.logger import ic
-from argparse import Namespace
+import argparse, os, random, sys, torch
+from .utils.logger import logger
+from .utils.utils import SRC_PATH
 from datetime import datetime
 import numpy as np
-import torch
+from .inferencing import inferencing
+from .mining import mining
 
 __version__ = "0.1.33"
-
 
 def seed_torch(seed=42):
     random.seed(seed)
@@ -31,135 +14,60 @@ def seed_torch(seed=42):
     np.random.seed(seed)
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
-    # torch.cuda.manual_seed_all(seed) # if you are using multi-GPU.
     torch.backends.cudnn.benchmark = False
     torch.backends.cudnn.deterministic = True
 
-
 seed_torch()
 
+def main(args=None):
+    if args is None:
+        args = sys.argv[1:]
 
-def read_args():
-    available_languages = [
-        "Python",
-        "Java",
-        "C++",
-        "C",
-        "C#",
-        "JavaScript",
-        "TypeScript",
-        "Ruby",
-        "PHP",
-        "Go",
-        "Swift",
-    ]
+    available_languages = ["Python", "Java", "C++", "C", "C#", "JavaScript", "TypeScript", "Ruby", "PHP", "Go", "Swift"]
     models = ["deepjit", "cc2vec", "simcom", "lapredict", "tlel", "jitline", "la", "lr"]
     dataset = ["gerrit", "go", "platform", "jdt", "qt", "openstack"]
     modes = ["local", "remote"]
-    parser = argparse.ArgumentParser()
 
-    parser.add_argument(
-        "--version", action="version", version="%(prog)s " + __version__
-    )
-    parser.add_argument("-dg_save_folder", type=str, required=True, help="")
-    parser.add_argument(
-        "-mode", type=str, default="local", help="Mode of extractor", choices=modes
-    )
-    parser.add_argument("-repo_name", type=str, required=True, help="Repo name")
-    parser.add_argument("-repo_owner", type=str, default="", help="Repo owner name")
-    parser.add_argument(
-        "-repo_path", type=str, default="", help="Path to git repository"
-    )
-    parser.add_argument(
-        "-commit_hash", nargs="+", type=str, default=[], help="List of commit hashes"
-    )
-    parser.add_argument("-top", type=int, default=0, help="Number of top commits")
-    parser.add_argument(
-        "-repo_language",
-        type=str,
-        default="",
-        choices=available_languages,
-        help="Main language of repo",
-    )
-    parser.add_argument("-create_dataset", action="store_true", help="Create dataset")
-    parser.add_argument("-pyszz_path", type=str, default="", help="Path to pyszz")
-    parser.add_argument(
-        "-models",
-        nargs="+",
-        type=str,
-        default=[],
-        choices=models,
-        help="List of deep learning models",
-    )
-    parser.add_argument(
-        "-dataset",
-        type=str,
-        default="openstack",
-        choices=dataset,
-        help="Dataset's name",
-    )
-    parser.add_argument("-cross", action="store_true", help="Cross project")
-    parser.add_argument(
-        "-uncommit",
-        action="store_true",
-        help="Include uncommit in list when using -top",
-    )
+    common_parser = argparse.ArgumentParser(add_help=False)
+    common_parser.add_argument("-debug", action="store_true", help="Turn on system debug print")
+    common_parser.add_argument("-log_to_file", action="store_true", help="Logging to file instead of stdout")
+    common_parser.add_argument("-dg_save_folder", type=str, required=True, help="")
+    common_parser.add_argument("-mode", type=str, default="local", help="Mode of extractor", choices=modes)
+    common_parser.add_argument("-repo_name", type=str, required=True, help="Repo name")
+    common_parser.add_argument("-repo_owner", type=str, default="", help="Repo owner name")
+    common_parser.add_argument("-repo_path", type=str, default="", help="Path to git repository")
+    common_parser.add_argument("-repo_language", type=str, default="", choices=available_languages, help="Main language of repo")
 
-    parser.add_argument(
-        "-device", type=str, default="cpu", help="Eg: cpu, cuda, cuda:1"
-    )
+    mining_parser = argparse.ArgumentParser(parents=[common_parser], add_help=False)
+    mining_parser.set_defaults(func=mining)
+    mining_parser.add_argument("-pyszz_path", type=str, default="", help="Path to pyszz")
 
-    parser.add_argument(
-        "-sort", action="store_true", help="Sort output of model by predict score"
-    )
-    parser.add_argument("-vsc", action="store_true", help="Output for vsc")
-    parser.add_argument(
-        "-debug", action="store_true", help="Turn on system debug print"
-    )
-    parser.add_argument(
-        "-log_to_file", action="store_true", help="Logging to file instead of stdout"
-    )
+    inferencing_parser = argparse.ArgumentParser(parents=[common_parser], add_help=False)
+    inferencing_parser.set_defaults(func=inferencing)
+    inferencing_parser.add_argument("-models", nargs="+", type=str, default=[], choices=models, help="List of deep learning models")
+    inferencing_parser.add_argument("-dataset",type=str,default="openstack",choices=dataset,help="Dataset's name",)
+    inferencing_parser.add_argument("-cross", action="store_true", help="Cross project")
+    inferencing_parser.add_argument("-uncommit", action="store_true", help="Include uncommit in list when using -top",)
+    inferencing_parser.add_argument("-device", type=str, default="cpu", help="Eg: cpu, cuda, cuda:1")
+    inferencing_parser.add_argument("-sort", action="store_true", help="Sort output of model by predict score")
+    inferencing_parser.add_argument("-vsc", action="store_true", help="Output for vsc")
+    inferencing_parser.add_argument("-threshold", type=float, default=0.5, help="Threshold for warning")
+    inferencing_parser.add_argument("-no_warning", action="store_true", help="Supress output warning")
+    inferencing_parser.add_argument("-commit_hash", nargs="+", type=str, default=[], help="List of commit hashes")
+    inferencing_parser.add_argument("-top", type=int, default=0, help="Number of top commits")
 
-    parser.add_argument(
-        "-threshold", type=float, default=0.5, help="Threshold for warning"
-    )
-    parser.add_argument(
-        "-no_warning", action="store_true", help="Supress output warning"
-    )
+    parser = argparse.ArgumentParser(prog="DefectGuard", description="A tool for mining, training, evaluating for Just-in-Time Defect Prediction")
+    parser.add_argument("-version", action="version", version="%(prog)s " + __version__)
+    subparsers = parser.add_subparsers()
+    subparsers.add_parser('mining', parents=[mining_parser], help='Mining Function')
+    subparsers.add_parser('inferencing', parents=[inferencing_parser], help='Inferencing Function')
 
-    return parser
+    options = parser.parse_args(args)
 
+    if not options.debug:
+        logger.disable()
 
-def init_model(model_name, dataset, cross, device):
-    project = "cross" if cross else "within"
-    match model_name:
-        case "deepjit":
-            return DeepJIT(dataset=dataset, project=project, device=device)
-        case "cc2vec":
-            return CC2Vec(dataset=dataset, project=project, device=device)
-        case "simcom":
-            return SimCom(dataset=dataset, project=project, device=device)
-        case "lapredict":
-            return LAPredict(dataset=dataset, project=project, device=device)
-        case "tlel":
-            return TLELModel(dataset=dataset, project=project, device=device)
-        case "jitline":
-            return JITLine(dataset=dataset, project=project, device=device)
-        case "la":
-            return LAPredict(dataset=dataset, project=project, device=device)
-        case "lr":
-            return LogisticRegression(dataset=dataset, project=project, device=device)
-        case _:
-            raise Exception("No such model")
-
-
-def main():
-    params = read_args().parse_args()
-
-    if not params.debug:
-        ic.disable()
-
-    if params.log_to_file:
+    if options.log_to_file:
         # Create a folder named 'logs' if it doesn't exist
         if not os.path.exists(f"{SRC_PATH}/logs"):
             os.makedirs(f"{SRC_PATH}/logs")
@@ -168,112 +76,14 @@ def main():
         log_file_path = os.path.join(f"{SRC_PATH}/logs", "logs.log")
 
         # Replace logging configuration with IceCream configuration
-        ic.configureOutput(
+        logger.configureOutput(
             prefix=f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")} | ',
             outputFunction=lambda x: open(log_file_path, "a").write(x + "\n"),
         )
 
-    ic("Start DefectGuard")
-    start_whole_process_time = time.time()
-
-    # create save folders
-    folders = ["save", "repo", "dataset"]
-    for folder in folders:
-        if not os.path.exists(os.path.join(params.dg_save_folder, folder)):
-            os.mkdir(os.path.join(params.dg_save_folder, folder))
-
-    user_input = {
-        "models": params.models,
-        "dataset": params.dataset,
-        "cross": params.cross,
-        "device": params.device,
-    }
-
-    ic(user_input)
-
-    # User's input handling
-    cfg = {
-        "mode": params.mode,
-        "repo_owner": params.repo_owner,
-        "repo_name": params.repo_name,
-        "repo_path": params.repo_path,
-        "repo_language": params.repo_language,
-        "repo_save_path": os.path.join(params.dg_save_folder, "save"),
-        "extractor_save": True,
-    }
-    if params.mode == "remote":
-        cfg["repo_clone_path"] = os.path.join(params.dg_save_folder, "repo")
-        cfg["repo_clone_url"] = f"https://github.com/{params.repo_owner}/{params.repo_name}.git"
-    else:
-        cfg["extractor_check_uncommit"] = params.uncommit
-        
-    if params.create_dataset:
-        cfg["create_dataset"] = True
-        cfg["pyszz_path"] = params.pyszz_path
-        cfg["create_dataset"] = os.path.join(params.dg_save_folder, "dataset")
-        cfg["processor_save"] = True
-        
-    cfg = Namespace(**cfg)
-
-    # extract repo
-    start_extract_time = time.time()
+    if not hasattr(options, 'func'):
+        parser.print_help()
+        exit(1)
+    options.func(options)
     
-    crawler = BasicPipeline(cfg)
-    crawler.set_repo(cfg)
-    crawler.run()
-    if len(params.commit_hash) == 0:
-        params.commit_hash = crawler.extractor.get_top_commits(params.top)    
-    commits, features, not_found_ids = crawler.repo.get_commits(params.commit_hash)
-    user_input["commit_hashes"] = [
-        id for id in params.commit_hash if id not in not_found_ids
-    ]
-    user_input["features"] = features
-    user_input["commit_info"] = []
-    for i in range(len(user_input["commit_hashes"])):
-        user_input["commit_info"].append(commit_to_info(commits[i]))
-
-    end_extract_time = time.time()
-
-    if len(user_input["commit_info"]) > 0:
-        # Load Model
-        model_list = {}
-        for model in params.models:
-            model_list[model] = init_model(
-                model, params.dataset, params.cross, params.device
-            )
-
-        # Inference
-        outputs = {"no_code_change_commit": not_found_ids}
-        for model in model_list.keys():
-            start_inference_time = time.time()
-
-            outputs[model] = (
-                sort_by_predict(model_list[model].handle(user_input))
-                if params.sort
-                else model_list[model].handle(user_input)
-            )
-
-            end_inference_time = time.time()
-
-            ic(
-                f"Inference time of {model}: {end_inference_time - start_inference_time}"
-            )
-
-        if params.vsc:
-            outputs = vsc_output(outputs)
-
-        print(json.dumps(outputs, indent=2))
-
-        if not params.no_warning:
-            defect_outputs = check_threshold(outputs, params.threshold)
-            for model, commits in defect_outputs.items():
-                for commit in commits:
-                    raise Exception(
-                        f"{model}: commit {commit['commit_hash']} has {commit['predict']} chance of being defect. Please review it."
-                    )
-
-    end_whole_process_time = time.time()
-
-    ic(f"Extract features time: {end_extract_time - start_extract_time}")
-    ic(f"Whole process time: {end_whole_process_time - start_whole_process_time}")
-    ic(f"Whole process time: {end_whole_process_time - start_whole_process_time}")
+    return options

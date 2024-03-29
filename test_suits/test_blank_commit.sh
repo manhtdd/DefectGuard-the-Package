@@ -1,13 +1,13 @@
 #!bin/bash
 
-defectguard \
+defectguard inferencing \
+    -mode local \
     -models deepjit \
     -dataset platform \
-    -mode local \
-    -dg_save_folder $1 \
+    -dg_save_folder . \
     -repo_path .. \
     -repo_name Tic-tac-toe-Game-using-Network-Socket-APIs \
-    -main_language C \
+    -repo_language C \
     -uncommit \
     -commit_hash \
     ef5f0e0bdca52bf32c4891e70c34dcd021d7e098 \
