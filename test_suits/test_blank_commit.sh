@@ -3,10 +3,13 @@
 defectguard \
     -models deepjit \
     -dataset platform \
-    -repo /home/manh/Documents/DefectGuard/Tic-tac-toe-Game-using-Network-Socket-APIs \
+    -mode local \
+    -dg_save_folder $1 \
+    -repo_path .. \
+    -repo_name Tic-tac-toe-Game-using-Network-Socket-APIs \
     -main_language C \
+    -uncommit \
     -commit_hash \
-    uncommit \
     ef5f0e0bdca52bf32c4891e70c34dcd021d7e098 \
     056b43e14a4bed15fdbe905fd88e5f6fe58245c0 \
     59e8c8efe3a74f5ff1ec399b56a5a5c2a24600cd \
