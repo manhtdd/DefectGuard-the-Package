@@ -1,4 +1,4 @@
-from icecream import ic
+from icecream import ic as logger
 from datetime import datetime
 
-ic.configureOutput(prefix=f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")} | ')
+logger.configureOutput(prefix=f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")} | ')

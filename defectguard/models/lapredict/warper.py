@@ -1,7 +1,7 @@
 from defectguard.models.BaseWraper import BaseWraper
 import pickle
 from defectguard.utils.utils import download_folder, SRC_PATH
-from defectguard.utils.logger import ic
+from defectguard.utils.logger import logger
 import pandas as pd
 
 class LAPredict(BaseWraper):
@@ -44,7 +44,6 @@ class LAPredict(BaseWraper):
         if not self.initialized:
             self.initialize()
 
-        ic(commit_ids, inference_output)
         result = []
         for commit_id, output in zip(commit_ids, inference_output):
             json_obj = {'commit_hash': commit_id, 'predict': output}
