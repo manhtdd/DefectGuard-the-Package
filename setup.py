@@ -1,6 +1,7 @@
 from setuptools import setup, find_packages
+from defectguard.cli import __version__
 
-VERSION = '0.1.32'
+VERSION = __version__
 DESCRIPTION = 'A cutting-edge defect prediction tool with up-to-date Just-in-Time techniques and a robust API, empowering software development teams to proactively identify and mitigate defects in real-time'
 
 # Setting up
