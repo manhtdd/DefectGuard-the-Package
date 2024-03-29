@@ -4,5 +4,6 @@ from .models.cc2vec.warper import CC2Vec
 from .models.simcom.warper import SimCom
 from .models.lapredict.warper import LAPredict
 from .models.tlel.warper import TLEL
-from .models.jitline.warper import JITLine
+from .models.lr.warper import LogisticRegression
+from .models.lapredict.warper import LAPredict
 # EARL
