@@ -6,4 +6,3 @@ from .models.lapredict.warper import LAPredict
 from .models.tlel.warper import TLEL
 from .models.lr.warper import LogisticRegression
 from .models.lapredict.warper import LAPredict
-# EARL
