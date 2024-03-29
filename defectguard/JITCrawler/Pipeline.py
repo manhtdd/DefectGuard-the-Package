@@ -5,6 +5,7 @@ from .core.utils import clone_repo
 class BasicPipeline:
     def __init__(self, cfg):
         # init extractor
+        self.create_dataset = False
         self.extractor = Extractor(
             num_commits_per_file=0,
             language=cfg.repo_language,
