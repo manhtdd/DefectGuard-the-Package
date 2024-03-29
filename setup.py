@@ -16,17 +16,19 @@ setup(
         "defectguard.utils": ["*.json", "*.pkl"],
         "defectguard.models.jitline": ["*.pkl"],
     },
+    dependency_links = [
+        "https://download.pytorch.org/whl/torch_stable.html"
+    ],
     install_requires=[
-        'numpy',
-        'pandas',
-        'PyGithub',
-        'Requests',
-        'scikit-learn',
-        'torch',
-        'imblearn',
-        'scipy',
-        'gdown',
-        'icecream'
+        'numpy==1.26.2',
+        'pandas==2.1.4',
+        'PyGithub==2.1.1',
+        'scikit_learn==1.3.2',
+        'torch==2.1.0+cpu',
+        'imblearn==0.0',
+        'scipy==1.11.4',
+        'gdown==4.7.1',
+        'icecream==2.1.3'
         ],
     keywords=['python', 'defect', 'prediction', 'just-in-time', 'defect prediction'],
     entry_points={
