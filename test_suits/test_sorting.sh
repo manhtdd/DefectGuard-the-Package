@@ -3,8 +3,9 @@
 defectguard \
     -models deepjit \
     -dataset platform \
-    -repo /home/manh/Documents/DefectGuard/Tic-tac-toe-Game-using-Network-Socket-APIs \
+    -repo_name Tic-tac-toe-Game-using-Network-Socket-APIs \
+    -repo_path /home/manh/Documents/DefectGuard \
     -uncommit \
     -top 10 \
     -sort \
-    -main_language C
+    -repo_language C
