@@ -27,6 +27,8 @@ class BasicPipeline:
                 cfg.dataset_save_path,
                 cfg.processor_save,
             )
+        else:
+            self.create_dataset = False
 
     def set_repo(self, cfg):
         assert cfg.mode in ["local", "remote"], "Invalid mode: {}".format(cfg.mode)

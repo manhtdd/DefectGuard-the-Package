@@ -32,13 +32,14 @@ def mining(params):
         "extractor_save": True,
         "create_dataset": True,
         "pyszz_path": params.pyszz_path,
-        "create_dataset": os.path.join(params.dg_save_folder, "dataset"),
+        "dataset_save_path": os.path.join(params.dg_save_folder, "dataset"),
         "processor_save": True,
     }
 
     if params.mode == "remote":
         cfg["repo_clone_path"] = os.path.join(params.dg_save_folder, "repo")
         cfg["repo_clone_url"] = f"https://github.com/{params.repo_owner}/{params.repo_name}.git"
+        cfg["extractor_check_uncommit"] = False
     else:
         cfg["extractor_check_uncommit"] = params.uncommit
 
