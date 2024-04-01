@@ -75,7 +75,7 @@ def inferencing(params):
     }
 
     if params.mode == "remote":
-        cfg["repo_clone_path"] = os.path.join(params.dg_save_folder, "repo")
+        cfg["repo_clone_path"] = f"{dg_cache_path}/repo"
         cfg["repo_clone_url"] = f"https://github.com/{params.repo_owner}/{params.repo_name}.git"
         cfg["extractor_check_uncommit"] = False
     else:
@@ -91,7 +91,7 @@ def inferencing(params):
     crawler.run()
 
     if len(params.commit_hash) == 0:
-        params.commit_hash = crawler.extractor.get_top_commits(params.top)    
+        params.commit_hash = crawler.extractor.extract_repo_top_commit_ids(params.top)    
     commits, features, not_found_ids = crawler.repo.get_commits(params.commit_hash)
     user_input["commit_hashes"] = [id for id in params.commit_hash if id not in not_found_ids]
     user_input["features"] = features

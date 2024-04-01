@@ -2,6 +2,7 @@
 
 defectguard inferencing \
     -models deepjit \
+    -dataset platform \
     -mode remote \
     -dg_save_folder . \
     -repo_owner manhlamabc123 \
