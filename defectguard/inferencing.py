@@ -18,25 +18,24 @@ from .utils.utils import (
 from .JITCrawler import BasicPipeline
 from argparse import Namespace
 
-def init_model(model_name, dataset, cross, device):
-    project = "cross" if cross else "within"
+def init_model(model_name, device):
     match model_name:
         case "deepjit":
-            return DeepJIT(dataset=dataset, project=project, device=device)
+            return DeepJIT(device=device)
         case "cc2vec":
-            return CC2Vec(dataset=dataset, project=project, device=device)
+            return CC2Vec(device=device)
         case "simcom":
-            return SimCom(dataset=dataset, project=project, device=device)
+            return SimCom(device=device)
         case "lapredict":
-            return LAPredict(dataset=dataset, project=project, device=device)
+            return LAPredict(device=device)
         case "tlel":
-            return TLELModel(dataset=dataset, project=project, device=device)
+            return TLELModel(device=device)
         case "jitline":
-            return JITLine(dataset=dataset, project=project, device=device)
+            return JITLine(device=device)
         case "la":
-            return LAPredict(dataset=dataset, project=project, device=device)
+            return LAPredict(device=device)
         case "lr":
-            return LogisticRegression(dataset=dataset, project=project, device=device)
+            return LogisticRegression(device=device)
         case _:
             raise Exception("No such model")
 
@@ -55,8 +54,6 @@ def inferencing(params):
 
     user_input = {
         "models": params.models,
-        "dataset": params.dataset,
-        "cross": params.cross,
         "device": params.device,
     }
 
@@ -106,7 +103,7 @@ def inferencing(params):
         model_list = {}
         for model in params.models:
             model_list[model] = init_model(
-                model, params.dataset, params.cross, params.device
+                model, params.device
             )
 
         # Inference
