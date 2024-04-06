@@ -8,10 +8,15 @@
     * Post-processing, training, inferencing JITDP model via CLI or import library
 * DefectGuard had been integrated into VSC *(extension)*, Jenkins & GitHub Action *(via command)*
 
-## Technologies
+# Prerequisite
 
-* Using `pytorch` for Deep Learning
-* Using `sklearn` for Machine Learning
+## PySZZ
+
+This tool utilize the code of [PySZZ](https://github.com/grosa1/pyszz_v2/). Please install PySZZ and pass its path as a parameter when the code in [Run](#run).
+
+**Notice**: to run PySZZ:
+- Python 3.9
+- [srcML](https://www.srcml.org/) (i.e., the srcml command should be in the system path)
 
 ## Installation
 
