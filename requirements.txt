@@ -9,3 +9,4 @@ scipy==1.11.4
 setuptools==67.8.0
 -f https://download.pytorch.org/whl/torch_stable.html
 torch==2.1.0+cpu
+pyyaml==6.0.1 
