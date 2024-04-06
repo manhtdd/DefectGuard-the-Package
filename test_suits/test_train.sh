@@ -1,5 +1,6 @@
 #!bin/bash
 
-cd /home/manh/Documents/DefectGuard/DefectGuard-the-Package/test_suits
-
-python train.py
+defectguard training \
+    -models deepjit \
+    -dg_save_folder . \
+    -repo_name Tic-tac-toe-Game-using-Network-Socket-APIs \

@@ -3,7 +3,6 @@
 defectguard inferencing \
     -mode local \
     -models deepjit \
-    -dataset platform \
     -dg_save_folder . \
     -repo_path .. \
     -repo_name Tic-tac-toe-Game-using-Network-Socket-APIs \
