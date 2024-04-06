@@ -19,7 +19,7 @@
 pip install -i https://test.pypi.org/simple/ defectguard==0.1.32
 ```
 
-## Basic usage:
+## Basic usages
 
 ### Mining commits from Git repositories
 ```
