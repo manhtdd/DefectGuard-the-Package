@@ -1,39 +1,24 @@
-FROM ubuntu:21.04
-LABEL org.srcml.email="srcmldev@gmail.com" \
-      org.srcml.url="srcml.org" \
-      org.srcml.distro="ubuntu" \
-      org.srcml.osversion="21.04" \
-      org.srcml.boost="1.69.0"
+FROM ubuntu:22.04
 
-# Avoid prompts for timezone
+WORKDIR /app
+
+COPY . /app
+
+RUN apt-get update
+
+# Install srcML
+RUN apt-get install -y --reinstall wget libarchive13 libcurl4 libxml2
+
+RUN wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_amd64.deb && \
+    dpkg -i libssl1.1_1.1.1f-1ubuntu2_amd64.deb && \
+    rm -rf libssl1.1_1.1.1f-1ubuntu2_amd64.deb
+
+RUN wget http://131.123.42.38/lmcrs/v1.0.0/srcml_1.0.0-1_ubuntu20.04.deb && \
+    dpkg -i srcml_1.0.0-1_ubuntu20.04.deb && \
+    rm -rf srcml_1.0.0-1_ubuntu20.04.deb
+
+# Install pyszz
 ENV TZ=US/UTC
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-
-# Update and install dependencies
-RUN apt-get update && apt-get install --no-install-recommends -y \
-    curl \
-    zip \
-    g++ \
-    make \
-    cmake \
-    ninja-build \
-    antlr \
-    libantlr-dev \
-    libxml2-dev \
-    libxml2-utils \
-    libxslt1-dev \
-    libarchive-dev \
-    libssl-dev \
-    libcurl4-openssl-dev \
-    cpio \
-    man \
-    file \
-    dpkg-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-# Download and install only needed boost files
-RUN curl -L http://www.sdml.cs.kent.edu/build/srcML-1.0.0-Boost.tar.gz | \
-    tar xz -C /usr/local/include
-
-# Allow man pages to be installed
-RUN sed -i '/path-exclude=\/usr\/share\/man\/*/c\#path-exclude=\/usr\/share\/man\/*' /etc/dpkg/dpkg.cfg.d/excludes
+RUN apt-get install -y python3 python3-pip git libxml2-dev libxslt1-dev
+RUN pip install -r requirements.txt
