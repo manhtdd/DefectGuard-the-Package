@@ -10,6 +10,7 @@ import os
 
 class Processor:
     def __init__(self, save_path: str, save: bool = True):
+        assert os.path.exists(save_path), f"Invalid save path: {save_path}"
         self.path = os.path.abspath(save_path)
         self.save = save
 
