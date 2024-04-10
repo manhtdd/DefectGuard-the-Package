@@ -12,15 +12,6 @@ def mining(params):
         if not os.path.exists(os.path.join(params.dg_save_folder, folder)):
             os.mkdir(os.path.join(params.dg_save_folder, folder))
 
-    user_input = {
-        "models": params.models,
-        "dataset": params.dataset,
-        "cross": params.cross,
-        "device": params.device,
-    }
-
-    logger(user_input)
-
     # User's input handling
     cfg = {
         "mode": params.mode,

@@ -35,6 +35,7 @@ def main(args=None):
     common_parser.add_argument("-repo_owner", type=str, default="", help="Repo owner name")
     common_parser.add_argument("-repo_path", type=str, default="", help="Path to git repository")
     common_parser.add_argument("-repo_language", type=str, default="", choices=available_languages, help="Main language of repo")
+    common_parser.add_argument("-uncommit", action="store_true", help="Include uncommit in list when using -top")
 
     mining_parser = argparse.ArgumentParser(parents=[common_parser], add_help=False)
     mining_parser.set_defaults(func=mining)
@@ -43,7 +44,6 @@ def main(args=None):
     inferencing_parser = argparse.ArgumentParser(parents=[common_parser], add_help=False)
     inferencing_parser.set_defaults(func=inferencing)
     inferencing_parser.add_argument("-models", nargs="+", type=str, default=[], choices=models, help="List of deep learning models")
-    inferencing_parser.add_argument("-uncommit", action="store_true", help="Include uncommit in list when using -top")
     inferencing_parser.add_argument("-device", type=str, default="cpu", help="Eg: cpu, cuda, cuda:1")
     inferencing_parser.add_argument("-sort", action="store_true", help="Sort output of model by predict score")
     inferencing_parser.add_argument("-vsc", action="store_true", help="Output for vsc")

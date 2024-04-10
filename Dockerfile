@@ -22,3 +22,6 @@ ENV TZ=US/UTC
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 RUN apt-get install -y python3 python3-pip git libxml2-dev libxslt1-dev
 RUN pip install -r requirements.txt
+
+# Install DefectGuard
+RUN python3 setup.py develop
