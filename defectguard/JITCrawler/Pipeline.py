@@ -91,5 +91,5 @@ class BasicPipeline:
             self.processor.set_repo(repo=self.repo)
             self.processor.run(
                 szz_output=szz_output,
-                extracted_date=self.extractor.date,
+                extracted_date=self.extractor.end,
             )
