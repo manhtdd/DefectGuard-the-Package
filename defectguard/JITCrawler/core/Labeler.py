@@ -52,14 +52,15 @@ class PySZZ:
         with open(szz_conf_path, "w") as f:
             yaml.dump(conf, f)
 
-        # remove historical output
-        self.remove_historical_output()
-
         # run pyszz
         cmd = "python3 main.py {} {} {}".format(bug_fix_path, szz_conf_path, repo_path)
-        # logging.debug(cmd)
         out = exec_cmd(cmd)
-        # logging.debug(out)
+        ## debug
+        # print(out)
+        
+        # remove historical output
+        self.remove_historical_output()
+        
         os.chdir(cur_dir)
 
     def get_outputs(self):
