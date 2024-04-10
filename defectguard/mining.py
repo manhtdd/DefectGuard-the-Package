@@ -7,10 +7,13 @@ def mining(params):
     logger("Start DefectGuard")
 
     # create save folders
+    dg_cache_path = f"{params.dg_save_folder}/dg_cache"
     folders = ["save", "repo", "dataset"]
+    if not os.path.exists(dg_cache_path):
+        os.mkdir(dg_cache_path)
     for folder in folders:
-        if not os.path.exists(os.path.join(params.dg_save_folder, folder)):
-            os.mkdir(os.path.join(params.dg_save_folder, folder))
+        if not os.path.exists(os.path.join(dg_cache_path, folder)):
+            os.mkdir(os.path.join(dg_cache_path, folder))
 
     # User's input handling
     cfg = {
@@ -19,16 +22,16 @@ def mining(params):
         "repo_name": params.repo_name,
         "repo_path": params.repo_path,
         "repo_language": params.repo_language,
-        "repo_save_path": os.path.join(params.dg_save_folder, "save"),
+        "repo_save_path": f"{dg_cache_path}/save",
         "extractor_save": True,
         "create_dataset": True,
         "pyszz_path": params.pyszz_path,
-        "dataset_save_path": os.path.join(params.dg_save_folder, "dataset"),
+        "dataset_save_path": f"{dg_cache_path}/dataset",
         "processor_save": True,
     }
 
     if params.mode == "remote":
-        cfg["repo_clone_path"] = os.path.join(params.dg_save_folder, "repo")
+        cfg["repo_clone_path"] = f"{dg_cache_path}/repo"
         cfg["repo_clone_url"] = f"https://github.com/{params.repo_owner}/{params.repo_name}.git"
         cfg["extractor_check_uncommit"] = False
     else:
