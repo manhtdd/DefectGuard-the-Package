@@ -11,6 +11,16 @@ from .models import (
     JITLine,
 )
 from .utils.padding import padding_data
+from tqdm import tqdm
+from sklearn.metrics import roc_auc_score, precision_recall_curve, auc
+import numpy as np
+
+def auc_pc(label, pred):
+    lr_probs = np.array(pred)
+    testy = np.array([float(l) for l in label])
+    lr_precision, lr_recall, _ = precision_recall_curve(testy, lr_probs)
+    lr_auc = auc(lr_recall, lr_precision)
+    return lr_auc
 
 def init_model(model_name, device):
     match model_name:
@@ -108,3 +118,51 @@ def training(params):
             optimizer.step()
 
         print(f'Training: Epoch {epoch} / {params.epochs} -- Total loss: {total_loss}')
+
+        # Validate
+        best_valid_score = 0
+        smallest_loss = 1000000
+        early_stop_count = 5
+
+        if params.model == "simcom":
+            model.eval()
+            with torch.no_grad():
+                all_predict, all_label = [], []
+                for batch in None:
+                    # Extract data from DataLoader
+                    code = batch["code"].to(params.device)
+                    message = batch["message"].to(params.device)
+                    labels = batch["labels"].to(params.device)
+
+                    # Forward
+                    predict = model(message, code)
+                    all_predict += predict.cpu().detach().numpy().tolist()
+                    all_label += labels.cpu().detach().numpy().tolist()
+
+            auc_score = roc_auc_score(y_true=all_label,  y_score=all_predict)
+            auc_pc_score = auc_pc(all_label, all_predict)
+            print('Valid data -- AUC-ROC score:', auc_score,  ' -- AUC-PC score:', auc_pc_score)
+
+            valid_score = auc_pc_score
+            if valid_score > best_valid_score:
+                best_valid_score = valid_score
+                print('Save a better model', best_valid_score.item())
+                model.save(f'{dg_cache_path}/save/{params.repo_name}')
+            else:
+                print('No update of models', early_stop_count)
+                if epoch > 5:
+                    early_stop_count = early_stop_count - 1
+                if early_stop_count < 0:
+                    break
+        else:
+            loss_score = total_loss
+            if loss_score < smallest_loss:
+                smallest_loss = loss_score
+                print('Save a better model', smallest_loss.item())
+                model.save(f'{dg_cache_path}/save/{params.repo_name}')
+            else:
+                print('No update of models', early_stop_count)
+                if epoch > 5:
+                    early_stop_count = early_stop_count - 1
+                if early_stop_count < 0:
+                    break

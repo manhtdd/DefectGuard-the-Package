@@ -1,5 +1,5 @@
 from defectguard.models.BaseWraper import BaseWraper
-import pickle, json, torch
+import pickle, json, torch, os
 from .model import DeepJITModel
 from defectguard.utils.utils import download_folder, SRC_PATH
 from .utils import *
@@ -137,3 +137,10 @@ class DeepJIT(BaseWraper):
         final_prediction = self.postprocess(data['commit_hashes'], commit_hashes, model_output)
 
         return final_prediction
+    
+    def save(self, save_dir):
+        if not os.path.isdir(save_dir):       
+            os.makedirs(save_dir)
+        
+        save_path = f"{save_dir}/deepjit.pt"
+        torch.save(self.model.state_dict(), save_path)
