@@ -49,3 +49,4 @@ class TLELModel(BaseWraper):
             os.makedirs(save_dir)
         
         save_path = f"{save_dir}/tlel.pkl"
+        pickle.dump(self.model, open(save_path, "wb"))

@@ -66,3 +66,4 @@ class LAPredict(BaseWraper):
             os.makedirs(save_dir)
         
         save_path = f"{save_dir}/lapredict.pkl"
+        pickle.dump(self.model, open(save_path, "wb"))

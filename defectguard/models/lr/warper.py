@@ -66,3 +66,4 @@ class LogisticRegression(BaseWraper):
             os.makedirs(save_dir)
         
         save_path = f"{save_dir}/lr.pkl"
+        pickle.dump(self.model, open(save_path, "wb"))

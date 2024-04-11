@@ -67,17 +67,8 @@ class CustomDataset(Dataset):
             'message': message,
             'labels': labels
         }
-
-def training(params):
-    # create save folders
-    dg_cache_path = f"{params.dg_save_folder}/dg_cache"
-    folders = ["save", "repo", "dataset"]
-    if not os.path.exists(dg_cache_path):
-        os.mkdir(dg_cache_path)
-    for folder in folders:
-        if not os.path.exists(os.path.join(dg_cache_path, folder)):
-            os.mkdir(os.path.join(dg_cache_path, folder))
-
+    
+def training_deep_learning(params, dg_cache_path):
     # Init model
     model = init_model(params.model, params.device)
     model.initialize(dictionary=f'{dg_cache_path}/dataset/{params.repo_name}/commit/dict.pkl')
@@ -166,3 +157,24 @@ def training(params):
                     early_stop_count = early_stop_count - 1
                 if early_stop_count < 0:
                     break
+
+def training_machine_learning(params, dg_cache_path):
+    pass
+
+def training(params):
+    # create save folders
+    dg_cache_path = f"{params.dg_save_folder}/dg_cache"
+    folders = ["save", "repo", "dataset"]
+    if not os.path.exists(dg_cache_path):
+        os.mkdir(dg_cache_path)
+    for folder in folders:
+        if not os.path.exists(os.path.join(dg_cache_path, folder)):
+            os.mkdir(os.path.join(dg_cache_path, folder))
+
+    if params.model in ["deepjit", "simcom"]:
+        training_deep_learning(params, dg_cache_path)
+
+    if params.model in ["lapredict", "lr", "tlel"]:
+        training_machine_learning(params, dg_cache_path)
+
+    

@@ -1,7 +1,7 @@
 from defectguard.models.BaseWraper import BaseWraper
 from .model import JITLineModel
 from defectguard.utils.utils import download_folder, SRC_PATH
-import os
+import os, pickle
 
 class JITLine(BaseWraper):
     def __init__(self, dataset='platform', project='within', device="cpu"):
@@ -47,3 +47,4 @@ class JITLine(BaseWraper):
             os.makedirs(save_dir)
         
         save_path = f"{save_dir}/jitline.pkl"
+        pickle.dump(self.model, open(save_path, "wb"))
