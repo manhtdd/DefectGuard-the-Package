@@ -54,7 +54,7 @@ def main(args=None):
 
     training_parser = argparse.ArgumentParser(parents=[common_parser], add_help=False)
     training_parser.set_defaults(func=training)
-    training_parser.add_argument("-models", nargs="+", type=str, default=[], choices=models, help="List of deep learning models")
+    training_parser.add_argument("-model", type=str, default=[], choices=models, help="List of deep learning models")
     training_parser.add_argument("-dataset",type=str,default="", help="")
     training_parser.add_argument("-dictionary",type=str,default="", help="")
     training_parser.add_argument("-hyperparameters",type=str,default="", help="")

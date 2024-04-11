@@ -1,5 +1,60 @@
-import os
-from argparse import Namespace
+import os, torch
+from torch.utils.data import Dataset, DataLoader
+from .models import (
+    DeepJIT,
+    CC2Vec,
+    SimCom,
+    LAPredict,
+    LogisticRegression,
+    TLELModel,
+    JITLine,
+)
+
+def init_model(model_name, device):
+    match model_name:
+        case "deepjit":
+            return DeepJIT(device=device)
+        case "cc2vec":
+            return CC2Vec(device=device)
+        case "simcom":
+            return SimCom(device=device)
+        case "lapredict":
+            return LAPredict(device=device)
+        case "tlel":
+            return TLELModel(device=device)
+        case "jitline":
+            return JITLine(device=device)
+        case "la":
+            return LAPredict(device=device)
+        case "lr":
+            return LogisticRegression(device=device)
+        case _:
+            raise Exception("No such model")
+
+class CustomDataset(Dataset):
+    def __init__(self, ids, code, message, labels):
+        self.ids = ids
+        self.code = code
+        self.message = message
+        self.labels = labels
+    
+    def __len__(self):
+        return len(self.code)
+    
+    def __getitem__(self, idx):
+        commit_hash = self.ids[idx]
+        labels = torch.tensor(self.labels[idx], dtype=torch.float32)
+        code = self.code[idx]
+        message = self.message[idx]
+        code = torch.tensor(code)
+        message = torch.tensor(message)
+
+        return {
+            'commit_hash': commit_hash,
+            'code': code,
+            'message': message,
+            'labels': labels
+        }
 
 def training(params):
     # create save folders
@@ -11,23 +66,6 @@ def training(params):
         if not os.path.exists(os.path.join(dg_cache_path, folder)):
             os.mkdir(os.path.join(dg_cache_path, folder))
 
-    # User's input handling
-    cfg = {
-        "mode": params.mode,
-        "repo_owner": params.repo_owner,
-        "repo_name": params.repo_name,
-        "repo_path": params.repo_path,
-        "repo_language": params.repo_language,
-        "repo_save_path": f"{dg_cache_path}/save",
-        "extractor_save": True,
-        "create_dataset": False,
-    }
-
-    if params.mode == "remote":
-        cfg["repo_clone_path"] = f"{dg_cache_path}/repo"
-        cfg["repo_clone_url"] = f"https://github.com/{params.repo_owner}/{params.repo_name}.git"
-        cfg["extractor_check_uncommit"] = False
-    else:
-        cfg["extractor_check_uncommit"] = params.uncommit
-        
-    cfg = Namespace(**cfg)
+    # Init model
+    model = init_model(params.model, params.device)
+    print(model)
