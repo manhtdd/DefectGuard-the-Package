@@ -56,6 +56,7 @@ def main(args=None):
     training_parser.set_defaults(func=training)
     training_parser.add_argument("-model", type=str, default=[], choices=models, help="List of deep learning models")
     training_parser.add_argument("-dataset",type=str,default="", help="")
+    training_parser.add_argument("-epochs",type=int,default=1, help="")
     training_parser.add_argument("-dictionary",type=str,default="", help="")
     training_parser.add_argument("-hyperparameters",type=str,default="", help="")
     training_parser.add_argument("-device", type=str, default="cpu", help="Eg: cpu, cuda, cuda:1")

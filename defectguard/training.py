@@ -1,5 +1,6 @@
-import os, torch
+import os, torch, pickle
 from torch.utils.data import Dataset, DataLoader
+import torch.nn as nn
 from .models import (
     DeepJIT,
     CC2Vec,
@@ -9,6 +10,7 @@ from .models import (
     TLELModel,
     JITLine,
 )
+from .utils.padding import padding_data
 
 def init_model(model_name, device):
     match model_name:
@@ -68,4 +70,41 @@ def training(params):
 
     # Init model
     model = init_model(params.model, params.device)
-    print(model)
+    model.initialize(dictionary=f'{dg_cache_path}/dataset/{params.repo_name}/commit/dict.pkl')
+
+    # Load dataset
+    loaded_data = pickle.load(open(f'{dg_cache_path}/dataset/{params.repo_name}/commit/{params.model}.pkl', 'rb'))
+    ids, messages, commits, labels = loaded_data
+
+    dictionary = pickle.load(open(f'{dg_cache_path}/dataset/{params.repo_name}/commit/dict.pkl', 'rb'))   
+    dict_msg, dict_code = dictionary
+
+    pad_msg = padding_data(data=messages, dictionary=dict_msg, params=model.hyperparameters, type='msg')        
+    pad_code = padding_data(data=commits, dictionary=dict_code, params=model.hyperparameters, type='code')
+
+    code_dataset = CustomDataset(ids, pad_code, pad_msg, labels)
+    code_dataloader = DataLoader(code_dataset, batch_size=model.hyperparameters['batch_size'])
+
+    optimizer = torch.optim.Adam(model.get_parameters(), lr=5e-5)
+    criterion = nn.BCELoss()
+
+    for epoch in range(1, params.epochs + 1):
+        total_loss = 0
+        for batch in code_dataloader:
+            # Extract data from DataLoader
+            code = batch["code"].to(model.device)
+            message = batch["message"].to(model.device)
+            labels = batch["labels"].to(model.device)
+
+            optimizer.zero_grad()
+
+            # ---------------------- DefectGuard -------------------------------
+            predict = model(message, code)
+            # ------------------------------------------------------------------
+            
+            loss = criterion(predict, labels)
+            loss.backward()
+            total_loss += loss
+            optimizer.step()
+
+        print(f'Training: Epoch {epoch} / {params.epochs} -- Total loss: {total_loss}')
