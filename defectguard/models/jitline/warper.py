@@ -1,6 +1,7 @@
 from defectguard.models.BaseWraper import BaseWraper
 from .model import JITLineModel
 from defectguard.utils.utils import download_folder, SRC_PATH
+import os
 
 class JITLine(BaseWraper):
     def __init__(self, dataset='platform', project='within', device="cpu"):
@@ -40,3 +41,9 @@ class JITLine(BaseWraper):
         preprocessed_data = self.preprocess(data)
         model_output = self.inference(preprocessed_data)
         final_prediction = self.postprocess(model_output)
+
+    def save(self, save_dir):
+        if not os.path.isdir(save_dir):       
+            os.makedirs(save_dir)
+        
+        save_path = f"{save_dir}/jitline.pkl"

@@ -1,5 +1,5 @@
 from defectguard.models.BaseWraper import BaseWraper
-import pickle, json, torch
+import pickle, json, torch, os
 from .model import DeepJITModel
 from defectguard.utils.utils import download_folder, SRC_PATH
 
@@ -61,3 +61,10 @@ class SimCom(BaseWraper):
         preprocessed_data = self.preprocess(data)
         model_output = self.inference(preprocessed_data)
         final_prediction = self.postprocess(model_output)
+
+    def save(self, save_dir):
+        if not os.path.isdir(save_dir):       
+            os.makedirs(save_dir)
+        
+        save_path = f"{save_dir}/com.pt"
+        torch.save(self.com.state_dict(), save_path)

@@ -1,5 +1,5 @@
 from defectguard.models.BaseWraper import BaseWraper
-import pickle, sys
+import pickle, sys, os
 from defectguard.utils.utils import download_folder, SRC_PATH
 sys.path.append(f"{SRC_PATH}/models/tlel/model")
 from .model.TLEL import TLEL
@@ -43,3 +43,9 @@ class TLELModel(BaseWraper):
         preprocessed_data = self.preprocess(data)
         model_output = self.inference(preprocessed_data)
         final_prediction = self.postprocess(model_output)
+
+    def save(self, save_dir):
+        if not os.path.isdir(save_dir):       
+            os.makedirs(save_dir)
+        
+        save_path = f"{save_dir}/tlel.pkl"

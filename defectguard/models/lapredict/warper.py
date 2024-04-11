@@ -1,5 +1,5 @@
 from defectguard.models.BaseWraper import BaseWraper
-import pickle
+import pickle, os
 from defectguard.utils.utils import download_folder, SRC_PATH
 from defectguard.utils.logger import logger
 import pandas as pd
@@ -60,3 +60,9 @@ class LAPredict(BaseWraper):
         final_prediction = self.postprocess(commit_ids, model_output)
 
         return final_prediction
+    
+    def save(self, save_dir):
+        if not os.path.isdir(save_dir):       
+            os.makedirs(save_dir)
+        
+        save_path = f"{save_dir}/lapredict.pkl"
