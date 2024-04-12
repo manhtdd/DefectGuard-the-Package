@@ -4,10 +4,9 @@ from .model import DeepJITModel
 from defectguard.utils.utils import download_folder, SRC_PATH
 
 class SimCom(BaseWraper):
-    def __init__(self, dataset='platform', project='within', device="cpu"):
+    def __init__(self, language='cpp', device="cpu"):
         self.model_name = 'simcom'
-        self.dataset = dataset
-        self.project = project
+        self.language = language
         self.initialized = False
         self.com = None
         self.sim = None
@@ -15,7 +14,7 @@ class SimCom(BaseWraper):
         self.message_dictionary = None
         self.code_dictionary = None
         self.hyperparameters = None
-        download_folder(self.model_name, self.dataset, self.project)
+        download_folder(self.model_name, self.language)
 
     def __call__(self, message, code):
         return self.com(message, code)
@@ -28,14 +27,14 @@ class SimCom(BaseWraper):
 
     def initialize(self, dictionary=None, hyperparameters=None, from_pretrain=True, state_dict=None):
         # Create machine learning model
-        with open(f"{SRC_PATH}/models/metadata/{self.model_name}/sim_{self.dataset}_{self.project}", "rb") as f:
+        with open(f"{SRC_PATH}/models/metadata/{self.model_name}/sim_{self.language}_{self.project}", "rb") as f:
             self.sim = pickle.load(f)
             
         # Load dictionary
         if dictionary:
             dictionary = pickle.load(open(dictionary, 'rb'))
         else:
-            dictionary = pickle.load(open(f"{SRC_PATH}/models/metadata/{self.model_name}/{self.dataset}_dictionary", 'rb'))
+            dictionary = pickle.load(open(f"{SRC_PATH}/models/metadata/{self.model_name}/{self.language}_dictionary", 'rb'))
         self.message_dictionary, self.code_dictionary = dictionary
 
         # Load parameters
@@ -54,7 +53,7 @@ class SimCom(BaseWraper):
         # Create model and Load pretrain
         self.com = DeepJITModel(self.hyperparameters).to(device=self.device)
         if from_pretrain and dictionary is None:
-            self.com.load_state_dict(torch.load(f"{SRC_PATH}/models/metadata/{self.model_name}/{self.dataset}", map_location=self.device))
+            self.com.load_state_dict(torch.load(f"{SRC_PATH}/models/metadata/{self.model_name}/{self.language}", map_location=self.device))
         elif state_dict:
             self.com.load_state_dict(torch.load(state_dict, map_location=self.device))
 

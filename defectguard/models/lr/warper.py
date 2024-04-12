@@ -5,18 +5,17 @@ from defectguard.utils.logger import logger
 import pandas as pd
 
 class LogisticRegression(BaseWraper):
-    def __init__(self, dataset='platform', project='within', device="cpu"):
+    def __init__(self, language='cpp', device="cpu"):
         self.model_name = 'lr'
-        self.dataset = dataset
-        self.project = project
+        self.language = language
         self.initialized = False
         self.model = None
         self.device = device
         self.columns = (["ns","nd","nf","entrophy","la","ld","lt","fix","ndev","age","nuc","exp","rexp","sexp"])
-        download_folder(self.model_name, self.dataset, self.project)
+        download_folder(self.model_name, self.language)
         
     def initialize(self):
-        with open(f"{SRC_PATH}/models/metadata/{self.model_name}/{self.dataset}", "rb") as f:
+        with open(f"{SRC_PATH}/models/metadata/{self.model_name}/{self.language}", "rb") as f:
             self.model = pickle.load(f)
 
         # Set initialized to True

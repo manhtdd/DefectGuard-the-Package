@@ -5,17 +5,16 @@ from defectguard.utils.utils import download_folder, SRC_PATH
 from .utils import *
 
 class DeepJIT(BaseWraper):
-    def __init__(self, dataset='platform', project='within', device="cpu"):
+    def __init__(self, language='cpp', device="cpu"):
         self.model_name = 'deepjit'
-        self.dataset = dataset
-        self.project = project
+        self.language = language
         self.initialized = False
         self.model = None
         self.device = device
         self.message_dictionary = None
         self.code_dictionary = None
         self.hyperparameters = None
-        download_folder(self.model_name, self.dataset, self.project)
+        download_folder(self.model_name, self.language)
 
     def __call__(self, message, code):
         return self.model(message, code)
@@ -31,7 +30,7 @@ class DeepJIT(BaseWraper):
         if dictionary:
             dictionary = pickle.load(open(dictionary, 'rb'))
         else:
-            dictionary = pickle.load(open(f"{SRC_PATH}/models/metadata/{self.model_name}/{self.dataset}_dictionary", 'rb'))
+            dictionary = pickle.load(open(f"{SRC_PATH}/models/metadata/{self.model_name}/{self.language}_dictionary", 'rb'))
         self.message_dictionary, self.code_dictionary = dictionary
 
         # Load parameters
@@ -50,7 +49,7 @@ class DeepJIT(BaseWraper):
         # Create model and Load pretrain
         self.model = DeepJITModel(self.hyperparameters).to(device=self.device)
         if from_pretrain and dictionary is None:
-            self.model.load_state_dict(torch.load(f"{SRC_PATH}/models/metadata/{self.model_name}/{self.dataset}", map_location=self.device))
+            self.model.load_state_dict(torch.load(f"{SRC_PATH}/models/metadata/{self.model_name}/{self.language}", map_location=self.device))
         elif state_dict:
             self.model.load_state_dict(torch.load(state_dict, map_location=self.device))
 

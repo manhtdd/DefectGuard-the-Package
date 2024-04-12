@@ -4,17 +4,16 @@ from defectguard.utils.utils import download_folder, SRC_PATH
 import os, pickle
 
 class JITLine(BaseWraper):
-    def __init__(self, dataset='platform', project='within', device="cpu"):
+    def __init__(self, language='cpp', device="cpu"):
         self.model_name = 'jitline'
-        self.dataset = dataset
-        self.project = project
+        self.language = language
         self.initialized = False
         self.model = None
         self.device = device
-        download_folder(self.model_name, self.dataset, self.project)
+        download_folder(self.model_name, self.language)
         
     def initialize(self):
-        self.model = JITLineModel(load_path=f"{SRC_PATH}/models/metadata/{self.model_name}/{self.dataset}_{self.project}")
+        self.model = JITLineModel(load_path=f"{SRC_PATH}/models/metadata/{self.model_name}/{self.language}_{self.project}")
 
         # Set initialized to True
         self.initialized = True
