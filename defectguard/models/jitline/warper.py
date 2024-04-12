@@ -4,12 +4,11 @@ from defectguard.utils.utils import download_folder, SRC_PATH
 import os, pickle
 
 class JITLine(BaseWraper):
-    def __init__(self, language='cpp', device="cpu"):
+    def __init__(self, language):
         self.model_name = 'jitline'
         self.language = language
         self.initialized = False
         self.model = None
-        self.device = device
         download_folder(self.model_name, self.language)
         
     def initialize(self):

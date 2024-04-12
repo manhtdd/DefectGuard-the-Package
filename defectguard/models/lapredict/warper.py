@@ -5,12 +5,11 @@ from defectguard.utils.logger import logger
 import pandas as pd
 
 class LAPredict(BaseWraper):
-    def __init__(self, language='cpp', device="cpu"):
+    def __init__(self, language):
         self.model_name = 'lapredict'
         self.language = language
         self.initialized = False
         self.model = None
-        self.device = device
         self.columns = (["la"])
         download_folder(self.model_name, self.language)
         

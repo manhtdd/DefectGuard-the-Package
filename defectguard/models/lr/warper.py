@@ -1,16 +1,14 @@
 from defectguard.models.BaseWraper import BaseWraper
 import pickle, os
 from defectguard.utils.utils import download_folder, SRC_PATH
-from defectguard.utils.logger import logger
 import pandas as pd
 
 class LogisticRegression(BaseWraper):
-    def __init__(self, language='cpp', device="cpu"):
+    def __init__(self, language):
         self.model_name = 'lr'
         self.language = language
         self.initialized = False
         self.model = None
-        self.device = device
         self.columns = (["ns","nd","nf","entrophy","la","ld","lt","fix","ndev","age","nuc","exp","rexp","sexp"])
         download_folder(self.model_name, self.language)
         

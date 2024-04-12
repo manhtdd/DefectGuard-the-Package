@@ -6,7 +6,7 @@ from .models import (
     SimCom,
     LAPredict,
     LogisticRegression,
-    TLELModel,
+    TLELModel as TLEL,
     JITLine,
 )
 from .utils.utils import (
@@ -26,15 +26,15 @@ def init_model(model_name, language, device):
         case "simcom":
             return SimCom(language=language, device=device)
         case "lapredict":
-            return LAPredict(language=language, device=device)
+            return LAPredict(language=language)
         case "tlel":
-            return TLELModel(language=language, device=device)
+            return TLEL(language=language)
         case "jitline":
-            return JITLine(language=language, device=device)
+            return JITLine(language=language)
         case "la":
-            return LAPredict(language=language, device=device)
+            return LAPredict(language=language)
         case "lr":
-            return LogisticRegression(language=language, device=device)
+            return LogisticRegression(language=language)
         case _:
             raise Exception("No such model")
 

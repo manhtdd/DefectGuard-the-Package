@@ -1,8 +1,7 @@
 #!bin/bash
 
 defectguard training \
-    -model simcom \
+    -model tlel \
     -dg_save_folder . \
     -repo_name Tic-tac-toe-Game-using-Network-Socket-APIs \
     -repo_language C++ \
-    -epochs 2

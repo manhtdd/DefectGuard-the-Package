@@ -25,7 +25,7 @@ def main(args=None):
         args = sys.argv[1:]
 
     available_languages = ["Python", "Java", "C++", "C", "C#", "JavaScript", "TypeScript", "Ruby", "PHP", "Go", "Swift"]
-    models = ["deepjit", "simcom", "lapredict", "tlel", "la", "lr"]
+    models = ["deepjit", "simcom", "lapredict", "tlel", "lr"]
     modes = ["local", "remote"]
 
     common_parser = argparse.ArgumentParser(add_help=False)
