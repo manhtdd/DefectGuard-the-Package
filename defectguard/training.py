@@ -77,14 +77,26 @@ def training_deep_learning(params, dg_cache_path):
     loaded_data = pickle.load(open(f'{dg_cache_path}/dataset/{params.repo_name}/commit/{params.model}.pkl', 'rb'))
     ids, messages, commits, labels = loaded_data
 
+    if params.model == "simcom":
+        val_data = pickle.load(open(f'{dg_cache_path}/dataset/{params.repo_name}/commit/{params.model}.pkl', 'rb'))
+        val_ids, val_messages, val_codes, val_labels = val_data
+
     dictionary = pickle.load(open(f'{dg_cache_path}/dataset/{params.repo_name}/commit/dict.pkl', 'rb'))   
     dict_msg, dict_code = dictionary
 
     pad_msg = padding_data(data=messages, dictionary=dict_msg, params=model.hyperparameters, type='msg')        
     pad_code = padding_data(data=commits, dictionary=dict_code, params=model.hyperparameters, type='code')
 
+    if params.model == "simcom":
+        val_pad_msg = padding_data(data=val_messages, dictionary=dict_msg, params=params, type='msg')        
+        val_pad_code = padding_data(data=val_codes, dictionary=dict_code, params=params, type='code')
+
     code_dataset = CustomDataset(ids, pad_code, pad_msg, labels)
     code_dataloader = DataLoader(code_dataset, batch_size=model.hyperparameters['batch_size'])
+
+    if params.model == "simcom":
+        val_code_dataset = CustomDataset(val_ids, val_pad_code, val_pad_msg, val_labels)
+        val_code_dataloader = DataLoader(val_code_dataset, batch_size=model.hyperparameters['batch_size'])
 
     optimizer = torch.optim.Adam(model.get_parameters(), lr=5e-5)
     criterion = nn.BCELoss()
@@ -119,7 +131,7 @@ def training_deep_learning(params, dg_cache_path):
             model.eval()
             with torch.no_grad():
                 all_predict, all_label = [], []
-                for batch in None:
+                for batch in tqdm(val_code_dataloader):
                     # Extract data from DataLoader
                     code = batch["code"].to(params.device)
                     message = batch["message"].to(params.device)
