@@ -10,10 +10,14 @@ from .models import (
     TLELModel,
     JITLine,
 )
+from sklearn.linear_model import LogisticRegression as sk_LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+from imblearn.under_sampling import RandomUnderSampler
 from .utils.padding import padding_data
 from tqdm import tqdm
 from sklearn.metrics import roc_auc_score, precision_recall_curve, auc
 import numpy as np
+import pandas as pd
 
 def auc_pc(label, pred):
     lr_probs = np.array(pred)
@@ -171,7 +175,51 @@ def training_deep_learning(params, dg_cache_path):
                     break
 
 def training_machine_learning(params, dg_cache_path):
-    pass
+    train_df_path = f'{dg_cache_path}/dataset/{params.repo_name}/feature/features.csv'
+    train_df = pd.read_csv(train_df_path)
+    model = init_model(params.model, params.device)
+
+    cols = (
+        ["la"]
+        if model.model_name == "lapredict"
+        else [
+            "ns",
+            "nd",
+            "nf",
+            "entropy",
+            "la",
+            "ld",
+            "lt",
+            "fix",
+            "ndev",
+            "age",
+            "nuc",
+            "exp",
+            "rexp",
+            "sexp",
+        ]
+    )
+    X_train = train_df.loc[:, cols]
+    y_train = train_df.loc[:, "bug"]
+
+    match model.model_name:
+        case "simcom":
+            X_train, y_train = RandomUnderSampler(random_state=42).fit_resample(X_train, y_train)
+            model.model = RandomForestClassifier()
+        case "lapredict":
+            model.model = sk_LogisticRegression(class_weight='balanced', max_iter=1000)
+        case "lr":
+            model.model = sk_LogisticRegression(class_weight='balanced', max_iter=1000)
+        case "tlel":
+            # X_train, y_train = train_f.iloc[:, 5:], train_f.iloc[:, 3]
+            # model = TLEL(n_learner=10, n_tree=10)
+            # model.fit(X_train, y_train)
+            pass
+        case _:
+            raise Exception("No such model")
+
+    model.model.fit(X_train, y_train)
+    model.save(f'{dg_cache_path}/save/{params.repo_name}')
 
 def training(params):
     # create save folders
