@@ -92,8 +92,8 @@ def training_deep_learning(params, dg_cache_path):
     pad_code = padding_data(data=commits, dictionary=dict_code, params=model.hyperparameters, type='code')
 
     if params.model == "simcom":
-        val_pad_msg = padding_data(data=val_messages, dictionary=dict_msg, params=params, type='msg')        
-        val_pad_code = padding_data(data=val_codes, dictionary=dict_code, params=params, type='code')
+        val_pad_msg = padding_data(data=val_messages, dictionary=dict_msg, params=model.hyperparameters, type='msg')        
+        val_pad_code = padding_data(data=val_codes, dictionary=dict_code, params=model.hyperparameters, type='code')
 
     code_dataset = CustomDataset(ids, pad_code, pad_msg, labels)
     code_dataloader = DataLoader(code_dataset, batch_size=model.hyperparameters['batch_size'])
@@ -132,7 +132,7 @@ def training_deep_learning(params, dg_cache_path):
         early_stop_count = 5
 
         if params.model == "simcom":
-            model.eval()
+            model.com.eval()
             with torch.no_grad():
                 all_predict, all_label = [], []
                 for batch in tqdm(val_code_dataloader):

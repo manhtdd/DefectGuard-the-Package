@@ -114,5 +114,5 @@ class SimCom(BaseWraper):
         if not os.path.isdir(save_dir):
             os.makedirs(save_dir)
         
-        save_path = f"{save_dir}/com.pkl"
-        pickle.dump(self.sim, open(save_path, "wb"))
+        save_path = f"{save_dir}/com.pt"
+        torch.save(self.com.state_dict(), save_path)
