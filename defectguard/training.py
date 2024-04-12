@@ -208,11 +208,7 @@ def training_machine_learning(params, dg_cache_path):
             model.sim = RandomForestClassifier()
             model.sim.fit(X_train, y_train)
             model.save_sim(f'{dg_cache_path}/save/{params.repo_name}')
-        case "lapredict":
-            model.model = sk_LogisticRegression(class_weight='balanced', max_iter=1000)
-            model.model.fit(X_train, y_train)
-            model.save(f'{dg_cache_path}/save/{params.repo_name}')
-        case "lr":
+        case "lapredict" | "lr":
             model.model = sk_LogisticRegression(class_weight='balanced', max_iter=1000)
             model.model.fit(X_train, y_train)
             model.save(f'{dg_cache_path}/save/{params.repo_name}')
