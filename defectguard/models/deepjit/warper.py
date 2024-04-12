@@ -57,46 +57,6 @@ class DeepJIT(BaseWraper):
         # Set initialized to True
         self.initialized = True
 
-    def preprocess(self, data):
-        if not self.initialized:
-            self.initialize()
-
-        commit_info = data['commit_info']
-        commit_hashes = []
-        commit_messages = []
-        codes = []
-
-        for commit in commit_info:
-            if commit:
-                commit_hashes.append(commit['commit_hash'])
-
-                # Extract commit message
-                commit_message = commit['commit_message'].strip()
-                commit_message = split_sentence(commit_message)
-                commit_message = ' '.join(commit_message.split(' ')).lower()
-                
-                commit = commit['main_language_file_changes']
-
-                code = hunks_to_code(commit)
-
-                commit_messages.append(commit_message)
-                codes.append(code)
-            else:
-                commit_hashes.append('Not code change')
-                commit_messages.append('')
-                codes.append([])
-
-        pad_msg = padding_data(data=commit_messages, dictionary=self.message_dictionary, params=self.hyperparameters, type='msg')        
-        pad_code = padding_data(data=codes, dictionary=self.code_dictionary, params=self.hyperparameters, type='code')
-
-        # Using Pytorch Dataset and DataLoader
-        code = {
-            "code": pad_code.tolist(),
-            "message": pad_msg.tolist()
-        }
-        
-        return commit_hashes, code
-
     def inference(self, model_input):
         if not self.initialized:
             self.initialize()
@@ -132,9 +92,8 @@ class DeepJIT(BaseWraper):
         if not self.initialized:
             self.initialize()
             
-        commit_hashes, preprocessed_data = self.preprocess(data)
-        model_output = self.inference(preprocessed_data)
-        final_prediction = self.postprocess(data['commit_hashes'], commit_hashes, model_output)
+        model_output = self.inference(data)
+        final_prediction = self.postprocess(data['commit_hashes'], data, model_output)
 
         return final_prediction
     

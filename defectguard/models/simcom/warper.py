@@ -12,61 +12,105 @@ class SimCom(BaseWraper):
         self.com = None
         self.sim = None
         self.device = device
+        self.message_dictionary = None
+        self.code_dictionary = None
+        self.hyperparameters = None
         download_folder(self.model_name, self.dataset, self.project)
+
+    def __call__(self, message, code):
+        return self.com(message, code)
         
-    def initialize(self):
+    def get_parameters(self):
+        return self.com.parameters()
+    
+    def set_device(self, device):
+        self.device = device
+
+    def initialize(self, dictionary=None, hyperparameters=None, from_pretrain=True, state_dict=None):
         # Create machine learning model
         with open(f"{SRC_PATH}/models/metadata/{self.model_name}/sim_{self.dataset}_{self.project}", "rb") as f:
             self.sim = pickle.load(f)
             
         # Load dictionary
-        dictionary = pickle.load(open(f"{SRC_PATH}/models/metadata/{self.model_name}/{self.dataset}_dictionary_{self.project}", 'rb'))
-        dict_msg, dict_code = dictionary
+        if dictionary:
+            dictionary = pickle.load(open(dictionary, 'rb'))
+        else:
+            dictionary = pickle.load(open(f"{SRC_PATH}/models/metadata/{self.model_name}/{self.dataset}_dictionary", 'rb'))
+        self.message_dictionary, self.code_dictionary = dictionary
 
         # Load parameters
-        with open(f"{SRC_PATH}/models/metadata/{self.model_name}/hyperparameters", 'r') as file:
-            params = json.load(file)
+        if hyperparameters:
+            with open(hyperparameters, 'r') as file:
+                self.hyperparameters = json.load(file)
+        else:
+            with open(f"{SRC_PATH}/models/metadata/{self.model_name}/hyperparameters", 'r') as file:
+                self.hyperparameters = json.load(file)
 
         # Set up param
-        params["filter_sizes"] = [int(k) for k in params["filter_sizes"].split(',')]
-        params["vocab_msg"], params["vocab_code"] = len(dict_msg), len(dict_code)
-        params["class_num"] = 1
+        self.hyperparameters["filter_sizes"] = [int(k) for k in self.hyperparameters["filter_sizes"].split(',')]
+        self.hyperparameters["vocab_msg"], self.hyperparameters["vocab_code"] = len(self.message_dictionary), len(self.code_dictionary)
+        self.hyperparameters["class_num"] = 1
 
         # Create model and Load pretrain
-        self.com = DeepJITModel(params).to(device=self.device)
-        self.com.load_state_dict(torch.load(f"{SRC_PATH}/models/metadata/{self.model_name}/com_{self.dataset}_{self.project}", map_location=self.device))
+        self.com = DeepJITModel(self.hyperparameters).to(device=self.device)
+        if from_pretrain and dictionary is None:
+            self.com.load_state_dict(torch.load(f"{SRC_PATH}/models/metadata/{self.model_name}/{self.dataset}", map_location=self.device))
+        elif state_dict:
+            self.com.load_state_dict(torch.load(state_dict, map_location=self.device))
 
         # Set initialized to True
         self.initialized = True
 
-    def preprocess(self, data):
-        if not self.initialized:
-            self.initialize()
-        print("Preprocessing...")
-
     def inference(self, model_input):
         if not self.initialized:
             self.initialize()
-        print("Inferencing...")
 
-    def postprocess(self, inference_output):
+        # Forward
+        self.com.eval()
+        with torch.no_grad():
+            # Extract data from DataLoader
+            code = torch.tensor(model_input["code"], device=self.device)
+            message = torch.tensor(model_input["message"], device=self.device)
+
+            # Forward
+            predict = self.model(message, code)
+
+        return predict
+
+    def postprocess(self, og_commit_hashes, commit_hashes, inference_output):
         if not self.initialized:
             self.initialize()
-        print("Postprocessing...")
+
+        inference_output = inference_output.tolist()
+
+        result = []
+        for i in range(len(commit_hashes)):
+            if commit_hashes[i] == 'Not code change':
+                result.append({'commit_hash': og_commit_hashes[i], 'predict': -1})
+            else:
+                result.append({'commit_hash': commit_hashes[i], 'predict': inference_output[i]})
+
+        return result
 
     def handle(self, data):
         if not self.initialized:
             self.initialize()
-        print("Handling...")
-        preprocessed_data = self.preprocess(data)
-        model_output = self.inference(preprocessed_data)
-        final_prediction = self.postprocess(model_output)
+            
+        model_output = self.inference(data)
+        final_prediction = self.postprocess(data['commit_hashes'], model_output)
 
-    def save(self, save_dir):
-        if not os.path.isdir(save_dir):       
+        return final_prediction
+
+    def save_sim(self, save_dir):
+        if not os.path.isdir(save_dir):
             os.makedirs(save_dir)
         
-        save_path_com = f"{save_dir}/com.pt"
-        save_path_sim = f"{save_dir}/sim.pkl"
-        torch.save(self.com.state_dict(), save_path_com)
-        pickle.dump(self.sim, open(save_path_sim, "wb"))
+        save_path = f"{save_dir}/sim.pkl"
+        pickle.dump(self.sim, open(save_path, "wb"))
+
+    def save(self, save_dir):
+        if not os.path.isdir(save_dir):
+            os.makedirs(save_dir)
+        
+        save_path = f"{save_dir}/com.pkl"
+        pickle.dump(self.sim, open(save_path, "wb"))

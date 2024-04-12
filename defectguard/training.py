@@ -205,11 +205,17 @@ def training_machine_learning(params, dg_cache_path):
     match model.model_name:
         case "simcom":
             X_train, y_train = RandomUnderSampler(random_state=42).fit_resample(X_train, y_train)
-            model.model = RandomForestClassifier()
+            model.sim = RandomForestClassifier()
+            model.sim.fit(X_train, y_train)
+            model.save_sim(f'{dg_cache_path}/save/{params.repo_name}')
         case "lapredict":
             model.model = sk_LogisticRegression(class_weight='balanced', max_iter=1000)
+            model.model.fit(X_train, y_train)
+            model.save(f'{dg_cache_path}/save/{params.repo_name}')
         case "lr":
             model.model = sk_LogisticRegression(class_weight='balanced', max_iter=1000)
+            model.model.fit(X_train, y_train)
+            model.save(f'{dg_cache_path}/save/{params.repo_name}')
         case "tlel":
             # X_train, y_train = train_f.iloc[:, 5:], train_f.iloc[:, 3]
             # model = TLEL(n_learner=10, n_tree=10)
@@ -217,9 +223,6 @@ def training_machine_learning(params, dg_cache_path):
             pass
         case _:
             raise Exception("No such model")
-
-    model.model.fit(X_train, y_train)
-    model.save(f'{dg_cache_path}/save/{params.repo_name}')
 
 def training(params):
     # create save folders
@@ -234,7 +237,7 @@ def training(params):
     if params.model in ["deepjit", "simcom"]:
         training_deep_learning(params, dg_cache_path)
 
-    if params.model in ["lapredict", "lr", "tlel"]:
+    if params.model in ["lapredict", "lr", "tlel", "simcom"]:
         training_machine_learning(params, dg_cache_path)
 
     
