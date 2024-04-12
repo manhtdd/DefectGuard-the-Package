@@ -10,7 +10,6 @@ from .models import (
     JITLine,
 )
 from .utils.utils import (
-    commit_to_info,
     sort_by_predict,
     vsc_output,
     check_threshold,
@@ -18,24 +17,24 @@ from .utils.utils import (
 from .JITCrawler import BasicPipeline
 from argparse import Namespace
 
-def init_model(model_name, device):
+def init_model(model_name, language, device):
     match model_name:
         case "deepjit":
-            return DeepJIT(device=device)
+            return DeepJIT(language=language, device=device)
         case "cc2vec":
-            return CC2Vec(device=device)
+            return CC2Vec(language=language, device=device)
         case "simcom":
-            return SimCom(device=device)
+            return SimCom(language=language, device=device)
         case "lapredict":
-            return LAPredict(device=device)
+            return LAPredict(language=language, device=device)
         case "tlel":
-            return TLELModel(device=device)
+            return TLELModel(language=language, device=device)
         case "jitline":
-            return JITLine(device=device)
+            return JITLine(language=language, device=device)
         case "la":
-            return LAPredict(device=device)
+            return LAPredict(language=language, device=device)
         case "lr":
-            return LogisticRegression(device=device)
+            return LogisticRegression(language=language, device=device)
         case _:
             raise Exception("No such model")
 
@@ -94,7 +93,7 @@ def inferencing(params):
     user_input["features"] = features
     user_input["commit_info"] = []
     for i in range(len(user_input["commit_hashes"])):
-        user_input["commit_info"].append(commit_to_info(commits[i]))
+        user_input["commit_info"].append(commits[i])
 
     end_extract_time = time.time()
 
@@ -102,9 +101,7 @@ def inferencing(params):
         # Load Model
         model_list = {}
         for model in params.models:
-            model_list[model] = init_model(
-                model, params.device
-            )
+            model_list[model] = init_model(model, params.repo_language, params.device)
 
         # Inference
         outputs = {"no_code_change_commit": not_found_ids}

@@ -26,24 +26,24 @@ def auc_pc(label, pred):
     lr_auc = auc(lr_recall, lr_precision)
     return lr_auc
 
-def init_model(model_name, device):
+def init_model(model_name, language, device):
     match model_name:
         case "deepjit":
-            return DeepJIT(device=device)
+            return DeepJIT(language=language, device=device)
         case "cc2vec":
-            return CC2Vec(device=device)
+            return CC2Vec(language=language, device=device)
         case "simcom":
-            return SimCom(device=device)
+            return SimCom(language=language, device=device)
         case "lapredict":
-            return LAPredict(device=device)
+            return LAPredict(language=language, device=device)
         case "tlel":
-            return TLELModel(device=device)
+            return TLELModel(language=language, device=device)
         case "jitline":
-            return JITLine(device=device)
+            return JITLine(language=language, device=device)
         case "la":
-            return LAPredict(device=device)
+            return LAPredict(language=language, device=device)
         case "lr":
-            return LogisticRegression(device=device)
+            return LogisticRegression(language=language, device=device)
         case _:
             raise Exception("No such model")
 
@@ -74,7 +74,7 @@ class CustomDataset(Dataset):
     
 def training_deep_learning(params, dg_cache_path):
     # Init model
-    model = init_model(params.model, params.device)
+    model = init_model(params.model, params.repo_language, params.device)
     model.initialize(dictionary=f'{dg_cache_path}/dataset/{params.repo_name}/commit/dict.pkl')
 
     # Load dataset
@@ -177,7 +177,7 @@ def training_deep_learning(params, dg_cache_path):
 def training_machine_learning(params, dg_cache_path):
     train_df_path = f'{dg_cache_path}/dataset/{params.repo_name}/feature/features.csv'
     train_df = pd.read_csv(train_df_path)
-    model = init_model(params.model, params.device)
+    model = init_model(params.model, params.repo_language, params.device)
 
     cols = (
         ["la"]
