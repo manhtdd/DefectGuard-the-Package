@@ -27,7 +27,7 @@ class SimCom(BaseWraper):
 
     def initialize(self, dictionary=None, hyperparameters=None, from_pretrain=True, state_dict=None):
         # Create machine learning model
-        with open(f"{SRC_PATH}/models/metadata/{self.model_name}/sim_{self.language}_{self.project}", "rb") as f:
+        with open(f"{SRC_PATH}/models/metadata/{self.model_name}/sim_{self.language}", "rb") as f:
             self.sim = pickle.load(f)
             
         # Load dictionary
@@ -59,6 +59,9 @@ class SimCom(BaseWraper):
 
         # Set initialized to True
         self.initialized = True
+
+    def preprocess(self, data):
+        pass
 
     def inference(self, model_input):
         if not self.initialized:

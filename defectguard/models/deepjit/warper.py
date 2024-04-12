@@ -56,6 +56,9 @@ class DeepJIT(BaseWraper):
         # Set initialized to True
         self.initialized = True
 
+    def preprocess(self, data):
+        pass
+
     def inference(self, model_input):
         if not self.initialized:
             self.initialize()
