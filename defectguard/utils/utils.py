@@ -5,54 +5,43 @@ SRC_PATH = str(files('defectguard'))
 
 IDS = {
     'deepjit': {
-        'hyperparameters': '1US-qs1Ly9wfRADcEMLBtTa8Ao91wNwOv',
-        'platform': '11Qjj84btTuqbYGpphmin0spMuGgJerNa',
-        'platform_cross': '1BTo26TU2G58OsBxoM-EidyijfnQZXuc4',
-        'platform_dictionary': '1C6nVSr0wLS8i8bH_IptCUKdqrdiSngcv',
-        'platform_dictionary_cross': '1XY4J3bCKo7IWMXcA2DJqVzzAD8XOZi-b',
-    },
-    'cc2vec': {
-        'qt_dictionary': '1GTgkEcZdwVDzp0Tq86Uch_j5f4assfSU',
-        'dextended_qt': '1uuSeYee40Azw1jWD2ln287GZ49ApTMxL',
-        'hyperparameters': '1Zim5j4eKfl84r4mGDmRELwAwg8oVQ5uJ',
-        'cc2vec_qt': '1-ZQjygr6myPj4ml-VyyiyrGKiL0HV2Td',
+        'hyperparameters': '18TIg-2DhxI0Ou0vdUg5g8nx6c5GHEzWQ',
+        'java': '1ZDCKjsXzwicIRLtfKJi99QgHLHr9wyx1',
+        'java_dictionary': '',
+        'go': '1vf6LWG2BVkvgl5VOpxguAXYuIITtPOOs',
+        'go_dictionary': '',
+        'cpp': '1gyhM5FCx9SNOoW7GGVHphBYTD5wehjGP',
+        'cpp_dictionary': '',
     },
     'simcom': {
-        'hyperparameters': '1Y9pt5EShp5Z2Q2Ff6EjHp0fxByXWViw6',
-        'sim_qt': '1ToELcINTQwmek24M8VvB-4xfiB-TZbkc',
-        'sim_platform': '1SJ8UnaMQlaB58E7VsQWbHFmh2ms0QFg_',
-        'sim_openstack': '1iJDpDLL19d_dp7mdjxu0ADqN25Hgyxuk',
-        'sim_jdt': '1PPz385vq3cuuTf5pqM4k4c018rXoN1If',
-        'sim_go': '1nknqQPbgJJXXCJ5pa4G27ymcEY2goxBq',
-        'sim_gerrit': '1CmsiNXe5qXtEw6rG7IXLq2KVLslhOcij',
-        'platform_dictionary': '19h6kUCiHXTsijXUEArxSx4afS4hdKrvx',
-        'com_platform': '1KmUkYFVaH34kBA4pW8qXgv1JV9qCRtkx',
+        'hyperparameters': '18TIg-2DhxI0Ou0vdUg5g8nx6c5GHEzWQ',
+        'sim_java': '1jEvRx4OwScOHh35_5GhlrXdmpU8Hd1nr',
+        'sim_cpp': '1pR-K23rUCAfN6ywRfju4OHZmtvw-Cm47',
+        'sim_go': '14it5ddgzhVUo-EVBqNslp7fBtf-fSAqn',
+        'com_java': '1K4vSRCsoD_Wd6wsYdwGyfwHePz1m8Ry-',
+        'java_dictionary': '',
+        'com_go': '1whs8xBN7DoYRcqVzsckatgsQRE2nzC7L',
+        'go_dictionary': '',
+        'com_cpp': '1kdys9wpy1OymNuEXHpgHzxwvRf87Itj4',
+        'cpp_dictionary': '',
     },
     'tlel': {
-        'qt': '1jQ5Uv-7t-qHjV0O3zAYaLB29QCZPY8nE',
-        'platform': '1vS26ng_kZ5gdYESyWrfciMacXz74AzhZ',
-        'openstack': '1yCOI_5inFnxH1EDS2JpA282UN7Zc1AXV',
-        'jdt': '1GUEC7kFCybuoEetr-1Tis_6EmaWXgWwG',
-        'go': '1siGmkBSq5qcuoxnhxo2Gc2_IhrVnLmWh',
-        'gerrit': '1CI326L7vwokRXxwRdufzOvKtciPUj_TX',
+        'java': '1aVQe7VMPq1Pa_6WOczsfXaIVsDEueCEE',
+        'cpp': '1SUtyDCuUDuPAU684l9ivIHLieFsuSOSw',
+        'go': '1ALIGUy_PSMubr5Ei_--f_XKXmApBljvv',
     },
-    'jitline': '',
     'lapredict': {
-        'qt': '1sginH8lVsEupRtEXsBpFJWR3HHGoW7MS',
-        'platform': '',
-        'openstack': '',
-        'jdt': '',
-        'go': '',
-        'gerrit': '',
+        'java': '1fHnfWL-0jNnJDYn7u4bJTnesC9Fe7dNq',
+        'cpp': '1_utyJAKKUwzVlM9X4BvbPnWsZbQPo1Zy',
+        'go': '1ZhMR1HuJW-x-IcndV_CvpG5VQlJpI16T',
     },
     'lr': {
-        'qt': '1xpBW5KZ18E-2teMTCsIrBjGDuO89ceDf',
-        'platform': '',
-        'openstack': '',
-        'jdt': '',
-        'go': '',
-        'gerrit': '',
+        'java': '1TZDuG_E5_OCRbA3ZRkxQy1HJ3WeYLxTg',
+        'cpp': '1Kuk_L47VYvBtgPShTx0CEld4_q5WYCD8',
+        'go': '1Ly7tcC6z3xjZfNtwnd6WlznK17w7iTKS',
     },
+    'cc2vec': '',
+    'jitline': '',
 }
 
 def sort_by_predict(commit_list):
@@ -91,23 +80,23 @@ def check_threshold(data, threshold):
     
     return output
 
-def create_download_list(model_name, dataset):
+def create_download_list(model_name, language):
     download_list = []
-    dictionary = f'{dataset}_dictionary'
-    version = f'{dataset}'
+    dictionary = f'{language}_dictionary'
+    version = f'{language}'
 
     if model_name == 'simcom':
-        sim_dataset = f'sim_{version}'
-        com_dataset = f'com_{version}'
-        download_list.append(sim_dataset)
-        download_list.append(com_dataset)
+        sim_language = f'sim_{version}'
+        com_language = f'com_{version}'
+        download_list.append(sim_language)
+        download_list.append(com_language)
         download_list.append('hyperparameters')
         download_list.append(dictionary)
     elif model_name == 'cc2vec':
-        cc2vec_dataset = f'cc2vec_{version}'
-        dextended_dataset = f'dextended_{version}'
-        download_list.append(cc2vec_dataset)
-        download_list.append(dextended_dataset)
+        cc2vec_language = f'cc2vec_{version}'
+        dextended_language = f'dextended_{version}'
+        download_list.append(cc2vec_language)
+        download_list.append(dextended_language)
         download_list.append('hyperparameters')
         download_list.append(dictionary)
     elif model_name == 'deepjit':
@@ -123,7 +112,7 @@ def download_file(file_id, folder_path):
     if not os.path.isfile(folder_path):
         gdown.download(f'https://drive.google.com/file/d/{file_id}/view?usp=sharing', output=folder_path, fuzzy=True)
 
-def download_folder(model_name, dataset, project=None):
+def download_folder(model_name, language):
     # Check if the file exists locally
     folder_path = f'{SRC_PATH}/models/metadata/{model_name}'
 
@@ -135,42 +124,6 @@ def download_folder(model_name, dataset, project=None):
             os.makedirs(folder_path)
 
     # Download model's metadata
-    download_list = create_download_list(model_name, dataset)
+    download_list = create_download_list(model_name, language)
     for item in download_list:
         download_file(IDS[model_name][item], f'{folder_path}/{item}')
-
-def extract_diff(diff):
-    num_added_lines = 0
-    list_file_changes = []
-    for file_elem in list(diff.items()):
-        file_path = file_elem[0]
-        file_val = file_elem[1]
-            
-        file = {"file_name": file_path, "code_changes":[]}
-        for ab in file_val["content"]:
-            if "ab" in ab:
-                continue
-            hunk = {"added_code":[], "removed_code":[]}
-            if "a" in ab:
-                hunk["removed_code"] += [line.strip() for line in ab["a"]]
-            if "b" in ab:
-                hunk["added_code"] += [line.strip() for line in ab["b"]]
-                num_added_lines += len(ab["b"])
-            hunk["added_code"] = "\n".join(hunk["added_code"])
-            hunk["removed_code"] = "\n".join(hunk["removed_code"])
-            file["code_changes"].append(hunk)
-        list_file_changes.append(file)
-    return list_file_changes, num_added_lines
-
-def commit_to_info(commit):
-    if commit:
-        list_file_changes, num_added_lines = extract_diff(commit["diff"])
-        
-        return {
-                'commit_hash': commit["commit_id"],
-                'commit_message': commit['message'],
-                'main_language_file_changes': list_file_changes,
-                'num_added_lines_in_main_language': num_added_lines,
-            }
-    else:
-        return {}
