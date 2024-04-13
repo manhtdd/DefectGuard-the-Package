@@ -1,85 +1,34 @@
 # DefectGuard: An Integrated, Efficient and Effective Tool for JIT Defect Prediction
 
-## About
+## Bug Challenge
 
-* DefectGuard is a python package
-* Basic functionalities:
-    * Mining commits from Git repositories
-    * Post-processing, training, inferencing JITDP model via CLI or import library
-* DefectGuard had been integrated into VSC *(extension)*, Jenkins & GitHub Action *(via command)*
+### Bug's Description
 
-## Prerequisite
+The print of Namespace after running a feature succesfully is an unwanted behavior. No `print()` or `logger()` is found.
 
-### PySZZ
-
-This tool utilize the code of [PySZZ](https://github.com/grosa1/pyszz_v2/). Please install PySZZ and pass its path as a parameter [example](###mining-commits-from-git-repositories).
-
-**Notice**: to run PySZZ:
-- Python 3.9
-- [srcML](https://www.srcml.org/) (i.e., the srcml command should be in the system path)
-
-### Python
 ```
-Python 3.11.4
+root@b035f973f717:/app# bash scripts/test_train.sh 
+Namespace(debug=False, log_to_file=False, dg_save_folder='.', mode='local', repo_name='Tic-tac-toe-Game-using-Network-Socket-APIs', repo_owner='', repo_path='', repo_language='C++', uncommit=False, model='lapredict', dataset='', epochs=1, dictionary='', hyperparameters='', device='cpu', func=<function training at 0x73129fbe9a20>)
 ```
 
-### Libraries
-Check out this [requirements.txt](https://github.com/manhtdd/DefectGuard-the-Package/blob/main/requirements.txt)
-```
-pip install -r requirements.txt
-```
+### How to replicate the bug
 
-## Installation
-
-### via Pip
+1. Create DefectGuard image
 ```
-pip install -i https://test.pypi.org/simple/ defectguard==0.1.32
+bash scripts/docker_start.sh
 ```
 
-### via Docker
-Build and run the Image like [this](https://github.com/manhtdd/DefectGuard-the-Package/blob/main/test_suits/docker_build_run.sh)
+2. Inside the docker container
 
-## Basic usages
-
-### Mining commits from Git repositories
+- Clone a test repo
 ```
-Coming soon
+bash scripts/clone_test_repo.sh
 ```
-
-### Post-processing data
+- Run mining feature (the bug will spawns here)
 ```
-Coming soon
+bash scripts/test_mining.sh
 ```
-
-### Training
-
-We provide a way to call JITDP model to your pipeline, so you can create your own pipeline. Checkout [this file](https://github.com/manhtdd/DefectGuard-the-Package/blob/main/test_suits/train.py) for example
-
-
-### Inference
-
-Using library call, checkout [this example](https://github.com/manhtdd/DefectGuard-the-Package/blob/main/test_suits/train.py)
-
-Using CLI, checkout [this example](https://github.com/manhtdd/DefectGuard-the-Package/blob/main/test_suits/test_top_flag_3.sh)
-For other usages, either checkout other example in [this folder](https://github.com/manhtdd/DefectGuard-the-Package/tree/main/test_suits) or wait for our docs
-
-### Integrate into CLI-like Continuous Integration
-* For GitHub Action, checkout [this example](https://github.com/manhtdd/DefectGuard-the-Package/blob/main/.github/workflows/python-package.yml)
-* For Jenkins, here an example of a Jenkinsfile:
+- Run training feature (the bug will spawns here)
 ```
-pipeline {
-  agent any
-  stages {
-    stage('Checkout code') {
-      steps {
-        git(url: 'https://github.com/manhlamabc123/Tic-tac-toe-Game-using-Network-Socket-APIs', branch: 'main')
-      }
-    }
-    stage('Run DefectGuard') {
-      steps {
-        sh '. /.venv/bin/activate && git config user.name manhlamabc123 && defectguard -models deepjit -dataset platform -repo . -uncommit -top 9 -main_language C -sort'
-      }
-    }
-  }
-}
+bash scripts/test_training.sh
 ```
