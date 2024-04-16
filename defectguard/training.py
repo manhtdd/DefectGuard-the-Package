@@ -40,8 +40,6 @@ def init_model(model_name, language, device):
             return TLEL(language=language)
         case "jitline":
             return JITLine(language=language)
-        case "la":
-            return LAPredict(language=language)
         case "lr":
             return LogisticRegression(language=language)
         case _:
