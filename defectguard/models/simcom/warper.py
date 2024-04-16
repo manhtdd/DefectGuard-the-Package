@@ -25,10 +25,12 @@ class SimCom(BaseWraper):
     def set_device(self, device):
         self.device = device
 
-    def initialize(self, dictionary=None, hyperparameters=None, from_pretrain=True, state_dict=None):
+    def initialize(self, dictionary=None, hyperparameters=None, from_pretrain=True, state_dict=None, pretrain=None):
         # Create machine learning model
-        with open(f"{SRC_PATH}/models/metadata/{self.model_name}/sim_{self.language}", "rb") as f:
-            self.sim = pickle.load(f)
+        if pretrain:
+            self.sim = pickle.load(open(pretrain, "rb"))
+        else:
+            self.sim = pickle.load(open(f"{SRC_PATH}/models/metadata/{self.model_name}/sim_{self.language}", "rb"))
             
         # Load dictionary
         if dictionary:
@@ -53,7 +55,7 @@ class SimCom(BaseWraper):
         # Create model and Load pretrain
         self.com = DeepJITModel(self.hyperparameters).to(device=self.device)
         if from_pretrain and dictionary is None:
-            self.com.load_state_dict(torch.load(f"{SRC_PATH}/models/metadata/{self.model_name}/{self.language}", map_location=self.device))
+            self.com.load_state_dict(torch.load(f"{SRC_PATH}/models/metadata/{self.model_name}/com_{self.language}", map_location=self.device))
         elif state_dict:
             self.com.load_state_dict(torch.load(state_dict, map_location=self.device))
 
@@ -116,3 +118,9 @@ class SimCom(BaseWraper):
         
         save_path = f"{save_dir}/com.pt"
         torch.save(self.com.state_dict(), save_path)
+
+    def predict_proba(self, test):
+        if not self.initialized:
+            self.initialize()
+            
+        return self.sim.predict_proba(test)

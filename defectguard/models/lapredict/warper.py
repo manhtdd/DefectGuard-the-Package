@@ -13,9 +13,11 @@ class LAPredict(BaseWraper):
         self.columns = (["la"])
         download_folder(self.model_name, self.language)
         
-    def initialize(self):
-        with open(f"{SRC_PATH}/models/metadata/{self.model_name}/{self.language}", "rb") as f:
-            self.model = pickle.load(f)
+    def initialize(self, pretrain=None):
+        if pretrain:
+            self.model = pickle.load(open(pretrain, "rb"))
+        else:
+            self.model = pickle.load(open(f"{SRC_PATH}/models/metadata/{self.model_name}/{self.language}", "rb"))
 
         # Set initialized to True
         self.initialized = True
@@ -65,3 +67,9 @@ class LAPredict(BaseWraper):
         
         save_path = f"{save_dir}/lapredict.pkl"
         pickle.dump(self.model, open(save_path, "wb"))
+
+    def predict_proba(self, test):
+        if not self.initialized:
+            self.initialize()
+            
+        return self.model.predict_proba(test)
