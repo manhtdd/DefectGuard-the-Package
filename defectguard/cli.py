@@ -56,6 +56,7 @@ def main(args=None):
     training_parser = argparse.ArgumentParser(parents=[common_parser], add_help=False)
     training_parser.set_defaults(func=training)
     training_parser.add_argument("-model", type=str, default=[], choices=models, help="List of models")
+    training_parser.add_argument("-from_pretrain", action="store_true", help="")
     training_parser.add_argument("-epochs",type=int,default=1, help="")
     training_parser.add_argument("-dictionary",type=str,default="", help="")
     training_parser.add_argument("-hyperparameters",type=str,default="", help="")

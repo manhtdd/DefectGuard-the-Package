@@ -73,7 +73,10 @@ class CustomDataset(Dataset):
 def training_deep_learning(params, dg_cache_path):
     # Init model
     model = init_model(params.model, params.repo_language, params.device)
-    model.initialize(dictionary=f'{dg_cache_path}/dataset/{params.repo_name}/commit/dict.pkl')
+    if params.from_pretrain:
+        model.initialize()
+    else:
+        model.initialize(dictionary=f'{dg_cache_path}/dataset/{params.repo_name}/commit/dict.pkl')
 
     # Load dataset
     loaded_data = pickle.load(open(f'{dg_cache_path}/dataset/{params.repo_name}/commit/{params.model}.pkl', 'rb'))
@@ -83,8 +86,11 @@ def training_deep_learning(params, dg_cache_path):
         val_data = pickle.load(open(f'{dg_cache_path}/dataset/{params.repo_name}/commit/{params.model}.pkl', 'rb'))
         val_ids, val_messages, val_codes, val_labels = val_data
 
-    dictionary = pickle.load(open(f'{dg_cache_path}/dataset/{params.repo_name}/commit/dict.pkl', 'rb'))   
-    dict_msg, dict_code = dictionary
+    if params.from_pretrain:
+        dict_msg, dict_code = model.message_dictionary, model.code_dictionary
+    else:
+        dictionary = pickle.load(open(f'{dg_cache_path}/dataset/{params.repo_name}/commit/dict.pkl', 'rb'))   
+        dict_msg, dict_code = dictionary
 
     pad_msg = padding_data(data=messages, dictionary=dict_msg, params=model.hyperparameters, type='msg')        
     pad_code = padding_data(data=commits, dictionary=dict_code, params=model.hyperparameters, type='code')
