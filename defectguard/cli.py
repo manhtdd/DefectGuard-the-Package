@@ -30,9 +30,9 @@ def main(args=None):
     modes = ["local", "remote"]
 
     common_parser = argparse.ArgumentParser(add_help=False)
-    common_parser.add_argument("-dg_save_folder", type=str, required=True, help="")
+    common_parser.add_argument("-dg_save_folder", default=".", type=str, help="")
     common_parser.add_argument("-mode", type=str, default="local", help="Mode of extractor", choices=modes)
-    common_parser.add_argument("-repo_name", type=str, required=True, help="Repo name")
+    common_parser.add_argument("-repo_name", type=str, default="", help="Repo name")
     common_parser.add_argument("-repo_owner", type=str, default="", help="Repo owner name")
     common_parser.add_argument("-repo_path", type=str, default="", help="Path to git repository")
     common_parser.add_argument("-repo_language", type=str, default="", choices=available_languages, help="Main language of repo")
@@ -60,6 +60,7 @@ def main(args=None):
     training_parser.add_argument("-epochs",type=int,default=1, help="")
     training_parser.add_argument("-dictionary",type=str,default="", help="")
     training_parser.add_argument("-hyperparameters",type=str,default="", help="")
+    training_parser.add_argument("-train_set", type=str, default=None, help="")
     training_parser.add_argument("-device", type=str, default="cpu", help="Eg: cpu, cuda, cuda:1")
 
     evaluating_parser = argparse.ArgumentParser(parents=[common_parser], add_help=False)
