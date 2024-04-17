@@ -1,4 +1,4 @@
-from .core import Repository, Extractor, Processor, PySZZ
+from .core import Repository, Extractor, Processor, PySZZ, Splitter
 from .core.utils import clone_repo
 import os
 
@@ -28,6 +28,8 @@ class BasicPipeline:
                 save_path=cfg.dataset_save_path,
                 save=cfg.processor_save,
             )
+            
+            self.splitter = Splitter(save_path=cfg.dataset_save_path)
         else:
             self.create_dataset = False
 
@@ -93,3 +95,7 @@ class BasicPipeline:
                 szz_output=szz_output,
                 extracted_date=self.extractor.end,
             )
+            
+            # split processed dataset into train, val, test set
+            self.splitter.set_processor(self.processor)
+            self.splitter.run()
