@@ -1,6 +1,7 @@
 from .Repository import Repository
 from .Dict import create_dict
 from .utils import save_pkl, split_sentence
+from defectguard.utils.logger import logger
 from datetime import datetime
 import time
 import pandas as pd
@@ -188,6 +189,7 @@ class Processor:
         deepjit_commit = []
         simcom_commit = []
         for file in commit["files"]:
+            
             cc2vec_file = {"added_code": [], "removed_code": []}
             for hunk in commit["diff"][file]["content"]:
                 if "ab" in hunk:
@@ -197,20 +199,22 @@ class Processor:
                         line = line.strip()
                         line = split_sentence(line)
                         line = " ".join(line.split(" ")).lower()
-                        if len(cc2vec_file["removed_code"]) <= 10:
-                            cc2vec_file["removed_code"].append(line)
+                        # if len(cc2vec_file["removed_code"]) <= 10:
+                        cc2vec_file["removed_code"].append(line)
                         deepjit_commit.append(line)
                 if "b" in hunk:
                     for line in hunk["b"]:
                         line = line.strip()
                         line = split_sentence(line)
                         line = " ".join(line.split(" ")).lower()
-                        if len(cc2vec_file["added_code"]) <= 10:
-                            cc2vec_file["added_code"].append(line)
+                        # if len(cc2vec_file["added_code"]) <= 10:
+                        cc2vec_file["added_code"].append(line)
                         deepjit_commit.append(line)
             deepjit_commit = deepjit_commit[:10]
-            if len(cc2vec_commit) == 10:
-                continue
+            # if len(cc2vec_commit) == 10:
+            #     continue
+            logger(cc2vec_file)
+            exit()
             cc2vec_commit.append(cc2vec_file)
             added_code = " ".join(cc2vec_file["added_code"])
             removed_code = " ".join(cc2vec_file["removed_code"])
