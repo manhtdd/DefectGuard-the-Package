@@ -1,7 +1,6 @@
 from .Processor import Processor
 from .Dict import create_dict
-from utils import save_pkl
-import pandas as pd
+from .utils import save_pkl
 import numpy as np
 import os
 
