@@ -155,7 +155,6 @@ def average(proba_1, proba_2):
     return [(x + y) / 2 for x, y in zip(proba_1, proba_2)]
 
 def evaluating(params):
-    current_time = datetime.now().strftime("%Y%m%d_%H%M%S")
     # create save folders
     dg_cache_path = f"{params.dg_save_folder}/dg_cache"
     folders = ["save", "repo", "dataset"]

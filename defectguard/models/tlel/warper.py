@@ -10,7 +10,7 @@ class TLELModel(BaseWraper):
         self.model_name = 'tlel'
         self.language = language
         self.initialized = False
-        self.model = None
+        self.model = TLEL()
         self.columns = (["ns","nd","nf","entrophy","la","ld","lt","fix","ndev","age","nuc","exp","rexp","sexp"])
         download_folder(self.model_name, self.language)
         

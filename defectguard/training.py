@@ -219,9 +219,8 @@ def training_machine_learning(params, dg_cache_path):
             model.model.fit(X_train, y_train)
             model.save(f'{dg_cache_path}/save/{params.repo_name}')
         case "tlel":
-            # X_train, y_train = train_f.iloc[:, 5:], train_f.iloc[:, 3]
-            # model = TLEL(n_learner=10, n_tree=10)
-            # model.fit(X_train, y_train)
+            model.model.fit(X_train, y_train)
+            model.save(f'{dg_cache_path}/save/{params.repo_name}')
             pass
         case _:
             raise Exception("No such model")
