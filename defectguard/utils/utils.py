@@ -41,12 +41,12 @@ IDS = {
         'Javascript_dictionary': '1oSfvgufyBgG0oBMCzu_RlCjCkLsbEibp',
     },
     'tlel': {
-        'Java': '1_zgRMnWBNiaNCkmwFXRK-dc5g1LhUCzT',
-        'C++': '1e8GZLwG0U1NV1lreDXX9-LZRj6MMAWTl',
+        'Java': '1vEg336LpFv_Ey_6NUCPfct8YnQnGKZY_',
+        'C++': '1QzmBmfEaZpF6OHKo-aZ_b-1pE8FCp3nu',
         'Go': '1ALIGUy_PSMubr5Ei_--f_XKXmApBljvv',
-        'Python': '1iybtJnuFa3_4u9bKgzJ4k4hHmpAh-fPg',
-        'JavaScript': '1VUSi21ffjhqoVhmBYNPzrJjf7zoaPGac',
-        'C': '1kVEuBnUqIYjd0PTW1RVdI6VnN9bEmtw5',
+        'Python': '1YSiNOo2rfRLEVLf3ICmd3Rd_-vGEUR9z',
+        'JavaScript': '1INd_AgKPxV3BzLOcmDE2wAVHID53AFj0',
+        'C': '1Gqvf2UsxFWsYggGahSjjz-GLzZQCssWB',
     },
     'lapredict': {
         'Java': '1_zgRMnWBNiaNCkmwFXRK-dc5g1LhUCzT',
