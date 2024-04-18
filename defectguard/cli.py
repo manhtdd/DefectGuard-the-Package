@@ -58,9 +58,11 @@ def main(args=None):
     training_parser.add_argument("-model", type=str, default=[], choices=models, help="List of models")
     training_parser.add_argument("-from_pretrain", action="store_true", help="")
     training_parser.add_argument("-epochs",type=int,default=1, help="")
-    training_parser.add_argument("-dictionary",type=str,default="", help="")
-    training_parser.add_argument("-hyperparameters",type=str,default="", help="")
+    training_parser.add_argument("-dictionary",type=str,default=None, help="")
+    training_parser.add_argument("-hyperparameters",type=str,default=None, help="")
     training_parser.add_argument("-train_set", type=str, default=None, help="")
+    training_parser.add_argument("-val_set", type=str, default=None, help="")
+    training_parser.add_argument("-learning_rate", type=float, default=5e-5, help="")
     training_parser.add_argument("-device", type=str, default="cpu", help="Eg: cpu, cuda, cuda:1")
 
     evaluating_parser = argparse.ArgumentParser(parents=[common_parser], add_help=False)
@@ -103,5 +105,7 @@ def main(args=None):
         parser.print_help()
         exit(1)
     options.func(options)
+
+    print("---------------------------")
     
     return options
