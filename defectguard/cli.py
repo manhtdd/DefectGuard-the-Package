@@ -60,8 +60,9 @@ def main(args=None):
     training_parser.add_argument("-epochs",type=int,default=1, help="")
     training_parser.add_argument("-dictionary",type=str,default=None, help="")
     training_parser.add_argument("-hyperparameters",type=str,default=None, help="")
-    training_parser.add_argument("-train_set", type=str, default=None, help="")
-    training_parser.add_argument("-val_set", type=str, default=None, help="")
+    training_parser.add_argument("-feature_train_set", type=str, default=None, help="")
+    training_parser.add_argument("-commit_train_set", type=str, default=None, help="")
+    training_parser.add_argument("-commit_val_set", type=str, default=None, help="")
     training_parser.add_argument("-learning_rate", type=float, default=5e-5, help="")
     training_parser.add_argument("-device", type=str, default="cpu", help="Eg: cpu, cuda, cuda:1")
 

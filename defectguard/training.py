@@ -73,8 +73,8 @@ class CustomDataset(Dataset):
 def training_deep_learning(params, dg_cache_path):
     commit_path = f'{dg_cache_path}/dataset/{params.repo_name}/commit'
     dictionary_path = f'{commit_path}/{params.repo_name}_train_dict.pkl' if params.dictionary is None else params.dictionary
-    train_set_path = f'{commit_path}/{params.model}_{params.repo_name}_train.pkl' if params.train_set is None else params.train_set
-    val_set_path = f'{commit_path}/{params.model}_{params.repo_name}_val.pkl' if params.val_set is None else params.val_set
+    train_set_path = f'{commit_path}/{params.model}_{params.repo_name}_train.pkl' if params.commit_train_set is None else params.commit_train_set
+    val_set_path = f'{commit_path}/{params.model}_{params.repo_name}_val.pkl' if params.commit_val_set is None else params.commit_val_set
     model_save_path = f'{dg_cache_path}/save/{params.repo_name}'
 
     # Init model
@@ -181,10 +181,7 @@ def training_deep_learning(params, dg_cache_path):
                     break
 
 def training_machine_learning(params, dg_cache_path):
-    if params.train_set:
-        train_df_path = params.train_set
-    else:
-        train_df_path = f'{dg_cache_path}/dataset/{params.repo_name}/feature/features.csv'
+    train_df_path = f'{dg_cache_path}/dataset/{params.repo_name}/feature/{params.repo_name}_train.csv' if params.feature_train_set else params.feature_train_set
     train_df = pd.read_csv(train_df_path)
     model = init_model(params.model, params.repo_language, params.device)
 
