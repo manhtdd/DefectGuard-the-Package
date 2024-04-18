@@ -21,7 +21,7 @@ def mining(params):
         "repo_owner": params.repo_owner,
         "repo_name": params.repo_name,
         "repo_path": params.repo_path,
-        "repo_language": params.repo_language,
+        "repo_language": [params.repo_language],
         "repo_save_path": f"{dg_cache_path}/save",
         "extractor_save": True,
         "create_dataset": True,
