@@ -181,7 +181,7 @@ def training_deep_learning(params, dg_cache_path):
                     break
 
 def training_machine_learning(params, dg_cache_path):
-    train_df_path = f'{dg_cache_path}/dataset/{params.repo_name}/feature/{params.repo_name}_train.csv' if params.feature_train_set else params.feature_train_set
+    train_df_path = f'{dg_cache_path}/dataset/{params.repo_name}/feature/{params.repo_name}_train.csv' if params.feature_train_set is None else params.feature_train_set
     train_df = pd.read_csv(train_df_path)
     model = init_model(params.model, params.repo_language, params.device)
 
