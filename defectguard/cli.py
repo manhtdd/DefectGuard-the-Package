@@ -70,6 +70,7 @@ def main(args=None):
     evaluating_parser = argparse.ArgumentParser(parents=[common_parser], add_help=False)
     evaluating_parser.set_defaults(func=evaluating)
     evaluating_parser.add_argument("-model", type=str, default=[], choices=models, help="List of models")
+    evaluating_parser.add_argument("-from_pretrain", action="store_true", help="")
     evaluating_parser.add_argument("-dictionary",type=str,default=None, help="")
     evaluating_parser.add_argument("-hyperparameters",type=str,default=None, help="")
     evaluating_parser.add_argument("-feature_test_set", type=str, default=None, help="")
