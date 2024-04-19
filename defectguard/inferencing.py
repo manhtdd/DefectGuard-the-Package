@@ -64,9 +64,10 @@ def inferencing(params):
         "repo_owner": params.repo_owner,
         "repo_name": params.repo_name,
         "repo_path": params.repo_path,
-        "repo_language": params.repo_language,
+        "repo_language": [params.repo_language],
         "repo_save_path": f"{dg_cache_path}/save",
         "extractor_save": True,
+        "extractor_reextract": params.reextract,
         "create_dataset": False,
     }
 
@@ -76,12 +77,12 @@ def inferencing(params):
         cfg["extractor_check_uncommit"] = False
     else:
         cfg["extractor_check_uncommit"] = params.uncommit
-        
+
     cfg = Namespace(**cfg)
 
     # extract repo
     start_extract_time = time.time()
-    
+
     crawler = BasicPipeline(cfg)
     crawler.set_repo(cfg)
     crawler.run()

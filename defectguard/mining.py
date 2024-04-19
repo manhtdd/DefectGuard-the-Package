@@ -24,6 +24,7 @@ def mining(params):
         "repo_language": [params.repo_language],
         "repo_save_path": f"{dg_cache_path}/save",
         "extractor_save": True,
+        "extractor_reextract": params.reextract,
         "create_dataset": True,
         "pyszz_path": params.pyszz_path,
         "dataset_save_path": f"{dg_cache_path}/dataset",

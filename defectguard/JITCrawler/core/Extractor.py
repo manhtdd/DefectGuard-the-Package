@@ -34,7 +34,7 @@ class Extractor:
             self.reset_repo()
         else:
             print("Continue extracting repository ...")
-        self.load_config(repo.get_last_config())
+            self.load_config(repo.get_last_config())
 
     def load_config(self, config):
         keys = [
@@ -49,9 +49,11 @@ class Extractor:
                     setattr(self, key, config[key])
 
     def reset_repo(self):
-        for path in self.repo.paths:
-            if os.path.exists(self.repo.paths[path]):
-                os.remove(self.repo.paths[path])
+        save_path = self.repo.get_save_path()
+        files = os.listdir(save_path)
+        for file in files:
+            if os.path.isfile(os.path.join(save_path, file)):
+                os.remove(os.path.join(save_path, file))
 
     def save_config(self):
         config = {
@@ -88,6 +90,9 @@ class Extractor:
         return get_commit_hashes(self.start, self.end)
     
     def extract_repo_top_commit_ids(self, num_commits: int):
+        """
+        Extract the repository's top commit ids
+        """
         ids = get_top_commit_hashes(num_commits)
         if self.check_uncommit:
             ids.append("uncommit")

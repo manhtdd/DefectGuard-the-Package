@@ -37,7 +37,8 @@ def main(args=None):
     common_parser.add_argument("-repo_path", type=str, default="", help="Path to git repository")
     common_parser.add_argument("-repo_language", type=str, default="", choices=available_languages, help="Main language of repo")
     common_parser.add_argument("-uncommit", action="store_true", help="Include uncommit in list when using -top")
-
+    common_parser.add_argument("-reextract", action="store_true", help="Re-extract data from repository")
+    
     mining_parser = argparse.ArgumentParser(parents=[common_parser], add_help=False)
     mining_parser.set_defaults(func=mining)
     mining_parser.add_argument("-pyszz_path", type=str, default="", help="Path to pyszz")

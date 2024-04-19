@@ -12,6 +12,7 @@ class BasicPipeline:
             language=cfg.repo_language,
             save=cfg.extractor_save,
             check_uncommit=cfg.extractor_check_uncommit,
+            force_reextract=cfg.extractor_reextract,
         )
 
         if cfg.create_dataset:
@@ -34,7 +35,7 @@ class BasicPipeline:
             self.create_dataset = False
 
     def set_repo(self, cfg):
-        assert cfg.mode in ["local", "remote"], "Invalid mode: {}".format(cfg.mode)
+        assert cfg.mode in ["local", "remote"], "[Pipeline] Invalid mode: {}".format(cfg.mode)
         if cfg.mode == "local":
             self.repo = self.local_repo(cfg)
         else:

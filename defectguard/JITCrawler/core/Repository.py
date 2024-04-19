@@ -27,6 +27,12 @@ class Repository:
         |   |   --repo_bug_fix.json
         |   |   --bszz.yml
         """
+        assert repo_name, "[Repository] 'repo_name' is currently an empty string. Please provide repo name"
+        assert (
+            type(language) == "list"
+        ), "[Repository] 'language' must be a list of string. Eg: ['Python']"
+        assert os.path.isdir(repo_path), "[Repository] 'repo_path': invalid directory."
+        assert os.path.isdir(save_path), "[Repository] 'save_path': invalid directory."
         self.owner = repo_owner
         self.name = repo_name
         self.save_path = os.path.abspath(save_path)
@@ -90,6 +96,9 @@ class Repository:
 
     def get_language(self):
         return self.language
+
+    def get_save_path(self):
+        return self.save_path
 
     # save
     def save_ids(self):
