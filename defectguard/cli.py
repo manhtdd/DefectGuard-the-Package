@@ -70,7 +70,7 @@ def main(args=None):
     evaluating_parser.set_defaults(func=evaluating)
     evaluating_parser.add_argument("-model", type=str, default=[], choices=models, help="List of models")
     evaluating_parser.add_argument("-dictionary",type=str,default=None, help="")
-    evaluating_parser.add_argument("-hyperparameters",type=str,default="", help="")
+    evaluating_parser.add_argument("-hyperparameters",type=str,default=None, help="")
     evaluating_parser.add_argument("-feature_test_set", type=str, default=None, help="")
     evaluating_parser.add_argument("-commit_test_set", type=str, default=None, help="")
     evaluating_parser.add_argument("-device", type=str, default="cpu", help="Eg: cpu, cuda, cuda:1")
