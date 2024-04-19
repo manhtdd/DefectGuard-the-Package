@@ -8,7 +8,7 @@ from .mining import mining
 from .training import training
 from .evaluating import evaluating
 
-__version__ = "0.1.33"
+__version__ = "0.1.34"
 
 def seed_torch(seed=42):
     random.seed(seed)
