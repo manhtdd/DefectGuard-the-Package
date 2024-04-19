@@ -8,7 +8,7 @@ class BasicPipeline:
         # init extractor
         self.create_dataset = False
         self.extractor = Extractor(
-            num_commits_per_file=0,
+            num_commits_per_file=cfg.num_commits_per_file,
             language=cfg.repo_language,
             save=cfg.extractor_save,
             check_uncommit=cfg.extractor_check_uncommit,

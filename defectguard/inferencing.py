@@ -69,6 +69,7 @@ def inferencing(params):
         "extractor_save": True,
         "extractor_reextract": params.reextract,
         "create_dataset": False,
+        "num_commits_per_file": 5000,
     }
 
     if params.mode == "remote":

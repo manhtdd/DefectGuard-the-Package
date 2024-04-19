@@ -29,12 +29,13 @@ class Extractor:
 
     def set_repo(self, repo: Repository):
         self.repo = repo
-        if self.force_reextract:
-            print("Start extracting repository ...")
-            self.reset_repo()
-        else:
+        if os.path.exists(self.repo.paths["extracted_info"]):
             print("Continue extracting repository ...")
             self.load_config(repo.get_last_config())
+        elif self.force_reextract:
+            print("Reset repository ...")
+            self.reset_repo()
+        print("Start extracting repository ...")
 
     def load_config(self, config):
         keys = [
@@ -88,14 +89,17 @@ class Extractor:
         Extract the repository's commit ids
         """
         return get_commit_hashes(self.start, self.end)
-    
+
     def extract_repo_top_commit_ids(self, num_commits: int):
         """
         Extract the repository's top commit ids
         """
+        cur_dir = os.getcwd()
+        os.chdir(self.repo.get_path())
         ids = get_top_commit_hashes(num_commits)
         if self.check_uncommit:
             ids.append("uncommit")
+        os.chdir(cur_dir)
         return ids
 
     def extract_one_commit_diff(self, commit_id: str, languages=[]):

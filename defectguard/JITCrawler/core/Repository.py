@@ -33,8 +33,6 @@ class Repository:
         assert isinstance(
             language, list
         ), "[Repository] 'language' must be a list of string. Eg: ['Python']."
-        assert os.path.isdir(repo_path), "[Repository] 'repo_path': invalid directory."
-        assert os.path.isdir(save_path), "[Repository] 'save_path': invalid directory."
         self.owner = repo_owner
         self.name = repo_name
         self.save_path = os.path.abspath(save_path)
@@ -108,7 +106,7 @@ class Repository:
         return self.language
 
     def get_save_path(self):
-        return self.save_path
+        return os.path.join(self.save_path, self.owner, self.name)
 
     # save
     def save_ids(self):
