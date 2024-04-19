@@ -68,7 +68,11 @@ def evaluating_deep_learning(pretrain, params, dg_cache_path):
 
     # Init model
     model = init_model(params.model, params.repo_language, params.device)
-    model.initialize(dictionary=dictionary_path, state_dict=pretrain_path)
+
+    if params.from_pretrain:
+        model.initialize()
+    else:
+        model.initialize(dictionary=dictionary_path, state_dict=pretrain_path)
 
     # Load dataset
     loaded_data = pickle.load(open(test_set_path, 'rb'))
@@ -106,7 +110,11 @@ def evaluating_machine_learning(pretrain, params, dg_cache_path):
     test_df_path = f'{dg_cache_path}/dataset/{params.repo_name}/feature/{params.repo_name}_test.csv' if params.feature_test_set is None else params.feature_test_set
     test_df = pd.read_csv(test_df_path)
     model = init_model(params.model, params.repo_language, params.device)
-    model.initialize(pretrain=f'{dg_cache_path}/save/{params.repo_name}/{pretrain}')
+
+    if params.from_pretrain:
+        model.initialize()
+    else:
+        model.initialize(pretrain=f'{dg_cache_path}/save/{params.repo_name}/{pretrain}')
 
     cols = (
         ["la"]

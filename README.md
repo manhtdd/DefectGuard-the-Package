@@ -59,7 +59,8 @@ defectguard mining \
 defectguard training \
     -model <model_name> \
     -repo_name <project_name> \
-    -repo_language <main_language_of_project>
+    -repo_language <main_language_of_project> \
+    -epochs <epochs>
 ```
 
 [Example](https://github.com/manhtdd/DefectGuard-the-Package/blob/main/scripts/test_train.sh)
@@ -71,7 +72,8 @@ defectguard training \
     -model <model_name> \
     -from_pretrain \
     -repo_name <project_name> \
-    -repo_language <main_language_of_project>
+    -repo_language <main_language_of_project> \
+    -epochs <epochs>
 ```
 
 [Example](https://github.com/manhtdd/DefectGuard-the-Package/blob/main/scripts/test_finetuning.sh)
@@ -86,6 +88,16 @@ defectguard evaluating \
 ```
 
 [Example](https://github.com/manhtdd/DefectGuard-the-Package/blob/main/scripts/test_evaluate.sh)
+
+### Evaluating from our pretrain models
+
+```
+defectguard evaluating \
+    -model <model_name> \
+    -from_pretrain \
+    -repo_name <project_name> \
+    -repo_language <main_language_of_project>
+```
 
 ### Inference
 
