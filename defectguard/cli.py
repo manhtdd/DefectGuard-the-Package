@@ -108,7 +108,3 @@ def main(args=None):
         parser.print_help()
         exit(1)
     options.func(options)
-
-    print("---------------------------")
-    
-    return options
