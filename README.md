@@ -33,6 +33,12 @@ docker compose up --build -d
 docker exec -it defectguard /bin/bash
 ```
 
+Inside docker container:
+
+```
+bash scripts/setup.sh
+```
+
 ## Basic usages
 
 ### Mining commits from Git repositories
@@ -82,7 +88,9 @@ defectguard evaluating \
 [Example](https://github.com/manhtdd/DefectGuard-the-Package/blob/main/scripts/test_evaluate.sh)
 
 ### Inference
+
 Comming Soon
 
 ### Integrate into CLI-like Continuous Integration
+
 Comming Soon
