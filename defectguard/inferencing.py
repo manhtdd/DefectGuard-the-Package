@@ -89,6 +89,7 @@ def inferencing(params):
     if len(params.commit_hash) == 0:
         params.commit_hash = crawler.extractor.extract_repo_top_commit_ids(params.top)    
     commits, features, not_found_ids = crawler.repo.get_commits(params.commit_hash)
+    logger(commits, features, not_found_ids)
     user_input["commit_hashes"] = [id for id in params.commit_hash if id not in not_found_ids]
     user_input["features"] = features
     user_input["commit_info"] = []
