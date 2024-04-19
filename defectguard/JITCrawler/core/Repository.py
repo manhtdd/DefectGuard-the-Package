@@ -27,10 +27,12 @@ class Repository:
         |   |   --repo_bug_fix.json
         |   |   --bszz.yml
         """
-        assert repo_name, "[Repository] 'repo_name' is currently an empty string. Please provide repo name"
         assert (
-            type(language) == "list"
-        ), "[Repository] 'language' must be a list of string. Eg: ['Python']"
+            repo_name
+        ), "[Repository] 'repo_name' is currently an empty string. Please provide repo name"
+        assert isinstance(
+            language, list
+        ), "[Repository] 'language' must be a list of string. Eg: ['Python']."
         assert os.path.isdir(repo_path), "[Repository] 'repo_path': invalid directory."
         assert os.path.isdir(save_path), "[Repository] 'save_path': invalid directory."
         self.owner = repo_owner
@@ -44,10 +46,18 @@ class Repository:
             "extracted_info": os.path.join(
                 self.save_path, self.owner, self.name, "extracted_info.json"
             ),
-            "ids": os.path.join(self.save_path, self.owner, self.name, "commit_ids.pkl"),
-            "commits": os.path.join(self.save_path, self.owner, self.name, "repo_commits_{}.pkl"),
-            "features": os.path.join(self.save_path, self.owner, self.name, "repo_features.pkl"),
-            "bug_fix": os.path.join(self.save_path, self.owner, self.name, "repo_bug_fix.json"),
+            "ids": os.path.join(
+                self.save_path, self.owner, self.name, "commit_ids.pkl"
+            ),
+            "commits": os.path.join(
+                self.save_path, self.owner, self.name, "repo_commits_{}.pkl"
+            ),
+            "features": os.path.join(
+                self.save_path, self.owner, self.name, "repo_features.pkl"
+            ),
+            "bug_fix": os.path.join(
+                self.save_path, self.owner, self.name, "repo_bug_fix.json"
+            ),
             "pyszz_conf": os.path.join(self.save_path, self.owner, self.name, "{}.yml"),
         }
         self.ids = {}
@@ -115,7 +125,10 @@ class Repository:
         for id in ids:
             if id not in existed_ids:
                 bug_fix.append(
-                    {"fix_commit_hash": id, "repo_name": os.path.join(self.owner, self.name)}
+                    {
+                        "fix_commit_hash": id,
+                        "repo_name": os.path.join(self.owner, self.name),
+                    }
                 )
         save_json(bug_fix, self.paths["bug_fix"])
 
