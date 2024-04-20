@@ -111,6 +111,11 @@ def training_deep_learning(params, dg_cache_path):
     optimizer = torch.optim.Adam(model.get_parameters(), lr=params.learning_rate)
     criterion = nn.BCELoss()
 
+    # Validate
+    best_valid_score = 0
+    smallest_loss = 1000000
+    early_stop_count = 5
+
     for epoch in range(1, params.epochs + 1):
         total_loss = 0
         for batch in code_dataloader:
@@ -131,11 +136,6 @@ def training_deep_learning(params, dg_cache_path):
             optimizer.step()
 
         print(f'Training: Epoch {epoch} / {params.epochs} -- Total loss: {total_loss}')
-
-        # Validate
-        best_valid_score = 0
-        smallest_loss = 1000000
-        early_stop_count = 5
 
         if params.model == "simcom":
             model.com.eval()
@@ -168,10 +168,11 @@ def training_deep_learning(params, dg_cache_path):
                 if early_stop_count < 0:
                     break
         else:
-            loss_score = total_loss
+            loss_score = total_loss.item()
+            print(loss_score < smallest_loss, loss_score, smallest_loss)
             if loss_score < smallest_loss:
                 smallest_loss = loss_score
-                print('Save a better model', smallest_loss.item())
+                print('Save a better model', smallest_loss)
                 model.save(model_save_path)
             else:
                 print('No update of models', early_stop_count)
