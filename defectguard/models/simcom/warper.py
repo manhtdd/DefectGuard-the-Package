@@ -26,6 +26,9 @@ class SimCom(BaseWraper):
         self.device = device
 
     def initialize(self, dictionary=None, hyperparameters=None, from_pretrain=True, state_dict=None, pretrain=None):
+        if self.initialized:
+            return
+        
         # Create machine learning model
         if pretrain:
             self.sim = pickle.load(open(pretrain, "rb"))
