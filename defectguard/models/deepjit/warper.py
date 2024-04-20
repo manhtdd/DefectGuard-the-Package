@@ -3,6 +3,7 @@ import pickle, json, torch, os
 from .model import DeepJITModel
 from defectguard.utils.utils import download_folder, SRC_PATH
 from .utils import *
+from defectguard.utils.logger import logger
 
 class DeepJIT(BaseWraper):
     def __init__(self, language='cpp', device="cpu"):
@@ -57,6 +58,10 @@ class DeepJIT(BaseWraper):
         self.initialized = True
 
     def preprocess(self, data):
+        commits = [commit[self.model_name] for commit in data['commit_info']]
+        messages = [commit["message"] for commit in data['commit_info']]
+        logger(commits)
+        logger(messages)
         pass
 
     def inference(self, model_input):
@@ -94,7 +99,8 @@ class DeepJIT(BaseWraper):
         if not self.initialized:
             self.initialize()
             
-        model_output = self.inference(data)
+        pre_processed_data = self.preprocess(data)
+        model_output = self.inference(pre_processed_data)
         final_prediction = self.postprocess(data['commit_hashes'], data, model_output)
 
         return final_prediction

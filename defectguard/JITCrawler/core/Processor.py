@@ -9,9 +9,10 @@ import os
 
 
 class Processor:
-    def __init__(self, save_path: str, save: bool = True):
-        assert os.path.exists(save_path), f"Invalid save path: {save_path}"
-        self.path = os.path.abspath(save_path)
+    def __init__(self, save_path: str = None, save: bool = True):
+        if save_path is not None:
+            assert os.path.exists(save_path), f"Invalid save path: {save_path}"
+            self.path = os.path.abspath(save_path)
         self.save = save
 
     def set_repo(self, repo: Repository):

@@ -96,7 +96,14 @@ def inferencing(params):
     user_input["features"] = features
     user_input["commit_info"] = []
     for i in range(len(user_input["commit_hashes"])):
-        user_input["commit_info"].append(commits[i])
+        id, mes, cc2vec_commit, deepjit_commit, simcom_commit = crawler.processor.process_one_commit(commits[i])
+        user_input["commit_info"].append({
+            "id": id,
+            "message": mes,
+            "cc2vec": cc2vec_commit,
+            "deepjit": deepjit_commit,
+            "simcom": simcom_commit
+        })
 
     end_extract_time = time.time()
 

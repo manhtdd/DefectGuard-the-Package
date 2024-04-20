@@ -32,6 +32,7 @@ class BasicPipeline:
             
             self.splitter = Splitter(save_path=cfg.dataset_save_path)
         else:
+            self.processor = Processor()
             self.create_dataset = False
 
     def set_repo(self, cfg):
