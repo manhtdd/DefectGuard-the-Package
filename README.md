@@ -8,15 +8,36 @@
   - Post-processing, training, inferencing JITDP model via CLI or import library
 - DefectGuard had been integrated into VSC _(extension)_, Jenkins & GitHub Action _(via command)_
 
-## Prerequisite
+## Installation
+
+### SrcML
+
+DefectGuard requires PySZZ for mining data functionality. SrcML is required by PySZZ. Please install it before mining data.
+
+```
+# Install libarchive13 libcurl4 libxml2
+sudo apt-get install libarchive13 libcurl4 libxml2
+
+# Install libssl
+RUN wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_amd64.deb && \
+    dpkg -i libssl1.1_1.1.1f-1ubuntu2_amd64.deb && \
+    rm -rf libssl1.1_1.1.1f-1ubuntu2_amd64.deb
+
+# Install SrcML
+RUN wget http://131.123.42.38/lmcrs/v1.0.0/srcml_1.0.0-1_ubuntu20.04.deb && \
+    dpkg -i srcml_1.0.0-1_ubuntu20.04.deb && \
+    rm -rf srcml_1.0.0-1_ubuntu20.04.deb
+```
 
 ### PySZZ
 
 DefectGuard requires this external tool for mining data functionality. Please install it before mining data.
 
-Our [Dockerfile](https://github.com/manhtdd/DefectGuard-the-Package/blob/main/Dockerfile) already prepared with PySZZ, please refer to it if you want to install it to your local machine
+```
+git clone https://github.com/grosa1/pyszz_v2.git
+```
 
-### Libraries
+### Dependencies
 
 Check out this [requirements.txt](https://github.com/manhtdd/DefectGuard-the-Package/blob/main/requirements.txt)
 
@@ -24,9 +45,13 @@ Check out this [requirements.txt](https://github.com/manhtdd/DefectGuard-the-Pac
 pip install -r requirements.txt
 ```
 
-## Installation
+### Setup DefectGuard
 
-### via Docker (RECOMMENDED)
+```
+python setup.py develop
+```
+
+## Installation via Docker (RECOMMENDED)
 
 ```
 docker compose up --build -d
@@ -36,6 +61,7 @@ docker exec -it defectguard /bin/bash
 Inside docker container:
 
 ```
+# This setup pyszz and defectguard
 bash scripts/setup.sh
 ```
 
