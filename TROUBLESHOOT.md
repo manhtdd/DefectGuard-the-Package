@@ -6,7 +6,7 @@ If you run build and create a our Docker image using `docker compose`, this coul
 
 ## 2. No Nivida-driver on a CPU-only machine
 
-`docker-compose.yml` contains scripts for running with GPU(s). If you do not have GPU(s), please command out code from line 12 them re-run `docker compose up -d` command.
+`docker-compose.yml` contains scripts for running with GPU(s). If you do not have GPU(s), please command out code from line 12 them re-run `docker compose up -d` command. And `pip install` only the `cpu-only-requiremnts.txt`.
 
 ```
 deploy:

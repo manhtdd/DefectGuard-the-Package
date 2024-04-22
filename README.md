@@ -39,7 +39,9 @@ git clone https://github.com/grosa1/pyszz_v2.git
 
 ### Dependencies
 
-Check out this [requirements.txt](https://github.com/manhtdd/DefectGuard-the-Package/blob/main/requirements.txt)
+**Please checkout #2 in [TROUBLESHOOT.md](https://github.com/manhtdd/DefectGuard-the-Package/blob/main/TROUBLESHOOT.md) if you do not have GPU(s) on your machine**
+
+Check out this [requirements.txt](https://github.com/manhtdd/DefectGuard-the-Package/blob/main/requirements.txt) or this [cpu-only-requirements.txt](https://github.com/manhtdd/DefectGuard-the-Package/blob/main/cpu-only-requirements.txt)
 
 ```
 pip install -r requirements.txt
