@@ -53,6 +53,8 @@ python setup.py develop
 
 ## Installation via Docker (RECOMMENDED)
 
+**Please checkout #2 in [TROUBLESHOOT.md](https://github.com/manhtdd/DefectGuard-the-Package/blob/main/TROUBLESHOOT.md) if you do not have GPU(s) on your machine**
+
 ```
 docker compose up --build -d
 docker exec -it defectguard /bin/bash
