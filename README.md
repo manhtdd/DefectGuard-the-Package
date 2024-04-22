@@ -65,6 +65,14 @@ Inside docker container:
 bash scripts/setup.sh
 ```
 
+### If you want Docker container to access GPU(s), please download `nvidia-container-toolkit`
+
+**Note**: download this outside of the container
+
+Install the `nvidia-container-toolkit` package as per official documentation at Github.
+
+We also provide [a quick-run script](https://github.com/manhtdd/DefectGuard-the-Package/blob/main/scripts/setup_nvidia_container_toolkit.sh) for Debian-based OS
+
 ## Basic usages
 
 ### Mining commits from Git repositories
@@ -132,3 +140,60 @@ Comming Soon
 ### Integrate into CLI-like Continuous Integration
 
 Comming Soon
+
+## Output of DefectGuard
+
+### Folder's structure
+```bash
+.
+├── dg_cache
+│   ├── dataset // default folder for saving dataset
+│   ├── save // default folder for saving extracted data
+│   ├── repo // default folder for cloning github repository
+```
+
+### Extracted Data's folder structure
+
+A sample structure of extracted data:
+```bash
+.
+├── save
+|   ├── repo_name
+|   |   ├── commit_ids.pkl
+|   |   ├── etracted_info.json // the config for Extractor
+|   |   ├── repo_bug_fix.json // the bug_fix file for running PySZZ
+|   |   ├── repo_commits_{num}.pkl // files storing commits information
+|   |   ├── repo_features.pkl // files storing commits features
+```
+
+### Processed Data's folder structure
+
+A sample structure of processed data:
+```bash
+.
+├── dataset
+|   ├── repo_name
+|   |   ├── commits
+|   |   |   ├── cc2vec.pkl
+|   |   |   ├── deepjit.pkl
+|   |   |   ├── simcom.pkl
+|   |   |   ├── dict.pkl
+|   |   ├── features
+|   |   |   ├── feature.csv
+```
+
+### Repository's structure
+
+In case this tool is run on `mode="local"`, please follow this repository's structure paths:
+```bash
+.
+├── repo_path
+|   ├── repo_owner
+|   |   ├── repo_name
+|   |   |   ├── .git
+|   |   |   ├── other repo content
+```
+
+## Troubleshoot
+
+Find here: https://github.com/manhtdd/DefectGuard-the-Package/blob/main/TROUBLESHOOT.md
