@@ -10,50 +10,7 @@
 
 ## Installation
 
-### SrcML
-
-DefectGuard requires PySZZ for mining data functionality. SrcML is required by PySZZ. Please install it before mining data.
-
-```
-# Install libarchive13 libcurl4 libxml2
-sudo apt-get install libarchive13 libcurl4 libxml2
-
-# Install libssl
-RUN wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_amd64.deb && \
-    dpkg -i libssl1.1_1.1.1f-1ubuntu2_amd64.deb && \
-    rm -rf libssl1.1_1.1.1f-1ubuntu2_amd64.deb
-
-# Install SrcML
-RUN wget http://131.123.42.38/lmcrs/v1.0.0/srcml_1.0.0-1_ubuntu20.04.deb && \
-    dpkg -i srcml_1.0.0-1_ubuntu20.04.deb && \
-    rm -rf srcml_1.0.0-1_ubuntu20.04.deb
-```
-
-### PySZZ
-
-DefectGuard requires this external tool for mining data functionality. Please install it before mining data.
-
-```
-git clone https://github.com/grosa1/pyszz_v2.git
-```
-
-### Dependencies
-
-**Please checkout #2 in [TROUBLESHOOT.md](https://github.com/manhtdd/DefectGuard-the-Package/blob/main/TROUBLESHOOT.md) if you do not have GPU(s) on your machine**
-
-Check out this [requirements.txt](https://github.com/manhtdd/DefectGuard-the-Package/blob/main/requirements.txt) or this [cpu-only-requirements.txt](https://github.com/manhtdd/DefectGuard-the-Package/blob/main/cpu-only-requirements.txt)
-
-```
-pip install -r requirements.txt
-```
-
-### Setup DefectGuard
-
-```
-python setup.py develop
-```
-
-## Installation via Docker (RECOMMENDED)
+## via Docker (RECOMMENDED)
 
 **Please checkout #2 in [TROUBLESHOOT.md](https://github.com/manhtdd/DefectGuard-the-Package/blob/main/TROUBLESHOOT.md) if you do not have GPU(s) on your machine**
 
@@ -76,6 +33,51 @@ bash scripts/setup.sh
 Install the `nvidia-container-toolkit` package as per official documentation at Github.
 
 We also provide [a quick-run script](https://github.com/manhtdd/DefectGuard-the-Package/blob/main/scripts/setup_nvidia_container_toolkit.sh) for Debian-based OS
+
+### From scratch
+
+- SrcML
+
+DefectGuard requires PySZZ for mining data functionality. SrcML is required by PySZZ. Please install it before mining data.
+
+```
+# Install libarchive13 libcurl4 libxml2
+sudo apt-get install libarchive13 libcurl4 libxml2
+
+# Install libssl
+RUN wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_amd64.deb && \
+    dpkg -i libssl1.1_1.1.1f-1ubuntu2_amd64.deb && \
+    rm -rf libssl1.1_1.1.1f-1ubuntu2_amd64.deb
+
+# Install SrcML
+RUN wget http://131.123.42.38/lmcrs/v1.0.0/srcml_1.0.0-1_ubuntu20.04.deb && \
+    dpkg -i srcml_1.0.0-1_ubuntu20.04.deb && \
+    rm -rf srcml_1.0.0-1_ubuntu20.04.deb
+```
+
+- PySZZ
+
+DefectGuard requires this external tool for mining data functionality. Please install it before mining data.
+
+```
+git clone https://github.com/grosa1/pyszz_v2.git
+```
+
+- Dependencies
+
+**Please checkout #2 in [TROUBLESHOOT.md](https://github.com/manhtdd/DefectGuard-the-Package/blob/main/TROUBLESHOOT.md) if you do not have GPU(s) on your machine**
+
+Check out this [requirements.txt](https://github.com/manhtdd/DefectGuard-the-Package/blob/main/requirements.txt) or this [cpu-only-requirements.txt](https://github.com/manhtdd/DefectGuard-the-Package/blob/main/cpu-only-requirements.txt)
+
+```
+pip install -r requirements.txt
+```
+
+- Setup DefectGuard
+
+```
+python setup.py develop
+```
 
 ## Basic usages
 
