@@ -106,7 +106,6 @@ class Dict(object):
 
         return newDict
 
-
 def create_dict(messages, codes):
     msg_dict = Dict(lower=True)
     code_dict = Dict(lower=True)

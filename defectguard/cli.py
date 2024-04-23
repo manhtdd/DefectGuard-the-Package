@@ -102,4 +102,3 @@ def main(args=None):
         exit(1)
     options.func(options)
     
-    return options

@@ -22,10 +22,13 @@ class Processor:
         self.commit_path = os.path.join(self.repo_save_path, "commit")
         self.df = None
         self.ids = None
+        self.date = None
         self.messages = None
         self.cc2vec_codes = None
         self.deepjit_codes = None
         self.simcom_codes = None
+        self.change_codes = None
+        self.change_features = None
         self.labels = None
 
     def run(self, szz_output, extracted_date):
@@ -40,7 +43,7 @@ class Processor:
                 if extracted_date
                 else int(time.time())
             ) - time_median
-
+        
         self.df = self.process_features(
             bug_ids=szz_bug_ids, cols=[], time_upper_limit=time_upper_limit
         )
@@ -149,11 +152,18 @@ class Processor:
         )
 
         self.ids = []
+        self.date = []
         self.messages = []
         self.cc2vec_codes = []
         self.deepjit_codes = []
         self.simcom_codes = []
         self.labels = []
+        self.change_codes = {
+            "_id": [], "date": [], "file_name": [], "added_code": [], "removed_code": []
+        }
+        self.change_features = {
+            "_id": [], "date": [], "file_name": [], "la": [], "ld": [], "lt": []
+        }
 
         df_ids = self.df["_id"].values
 
@@ -170,14 +180,31 @@ class Processor:
                     deepjit_commit,
                     simcom_commit,
                 ) = self.process_one_commit(commit)
+
+                change_commit = self.process_one_change_commit(commit)
+                date = self.df.loc[self.df['_id'] == id, 'date'].values[0]
+
                 label = 1 if id in bug_ids else 0
                 self.ids.append(id)
+                self.date.append(date)
                 self.messages.append(mes)
                 self.cc2vec_codes.append(cc2vec_commit)
                 self.deepjit_codes.append(deepjit_commit)
                 self.simcom_codes.append(simcom_commit)
                 self.labels.append(label)
-                del commit, id, mes, cc2vec_commit, deepjit_commit, simcom_commit, label
+
+                for feature, code in zip(change_commit["change_features"], change_commit["change_codes"]):
+                    self.change_codes["_id"].append(id)
+                    self.change_codes["date"].append(date)
+                    self.change_features["_id"].append(id)
+                    self.change_features["date"].append(date)
+                    for key, _ in code.items():
+                        self.change_codes[key].append(code[key])
+                    for key, _ in feature.items():
+                        self.change_features[key].append(feature[key])
+                    
+                
+                del commit, id, mes, cc2vec_commit, deepjit_commit, simcom_commit, label, change_commit
         self.code_dict = create_dict(self.messages, self.deepjit_codes)
 
     def process_one_commit(self, commit):
@@ -190,7 +217,7 @@ class Processor:
         simcom_commit = []
         for file in commit["files"]:
             
-            cc2vec_file = {"added_code": [], "removed_code": []}
+            cc2vec_file = {"file_name": file, "added_code": [], "removed_code": []}
             for hunk in commit["diff"][file]["content"]:
                 if "ab" in hunk:
                     continue
@@ -201,7 +228,7 @@ class Processor:
                         line = " ".join(line.split(" ")).lower()
                         # if len(cc2vec_file["removed_code"]) <= 10:
                         cc2vec_file["removed_code"].append(line)
-                        deepjit_commit.append(line)
+                        # deepjit_commit.append(line)
                 if "b" in hunk:
                     for line in hunk["b"]:
                         line = line.strip()
@@ -209,17 +236,59 @@ class Processor:
                         line = " ".join(line.split(" ")).lower()
                         # if len(cc2vec_file["added_code"]) <= 10:
                         cc2vec_file["added_code"].append(line)
-                        deepjit_commit.append(line)
+                        # deepjit_commit.append(line)
             deepjit_commit = deepjit_commit[:10]
-            # if len(cc2vec_commit) == 10:
-            #     continue
-            logger(cc2vec_file)
-            exit()
+            if len(cc2vec_commit) == 10:
+                continue
+
             cc2vec_commit.append(cc2vec_file)
             added_code = " ".join(cc2vec_file["added_code"])
             removed_code = " ".join(cc2vec_file["removed_code"])
             simcom_commit.append(f"{added_code} {removed_code}")
+
         return id, mes, cc2vec_commit, deepjit_commit, simcom_commit
+
+    def process_one_change_commit(self, commit):
+        id = commit["commit_id"]
+        change_commit = {"change_codes": [], "change_features": []}
+        for file in commit["files"]:
+            
+            change_code = {
+                "file_name": file, 
+                "added_code": [], 
+                "removed_code": [], 
+            }
+
+            change_feature = {
+                "file_name": file,
+                "la": 0, 
+                "ld": 0,
+                "lt": 0
+            }
+
+            change_feature["lt"] = commit["diff"][file]["meta_a"]["lines"]
+            for hunk in commit["diff"][file]["content"]:
+                if "ab" in hunk:
+                    continue
+                if "a" in hunk:
+                    change_feature["ld"] += len(hunk["a"])
+                    for line in hunk["a"]:
+                        line = line.strip()
+                        line = split_sentence(line)
+                        line = " ".join(line.split(" ")).lower()
+                        change_code["removed_code"].append(line)
+                if "b" in hunk:
+                    change_feature["la"] += len(hunk["b"])
+                    for line in hunk["b"]:
+                        line = line.strip()
+                        line = split_sentence(line)
+                        line = " ".join(line.split(" ")).lower()
+                        change_code["added_code"].append(line)
+                        
+            change_commit["change_codes"].append(change_code)
+            change_commit["change_features"].append(change_feature)
+
+        return change_commit
 
     def to_dataset(self):
         """
@@ -243,3 +312,38 @@ class Processor:
             [self.ids, self.messages, self.simcom_codes, self.labels],
             os.path.join(self.commit_path, "simcom.pkl"),
         )
+        
+        df = pd.DataFrame(
+            {
+                "_id": self.ids,
+                "date": self.date,
+                "label": self.labels
+            } 
+        )
+        df.to_csv(
+            os.path.join(self.feature_path, "labels.csv"),
+            index=False
+        )
+        del df
+
+        df = pd.DataFrame(
+            self.change_features
+        )
+        df.to_csv(
+            os.path.join(self.feature_path, "change_features.csv"),
+            index=False
+        )
+        del df
+
+        save_pkl(
+            [
+                self.change_codes["_id"], 
+                self.change_codes["date"],
+                self.change_codes["file_name"], 
+                self.change_codes["added_code"],
+                self.change_codes["removed_code"],
+            ],
+            os.path.join(self.commit_path, "change_codes.pkl")
+        )
+        
+        
