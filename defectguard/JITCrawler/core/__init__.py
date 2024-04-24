@@ -3,4 +3,3 @@ from .Processor import Processor
 from .Labeler import PySZZ
 from .Repository import Repository
 from .Dict import Dict
-from .Splitter import Splitter

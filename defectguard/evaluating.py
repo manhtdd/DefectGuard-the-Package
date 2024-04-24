@@ -61,24 +61,16 @@ class CustomDataset(Dataset):
         }
     
 def evaluating_deep_learning(pretrain, params, dg_cache_path):
-    commit_path = f'{dg_cache_path}/dataset/{params.repo_name}/commit'
-    dictionary_path = f'{commit_path}/{params.repo_name}_train_dict.pkl' if params.dictionary is None else params.dictionary
-    test_set_path = f'{commit_path}/{params.model}_{params.repo_name}_test.pkl' if params.commit_test_set is None else params.commit_test_set
-    pretrain_path = f'{dg_cache_path}/save/{params.repo_name}/{pretrain}'
-
     # Init model
     model = init_model(params.model, params.repo_language, params.device)
-
-    if params.from_pretrain:
-        model.initialize()
-    else:
-        model.initialize(dictionary=dictionary_path, state_dict=pretrain_path)
+    model.initialize(dictionary=f'{dg_cache_path}/dataset/{params.repo_name}/commit/dict.pkl', state_dict=f'{dg_cache_path}/save/{params.repo_name}/{pretrain}')
 
     # Load dataset
-    loaded_data = pickle.load(open(test_set_path, 'rb'))
+    loaded_data = pickle.load(open(f'{dg_cache_path}/dataset/{params.repo_name}/commit/{params.model}.pkl', 'rb'))
     ids, messages, commits, labels = loaded_data
 
-    dict_msg, dict_code = model.message_dictionary, model.code_dictionary
+    dictionary = pickle.load(open(f'{dg_cache_path}/dataset/{params.repo_name}/commit/dict.pkl', 'rb'))   
+    dict_msg, dict_code = dictionary
 
     pad_msg = padding_data(data=messages, dictionary=dict_msg, params=model.hyperparameters, type='msg')        
     pad_code = padding_data(data=commits, dictionary=dict_code, params=model.hyperparameters, type='code')
@@ -107,14 +99,10 @@ def evaluating_deep_learning(pretrain, params, dg_cache_path):
     return commit_hashes, all_predict, all_label
 
 def evaluating_machine_learning(pretrain, params, dg_cache_path):
-    test_df_path = f'{dg_cache_path}/dataset/{params.repo_name}/feature/{params.repo_name}_test.csv' if params.feature_test_set is None else params.feature_test_set
+    test_df_path = f'{dg_cache_path}/dataset/{params.repo_name}/feature/features.csv'
     test_df = pd.read_csv(test_df_path)
     model = init_model(params.model, params.repo_language, params.device)
-
-    if params.from_pretrain:
-        model.initialize()
-    else:
-        model.initialize(pretrain=f'{dg_cache_path}/save/{params.repo_name}/{pretrain}')
+    model.initialize(pretrain=f'{dg_cache_path}/save/{params.repo_name}/{pretrain}')
 
     cols = (
         ["la"]
@@ -167,21 +155,15 @@ def average(proba_1, proba_2):
     return [(x + y) / 2 for x, y in zip(proba_1, proba_2)]
 
 def evaluating(params):
+    current_time = datetime.now().strftime("%Y%m%d_%H%M%S")
     # create save folders
     dg_cache_path = f"{params.dg_save_folder}/dg_cache"
     folders = ["save", "repo", "dataset"]
-    predict_score_path = f'{dg_cache_path}/save/{params.repo_name}/predict_scores/'
-    resutl_path = f'{dg_cache_path}/save/{params.repo_name}/results/'
-
     if not os.path.exists(dg_cache_path):
         os.mkdir(dg_cache_path)
     for folder in folders:
         if not os.path.exists(os.path.join(dg_cache_path, folder)):
             os.mkdir(os.path.join(dg_cache_path, folder))
-    if os.path.isdir(predict_score_path) is False:
-        os.makedirs(predict_score_path)
-    if os.path.isdir(resutl_path) is False:
-        os.makedirs(resutl_path)
 
     if params.model in ["deepjit", "simcom"]:
         model_name = params.model if params.model != "simcom" else "com"
@@ -189,8 +171,13 @@ def evaluating(params):
         com_hashes, com_proba, com_ground_truth = evaluating_deep_learning(pretrain, params, dg_cache_path)
         sim_auc_score = roc_auc_score(y_true=com_ground_truth,  y_score=com_proba)
 
+        if os.path.isdir(f'{dg_cache_path}/save/{params.repo_name}/results/') is False:
+            os.makedirs(f'{dg_cache_path}/save/{params.repo_name}/results/')
         logs(f'{dg_cache_path}/save/{params.repo_name}/results/auc.csv', params.repo_name, sim_auc_score, model_name)
+
         df = pd.DataFrame({'commit_hash': com_hashes, 'label': com_ground_truth, 'pred': com_proba})
+        if os.path.isdir(f'{dg_cache_path}/save/{params.repo_name}/predict_scores/') is False:
+            os.makedirs(f'{dg_cache_path}/save/{params.repo_name}/predict_scores/')
         df.to_csv(f'{dg_cache_path}/save/{params.repo_name}/predict_scores/{model_name}.csv', index=False, sep=',')
 
     if params.model in ["lapredict", "lr", "tlel", "simcom"]:
@@ -199,12 +186,20 @@ def evaluating(params):
         sim_hashes, sim_proba, sim_ground_truth = evaluating_machine_learning(pretrain, params, dg_cache_path)
         com_auc_score = roc_auc_score(y_true=sim_ground_truth,  y_score=sim_proba)
 
+        if os.path.isdir(f'{dg_cache_path}/save/{params.repo_name}/results/') is False:
+            os.makedirs(f'{dg_cache_path}/save/{params.repo_name}/results/')
         logs(f'{dg_cache_path}/save/{params.repo_name}/results/auc.csv', params.repo_name, com_auc_score, model_name)
+
         df = pd.DataFrame({'commit_hash': sim_hashes, 'label': sim_ground_truth, 'pred': sim_proba})
+        if os.path.isdir(f'{dg_cache_path}/save/{params.repo_name}/predict_scores/') is False:
+            os.makedirs(f'{dg_cache_path}/save/{params.repo_name}/predict_scores/')
         df.to_csv(f'{dg_cache_path}/save/{params.repo_name}/predict_scores/{model_name}.csv', index=False, sep=',')
     
     if params.model in ["simcom"]:
         assert com_hashes == sim_hashes
         simcom_proba = average(sim_proba, com_proba)
         auc_score = roc_auc_score(y_true=com_ground_truth,  y_score=simcom_proba)
+
+        if os.path.isdir(f'{dg_cache_path}/save/{params.repo_name}/results/') is False:
+            os.makedirs(f'{dg_cache_path}/save/{params.repo_name}/results/')
         logs(f'{dg_cache_path}/save/{params.repo_name}/results/auc.csv', params.repo_name, auc_score, params.model)

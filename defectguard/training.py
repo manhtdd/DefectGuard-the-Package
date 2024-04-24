@@ -71,28 +71,20 @@ class CustomDataset(Dataset):
         }
     
 def training_deep_learning(params, dg_cache_path):
-    commit_path = f'{dg_cache_path}/dataset/{params.repo_name}/commit'
-    dictionary_path = f'{commit_path}/{params.repo_name}_train_dict.pkl' if params.dictionary is None else params.dictionary
-    train_set_path = f'{commit_path}/{params.model}_{params.repo_name}_train.pkl' if params.commit_train_set is None else params.commit_train_set
-    val_set_path = f'{commit_path}/{params.model}_{params.repo_name}_val.pkl' if params.commit_val_set is None else params.commit_val_set
-    model_save_path = f'{dg_cache_path}/save/{params.repo_name}'
-
     # Init model
     model = init_model(params.model, params.repo_language, params.device)
-    if params.from_pretrain:
-        model.initialize()
-    else:
-        model.initialize(dictionary=dictionary_path)
+    model.initialize(dictionary=f'{dg_cache_path}/dataset/{params.repo_name}/commit/dict.pkl')
 
     # Load dataset
-    loaded_data = pickle.load(open(train_set_path, 'rb'))
+    loaded_data = pickle.load(open(f'{dg_cache_path}/dataset/{params.repo_name}/commit/{params.model}.pkl', 'rb'))
     ids, messages, commits, labels = loaded_data
 
     if params.model == "simcom":
-        val_data = pickle.load(open(val_set_path, 'rb'))
+        val_data = pickle.load(open(f'{dg_cache_path}/dataset/{params.repo_name}/commit/{params.model}.pkl', 'rb'))
         val_ids, val_messages, val_codes, val_labels = val_data
 
-    dict_msg, dict_code = model.message_dictionary, model.code_dictionary
+    dictionary = pickle.load(open(f'{dg_cache_path}/dataset/{params.repo_name}/commit/dict.pkl', 'rb'))   
+    dict_msg, dict_code = dictionary
 
     pad_msg = padding_data(data=messages, dictionary=dict_msg, params=model.hyperparameters, type='msg')        
     pad_code = padding_data(data=commits, dictionary=dict_code, params=model.hyperparameters, type='code')
@@ -108,13 +100,8 @@ def training_deep_learning(params, dg_cache_path):
         val_code_dataset = CustomDataset(val_ids, val_pad_code, val_pad_msg, val_labels)
         val_code_dataloader = DataLoader(val_code_dataset, batch_size=model.hyperparameters['batch_size'])
 
-    optimizer = torch.optim.Adam(model.get_parameters(), lr=params.learning_rate)
+    optimizer = torch.optim.Adam(model.get_parameters(), lr=5e-5)
     criterion = nn.BCELoss()
-
-    # Validate
-    best_valid_score = 0
-    smallest_loss = 1000000
-    early_stop_count = 5
 
     for epoch in range(1, params.epochs + 1):
         total_loss = 0
@@ -136,6 +123,11 @@ def training_deep_learning(params, dg_cache_path):
             optimizer.step()
 
         print(f'Training: Epoch {epoch} / {params.epochs} -- Total loss: {total_loss}')
+
+        # Validate
+        best_valid_score = 0
+        smallest_loss = 1000000
+        early_stop_count = 5
 
         if params.model == "simcom":
             model.com.eval()
@@ -168,12 +160,11 @@ def training_deep_learning(params, dg_cache_path):
                 if early_stop_count < 0:
                     break
         else:
-            loss_score = total_loss.item()
-            print(loss_score < smallest_loss, loss_score, smallest_loss)
+            loss_score = total_loss
             if loss_score < smallest_loss:
                 smallest_loss = loss_score
-                print('Save a better model', smallest_loss)
-                model.save(model_save_path)
+                print('Save a better model', smallest_loss.item())
+                model.save(f'{dg_cache_path}/save/{params.repo_name}')
             else:
                 print('No update of models', early_stop_count)
                 if epoch > 5:
@@ -182,7 +173,7 @@ def training_deep_learning(params, dg_cache_path):
                     break
 
 def training_machine_learning(params, dg_cache_path):
-    train_df_path = f'{dg_cache_path}/dataset/{params.repo_name}/feature/{params.repo_name}_train.csv' if params.feature_train_set is None else params.feature_train_set
+    train_df_path = f'{dg_cache_path}/dataset/{params.repo_name}/feature/features.csv'
     train_df = pd.read_csv(train_df_path)
     model = init_model(params.model, params.repo_language, params.device)
 
@@ -220,8 +211,9 @@ def training_machine_learning(params, dg_cache_path):
             model.model.fit(X_train, y_train)
             model.save(f'{dg_cache_path}/save/{params.repo_name}')
         case "tlel":
-            model.model.fit(X_train, y_train)
-            model.save(f'{dg_cache_path}/save/{params.repo_name}')
+            # X_train, y_train = train_f.iloc[:, 5:], train_f.iloc[:, 3]
+            # model = TLEL(n_learner=10, n_tree=10)
+            # model.fit(X_train, y_train)
             pass
         case _:
             raise Exception("No such model")

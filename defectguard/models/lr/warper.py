@@ -12,7 +12,7 @@ class LogisticRegression(BaseWraper):
         self.columns = (["ns","nd","nf","entrophy","la","ld","lt","fix","ndev","age","nuc","exp","rexp","sexp"])
         download_folder(self.model_name, self.language)
         
-    def initialize(self, pretrain=None):
+    def initialize(self, pretrain):
         if pretrain:
             self.model = pickle.load(open(pretrain, "rb"))
         else:
