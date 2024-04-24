@@ -1,4 +1,4 @@
-from .core import Repository, Extractor, Processor, PySZZ
+from .core import Repository, Extractor, Processor, PySZZ, Splitter
 from .core.utils import clone_repo
 import os
 
@@ -8,10 +8,11 @@ class BasicPipeline:
         # init extractor
         self.create_dataset = False
         self.extractor = Extractor(
-            num_commits_per_file=0,
+            num_commits_per_file=cfg.num_commits_per_file,
             language=cfg.repo_language,
             save=cfg.extractor_save,
             check_uncommit=cfg.extractor_check_uncommit,
+            force_reextract=cfg.extractor_reextract,
         )
 
         if cfg.create_dataset:
@@ -28,11 +29,13 @@ class BasicPipeline:
                 save_path=cfg.dataset_save_path,
                 save=cfg.processor_save,
             )
+            
+            self.splitter = Splitter(save_path=cfg.dataset_save_path)
         else:
             self.create_dataset = False
 
     def set_repo(self, cfg):
-        assert cfg.mode in ["local", "remote"], "Invalid mode: {}".format(cfg.mode)
+        assert cfg.mode in ["local", "remote"], "[Pipeline] Invalid mode: {}".format(cfg.mode)
         if cfg.mode == "local":
             self.repo = self.local_repo(cfg)
         else:
@@ -93,3 +96,7 @@ class BasicPipeline:
                 szz_output=szz_output,
                 extracted_date=self.extractor.end,
             )
+            
+            # split processed dataset into train, val, test set
+            self.splitter.set_processor(self.processor)
+            self.splitter.run()
