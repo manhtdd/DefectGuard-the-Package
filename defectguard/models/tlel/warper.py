@@ -10,13 +10,15 @@ class TLELModel(BaseWraper):
         self.model_name = 'tlel'
         self.language = language
         self.initialized = False
-        self.model = None
+        self.model = TLEL()
         self.columns = (["ns","nd","nf","entrophy","la","ld","lt","fix","ndev","age","nuc","exp","rexp","sexp"])
         download_folder(self.model_name, self.language)
         
-    def initialize(self):
-        with open(f"{SRC_PATH}/models/metadata/{self.model_name}/{self.language}", "rb") as f:
-            self.model = pickle.load(f)
+    def initialize(self, pretrain=None):
+        if pretrain:
+            self.model = pickle.load(open(pretrain, "rb"))
+        else:
+            self.model = pickle.load(open(f"{SRC_PATH}/models/metadata/{self.model_name}/{self.language}", "rb"))
 
         # Set initialized to True
         self.initialized = True
@@ -59,6 +61,12 @@ class TLELModel(BaseWraper):
         final_prediction = self.postprocess(commit_ids, model_output)
 
         return final_prediction
+
+    def predict_proba(self, test):
+        if not self.initialized:
+            self.initialize()
+            
+        return self.model.predict_proba(test)
 
     def save(self, save_dir):
         if not os.path.isdir(save_dir):       
