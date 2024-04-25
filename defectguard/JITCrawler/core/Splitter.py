@@ -1,7 +1,9 @@
 from .Processor import Processor
 from .Dict import create_dict
 from .utils import save_pkl
+from defectguard.utils.logger import logger
 import numpy as np
+import pandas as pd
 import os
 
 
@@ -67,6 +69,7 @@ class Splitter:
         """
         name = self.processor.repo.name
         indexes = self.split_train_test_indexes(len(self.processor.df), train_test_ratio)
+        
         # split features
         for key in indexes:
             splitted_df = self.processor.df.iloc[indexes[key]]
@@ -104,3 +107,62 @@ class Splitter:
                 [ids, messages, simcom_codes, labels],
                 os.path.join(self.processor.commit_path, f"simcom_{save_part}.pkl"),
             )
+        
+        #split change data by id:commit:
+        for key in indexes:
+            save_part = f"{name}_{key}"
+            ids = self.get_values(self.processor.ids, indexes[key])
+            date = self.get_values(self.processor.date, indexes[key])
+            labels = self.get_values(self.processor.labels, indexes[key])
+
+            change_codes = {
+                "_id": [], "date": [], "file_name": [], "added_code": [], "removed_code": []
+            }
+            change_features = {
+                "_id": [], "date": [], "file_name": [], "la": [], "ld": [], "lt": []
+            }
+
+            for index, id in enumerate(self.processor.change_codes["_id"]):
+                if id in ids:
+                    for key in self.processor.change_codes:
+                        change_codes[key].append(self.processor.change_codes[key][index])
+
+            for index, id in enumerate(self.processor.change_features["_id"]):
+                if id in ids:
+                    for key in self.processor.change_features:
+                        change_features[key].append(self.processor.change_features[key][index])
+            
+            df = pd.DataFrame(
+                {
+                    "_id": ids,
+                    "date": date,
+                    "label": labels
+                } 
+            )
+            df.to_csv(
+                os.path.join(self.processor.feature_path, f"labels_{save_part}.csv"),
+                index=False
+            )
+            del df
+
+            df = pd.DataFrame(
+                change_features
+            )
+            df.to_csv(
+                os.path.join(self.processor.feature_path, f"change_features_{save_part}.csv"),
+                index=False
+            )
+            del df
+
+            save_pkl(
+                [
+                    change_codes["_id"], 
+                    change_codes["date"],
+                    change_codes["file_name"], 
+                    change_codes["added_code"],
+                    change_codes["removed_code"],
+                ],
+                os.path.join(self.processor.commit_path, f"change_codes_{save_part}.pkl")
+            )
+            
+                
