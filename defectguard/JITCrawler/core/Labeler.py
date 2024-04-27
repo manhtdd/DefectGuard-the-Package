@@ -3,7 +3,6 @@ import os
 import yaml
 from .utils import exec_cmd, load_json, LANG2EXT
 
-
 class PySZZ:
     def __init__(
         self,

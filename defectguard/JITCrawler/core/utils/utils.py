@@ -5,7 +5,6 @@ import re
 import pickle
 import json
 
-
 def clone_repo(clone_path: str, owner: str, name: str, url: str):
     """
     Clones a repository to the current directory
@@ -34,7 +33,6 @@ def exec_cmd(command: str):
     output = result.stdout.strip(b"\n").split(b"\n") if result.stdout else []
     output = [line.decode(encoding="utf8", errors="replace") for line in output]
     return output
-
 
 def get_commit_hashes(start=None, end=None):
     """

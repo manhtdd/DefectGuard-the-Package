@@ -109,60 +109,68 @@ class Splitter:
             )
         
         #split change data by id:commit:
-        for key in indexes:
-            save_part = f"{name}_{key}"
-            ids = self.get_values(self.processor.ids, indexes[key])
-            date = self.get_values(self.processor.date, indexes[key])
-            labels = self.get_values(self.processor.labels, indexes[key])
+        def change_level_split(indexes, prefix):
+            for key in indexes:
+                save_part = f"{prefix}_{name}_{key}"
+                ids = self.get_values(self.processor.ids, indexes[key])
+                date = self.get_values(self.processor.date, indexes[key])
+                labels = self.get_values(self.processor.labels, indexes[key])
 
-            change_codes = {
-                "_id": [], "date": [], "file_name": [], "added_code": [], "removed_code": []
-            }
-            change_features = {
-                "_id": [], "date": [], "file_name": [], "la": [], "ld": [], "lt": []
-            }
+                change_codes = {
+                    "_id": [], "date": [], "file_name": [], "added_code": [], "removed_code": []
+                }
+                change_features = {
+                    "_id": [], "date": [], "file_name": [], "la": [], "ld": [], "lt": []
+                }
 
-            for index, id in enumerate(self.processor.change_codes["_id"]):
-                if id in ids:
-                    for key in self.processor.change_codes:
-                        change_codes[key].append(self.processor.change_codes[key][index])
+                for index, id in enumerate(self.processor.change_codes["_id"]):
+                    if id in ids:
+                        for key in self.processor.change_codes:
+                            change_codes[key].append(self.processor.change_codes[key][index])
 
-            for index, id in enumerate(self.processor.change_features["_id"]):
-                if id in ids:
-                    for key in self.processor.change_features:
-                        change_features[key].append(self.processor.change_features[key][index])
+                for index, id in enumerate(self.processor.change_features["_id"]):
+                    if id in ids:
+                        for key in self.processor.change_features:
+                            change_features[key].append(self.processor.change_features[key][index])
+                
+                df = pd.DataFrame(
+                    {
+                        "_id": ids,
+                        "date": date,
+                        "label": labels
+                    } 
+                )
+                df.to_csv(
+                    os.path.join(self.processor.feature_path, f"labels_{save_part}.csv"),
+                    index=False
+                )
+                del df
+
+                df = pd.DataFrame(
+                    change_features
+                )
+                df.to_csv(
+                    os.path.join(self.processor.feature_path, f"change_features_{save_part}.csv"),
+                    index=False
+                )
+                del df
+
+                save_pkl(
+                    [
+                        change_codes["_id"], 
+                        change_codes["date"],
+                        change_codes["file_name"], 
+                        change_codes["added_code"],
+                        change_codes["removed_code"],
+                    ],
+                    os.path.join(self.processor.commit_path, f"change_codes_{save_part}.pkl")
+                )
             
-            df = pd.DataFrame(
-                {
-                    "_id": ids,
-                    "date": date,
-                    "label": labels
-                } 
-            )
-            df.to_csv(
-                os.path.join(self.processor.feature_path, f"labels_{save_part}.csv"),
-                index=False
-            )
-            del df
-
-            df = pd.DataFrame(
-                change_features
-            )
-            df.to_csv(
-                os.path.join(self.processor.feature_path, f"change_features_{save_part}.csv"),
-                index=False
-            )
-            del df
-
-            save_pkl(
-                [
-                    change_codes["_id"], 
-                    change_codes["date"],
-                    change_codes["file_name"], 
-                    change_codes["added_code"],
-                    change_codes["removed_code"],
-                ],
-                os.path.join(self.processor.commit_path, f"change_codes_{save_part}.pkl")
-            )
-            
+        change_level_split(indexes, "commit_ids")
+        
+        #split by files:
+        indexes = self.split_train_test_indexes(len(self.processor.labels), train_test_ratio)
+        if val_train_ratio:
+            indexes = self.split_train_val_indexes(indexes, val_train_ratio)
+        change_level_split(indexes, "files")
                 
