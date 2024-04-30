@@ -30,14 +30,15 @@ def main(args=None):
     modes = ["local", "remote"]
 
     common_parser = argparse.ArgumentParser(add_help=False)
-    common_parser.add_argument("-dg_save_folder", type=str, required=True, help="")
+    common_parser.add_argument("-dg_save_folder", default=".", type=str, help="")
     common_parser.add_argument("-mode", type=str, default="local", help="Mode of extractor", choices=modes)
-    common_parser.add_argument("-repo_name", type=str, required=True, help="Repo name")
+    common_parser.add_argument("-repo_name", type=str, default="", help="Repo name")
     common_parser.add_argument("-repo_owner", type=str, default="", help="Repo owner name")
     common_parser.add_argument("-repo_path", type=str, default="", help="Path to git repository")
     common_parser.add_argument("-repo_language", type=str, default="", choices=available_languages, help="Main language of repo")
     common_parser.add_argument("-uncommit", action="store_true", help="Include uncommit in list when using -top")
-
+    common_parser.add_argument("-reextract", action="store_true", help="Re-extract data from repository")
+    
     mining_parser = argparse.ArgumentParser(parents=[common_parser], add_help=False)
     mining_parser.set_defaults(func=mining)
     mining_parser.add_argument("-pyszz_path", type=str, default="", help="Path to pyszz")
@@ -56,16 +57,24 @@ def main(args=None):
     training_parser = argparse.ArgumentParser(parents=[common_parser], add_help=False)
     training_parser.set_defaults(func=training)
     training_parser.add_argument("-model", type=str, default=[], choices=models, help="List of models")
+    training_parser.add_argument("-from_pretrain", action="store_true", help="")
     training_parser.add_argument("-epochs",type=int,default=1, help="")
-    training_parser.add_argument("-dictionary",type=str,default="", help="")
-    training_parser.add_argument("-hyperparameters",type=str,default="", help="")
+    training_parser.add_argument("-dictionary",type=str,default=None, help="")
+    training_parser.add_argument("-hyperparameters",type=str,default=None, help="")
+    training_parser.add_argument("-feature_train_set", type=str, default=None, help="")
+    training_parser.add_argument("-commit_train_set", type=str, default=None, help="")
+    training_parser.add_argument("-commit_val_set", type=str, default=None, help="")
+    training_parser.add_argument("-learning_rate", type=float, default=5e-5, help="")
     training_parser.add_argument("-device", type=str, default="cpu", help="Eg: cpu, cuda, cuda:1")
 
     evaluating_parser = argparse.ArgumentParser(parents=[common_parser], add_help=False)
     evaluating_parser.set_defaults(func=evaluating)
     evaluating_parser.add_argument("-model", type=str, default=[], choices=models, help="List of models")
-    evaluating_parser.add_argument("-dictionary",type=str,default="", help="")
-    evaluating_parser.add_argument("-hyperparameters",type=str,default="", help="")
+    evaluating_parser.add_argument("-from_pretrain", action="store_true", help="")
+    evaluating_parser.add_argument("-dictionary",type=str,default=None, help="")
+    evaluating_parser.add_argument("-hyperparameters",type=str,default=None, help="")
+    evaluating_parser.add_argument("-feature_test_set", type=str, default=None, help="")
+    evaluating_parser.add_argument("-commit_test_set", type=str, default=None, help="")
     evaluating_parser.add_argument("-device", type=str, default="cpu", help="Eg: cpu, cuda, cuda:1")
 
     parser = argparse.ArgumentParser(prog="DefectGuard", description="A tool for mining, training, evaluating for Just-in-Time Defect Prediction")
@@ -100,6 +109,8 @@ def main(args=None):
     if not hasattr(options, 'func'):
         parser.print_help()
         exit(1)
+
     options.func(options)
     
-    return options
+
+
