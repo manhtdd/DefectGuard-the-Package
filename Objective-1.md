@@ -141,7 +141,7 @@ defectguard training \
     -from_pretrain \
     -repo_name javascript-algorithms \
     -repo_language JavaScript \
-    -epochs 2 \
+    -epochs 5 \ # or 10
     -device cuda
 ```
 
