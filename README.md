@@ -34,7 +34,7 @@ Install the `nvidia-container-toolkit` package as per official documentation at 
 
 We also provide [a quick-run script](https://github.com/manhtdd/DefectGuard-the-Package/blob/main/scripts/setup_nvidia_container_toolkit.sh) for Debian-based OS
 
-### From scratch
+## From scratch
 
 - SrcML
 
