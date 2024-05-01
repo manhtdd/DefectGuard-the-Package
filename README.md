@@ -6,6 +6,7 @@
 - Basic functionalities:
   - Mining commits from Git repositories
   - Post-processing, training, inferencing JITDP model via CLI or import library
+  - 5 included techniques: `lapredict`, `tlel`, `lr`, `simcom`, `deepjit`
 - DefectGuard had been integrated into VSC _(extension)_, Jenkins & GitHub Action _(via command)_
 
 ## Installation
@@ -30,7 +31,7 @@ bash scripts/setup.sh
 
 **Note**: download this outside of the container
 
-Install the `nvidia-container-toolkit` package as per official documentation at Github.
+Install the `nvidia-container-toolkit` package as per [official documentation at Github](https://github.com/NVIDIA/nvidia-docker).
 
 We also provide [a quick-run script](https://github.com/manhtdd/DefectGuard-the-Package/blob/main/scripts/setup_nvidia_container_toolkit.sh) for Debian-based OS
 
@@ -85,10 +86,10 @@ python setup.py develop
 
 ```
 defectguard mining \
-    -repo_name <project_name> \
-    -repo_path <path/to/project> \
-    -repo_language <main_language_of_project> \
-    -pyszz_path <path/to/project/pyszz_v2>
+    -repo_name <project_name> \ # Specify the name of your project.
+    -repo_path <path/to/project> \ # Provide the parent path that leads to your project directory.
+    -repo_language <main_language_of_project> \ # Indicate the main programming language used in the project.
+    -pyszz_path <path/to/project/pyszz_v2> # Path to the pyszz tool which will be used for commit analysis.
 ```
 
 [Example](https://github.com/manhtdd/DefectGuard-the-Package/blob/main/scripts/test_mining.sh)
@@ -97,10 +98,10 @@ defectguard mining \
 
 ```
 defectguard training \
-    -model <model_name> \
-    -repo_name <project_name> \
-    -repo_language <main_language_of_project> \
-    -epochs <epochs>
+    -model <model_name> \ # Specify the name of the model to be trained.
+    -repo_name <project_name> \ # Indicate the name of your project whose commits will be used for training.
+    -repo_language <main_language_of_project> \ # Mention the main programming language of the project.
+    -epochs <epochs> # Define the number of training epochs.
 ```
 
 [Example](https://github.com/manhtdd/DefectGuard-the-Package/blob/main/scripts/test_train.sh)
@@ -109,11 +110,11 @@ defectguard training \
 
 ```
 defectguard training \
-    -model <model_name> \
-    -from_pretrain \
-    -repo_name <project_name> \
-    -repo_language <main_language_of_project> \
-    -epochs <epochs>
+    -model <model_name> \ # Specify the name of the model to be trained.
+    -from_pretrain \ # Initialize from our pretrained model.
+    -repo_name <project_name> \ # Indicate the name of your project whose commits will be used for training.
+    -repo_language <main_language_of_project> \ # Mention the main programming language of the project.
+    -epochs <epochs> # Define the number of training epochs.
 ```
 
 [Example](https://github.com/manhtdd/DefectGuard-the-Package/blob/main/scripts/test_finetuning.sh)
@@ -122,9 +123,9 @@ defectguard training \
 
 ```
 defectguard evaluating \
-    -model <model_name> \
-    -repo_name <project_name> \
-    -repo_language <main_language_of_project>
+    -model <model_name> \ # Specify the name of the model to be trained.
+    -repo_name <project_name> \ # Indicate the name of your project whose commits will be used for evaluation.
+    -repo_language <main_language_of_project> # Mention the main programming language of the project.
 ```
 
 [Example](https://github.com/manhtdd/DefectGuard-the-Package/blob/main/scripts/test_evaluate.sh)
@@ -133,10 +134,10 @@ defectguard evaluating \
 
 ```
 defectguard evaluating \
-    -model <model_name> \
-    -from_pretrain \
-    -repo_name <project_name> \
-    -repo_language <main_language_of_project>
+    -model <model_name> \ # Specify the name of the model to be trained.
+    -from_pretrain \ # Initialize from our pretrained model.
+    -repo_name <project_name> \ # Indicate the name of your project whose commits will be used for evaluation.
+    -repo_language <main_language_of_project> # Mention the main programming language of the project.
 ```
 
 ### Inference
@@ -202,4 +203,4 @@ In case this tool is run on `mode="local"`, please follow this repository's stru
 
 ## Troubleshoot
 
-Find here: https://github.com/manhtdd/DefectGuard-the-Package/blob/main/TROUBLESHOOT.md
+[Find here](https://github.com/manhtdd/DefectGuard-the-Package/blob/main/TROUBLESHOOT.md)
