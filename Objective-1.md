@@ -70,6 +70,15 @@ dg_cache
 
 For 1st scenario: "Using our pre-train models and evaluate these models on industry dataset"
 
+The following bash script run the whole step:
+
+**NOTE**: this script run with assumption the main language of the repo is JavaScript. Please check the script before running it.
+```
+bash scripts/objective_1_evaluate.sh javascript-algorithms
+```
+
+or step by step like below:
+
 We have 5 models: `deepjit`, `simcom`, `tlel`, `lapredict`, `lr`
 ```
 defectguard evaluating \
@@ -108,6 +117,22 @@ javascript-algorithms,0.596969696969697,0.2545454545454545,0.4939393939393939,0.
 ## 4. Use the extracted features and code changes to fine-tune and evaluate
 
 For 2nd scenario: "Fine-tune and evaluate these new fine-tuned models on industry dataset"
+
+The following bash script run the whole step:
+
+**NOTE**: this script run with assumption the main language of the repo is JavaScript and run on CPU. Please check the script before running it.
+
+With 5 epochs:
+```
+bash scripts/objective_1_fine_tune_evaluate.sh javascript-algorithms 5
+```
+
+With 10 epochs:
+```
+bash scripts/objective_1_fine_tune_evaluate.sh javascript-algorithms 10
+```
+
+or step by step like below:
 
 Fine-tune the deeplearning-based models `deepjit`, `simcom`:
 ```
