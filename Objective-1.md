@@ -1,18 +1,18 @@
 # Objective 1: Performance of Just-in-Time Defect Prediction techniques in industry environment
 
 To archive this objective, we have 2 testing scenarios:
-1. Using our pre-train models and evaluate these models on industry dataset
-2. Fine-tune and evaluate these new fine-tuned models on industry dataset
+1. Evaluate pre-trained models on an industry dataset.
+2. Fine-tune and evaluate newly fine-tuned models on the same dataset.
 
-## 0. Setup environment
+## Setup
 
-Please checkout docker setup in README.md _(or From Scratch section if you do not have docker)_
+Refer to the `README.md` for Docker setup instructions or the "From Scratch" section if Docker is not an option.
 
-`defectguard` can run from anywhere in your local machine. To keep it simple, the following pipeline will be ran where this cloned repo is.
+`defectguard` can be run from any location on your local machine. For simplicity, follow the pipeline where this repo is cloned.
 
 ## 1. Setup your project
 
-For simplicity, we will be using this [javascript-algorithms](https://github.com/trekhleb/javascript-algorithms.git) repo as example.
+We'll use the [javascript-algorithms](https://github.com/trekhleb/javascript-algorithms.git) repository as an example. The path that lead to the wanted project is only needed for step 2. From step 2 onward, we only need your project's name.
 
 ```
 mkdir input
@@ -21,17 +21,16 @@ git -C input clone https://github.com/trekhleb/javascript-algorithms.git
 
 ## 2. Extract features and code changes from the project
 
-Please make sure your pyszz is setup for this setup to work.
-Run the following command:
+Ensure your `pyszz` is correctly set up. Run the following command:
 ```
 defectguard mining \
     -repo_name javascript-algorithms \
-    -repo_path input/ \ # Meaning the relative path to your project is input/javascript-algorithms
+    -repo_path input/ \ # Relative path to your project is input/javascript-algorithms
     -repo_language JavaScript \
     -pyszz_path pyszz_v2
 ```
 
-The extracted features and code changes are saved at `dg_cache/save`
+The extracted features and code changes will be saved in the `dg_cache/save` directory.
 
 ```
 dg_cache
@@ -66,20 +65,17 @@ dg_cache
         ├── repo_commits_0.pkl
         └── repo_features.pkl
 ```
-## 3. Use the extracted features and code changes to make the evaluation
+## 3. Evaluating Pre-Trained Models
 
-For 1st scenario: "Using our pre-train models and evaluate these models on industry dataset"
-
-The following bash script run the whole step:
+For the first scenario, we will use a pre-written script:
 
 **NOTE**: this script run with assumption the main language of the repo is JavaScript. Please check the script before running it.
 ```
 bash scripts/objective_1_evaluate.sh javascript-algorithms
 ```
 
-or step by step like below:
+Or perform the steps manually for each models `deepjit`, `simcom`, `tlel`, `lapredict`, and `lr`:
 
-We have 5 models: `deepjit`, `simcom`, `tlel`, `lapredict`, `lr`
 ```
 defectguard evaluating \
     -model deepjit \
@@ -88,7 +84,7 @@ defectguard evaluating \
     -repo_language JavaScript
 ```
 
-Output of these models, including prediction score and auc, are saved at `dg_cache/save`
+Outputs, including prediction scores and AUC, are stored in `dg_cache/save`.
 
 ```
 dg_cache
@@ -107,53 +103,45 @@ dg_cache
         └── results
             └── auc.csv
 ```
-The `auc.csv` will look like below:
+The `auc.csv` will display results as follows:
 ```
 Project Name,lapredict,lr,tlel,deepjit,sim,com,simcom
 javascript-algorithms,0.596969696969697,0.2545454545454545,0.4939393939393939,0.593939393939394,0.3909090909090909,0.5545454545454546,0.3999999999999999
 ```
-**NOTE**: If you want to re-evaluate on the same project, make sure to save `dg_cache` to other place before hand.
+**NOTE**: Back up `dg_cache` before re-evaluating the same project.
 
-## 4. Use the extracted features and code changes to fine-tune and evaluate
+## 4. Fine-Tuning and Evaluating Models
 
-For 2nd scenario: "Fine-tune and evaluate these new fine-tuned models on industry dataset"
-
-The following bash script run the whole step:
+For the second scenario, use the following scripts based on your preference for the number of training epochs:
 
 **NOTE**: this script run with assumption the main language of the repo is JavaScript and run on CPU. Please check the script before running it.
 
-With 5 epochs:
+Since `epochs` for fine-tuning is a hyperparameter that is yet to be decided. We would like to try out these 2 values first, which are 5 epochs and 10 epochs. Please ensure to back up `dg_cache` between each script.
 ```
 bash scripts/objective_1_fine_tune_evaluate.sh javascript-algorithms 5
 ```
-
-With 10 epochs:
 ```
 bash scripts/objective_1_fine_tune_evaluate.sh javascript-algorithms 10
 ```
 
-or step by step like below:
-
-Fine-tune the deeplearning-based models `deepjit`, `simcom`:
+Or perform the steps manually. Start by fine-tuning deep learning-based models (`deepjit`, `simcom`) and retraining machine learning-based models (`lapredict`, `lr`, `tlel`):
 ```
 defectguard training \
-    -model deepjit \
+    -model deepjit \ # simcom
     -from_pretrain \
     -repo_name javascript-algorithms \
     -repo_language JavaScript \
     -epochs 5 \ # or 10
     -device cuda
 ```
-
-Re-train the machine learning-based models `lapredict`, `lr`, `tlel`:
 ```
 defectguard training \
-    -model lapredict \
+    -model lapredict \ # tlel, lr
     -repo_name javascript-algorithms \
     -repo_language JavaScript
 ```
 
-Checkpoint of these models are saved at `dg_cache/save`
+Model checkpoints are saved in `dg_cache/save`.
 ```
 dg_cache
 ├── dataset
@@ -172,7 +160,7 @@ dg_cache
 Evaluate the machine learning-based models `tlel`, `lapredict`, `lr`:
 ```
 defectguard evaluating \
-    -model tlel \
+    -model tlel \ # lapredict, lr
     -repo_name javascript-algorithms \
     -repo_language JavaScript \
 ```
@@ -212,9 +200,50 @@ dg_cache
         └── results
             └── auc.csv
 ```
-The `auc.csv` will look like below:
+The updated `auc.csv` might look like this:
 ```
 Project Name,lapredict,lr,tlel,deepjit,sim,com,simcom
 javascript-algorithms,0.596969696969697,0.4606060606060606,0.2696969696969696,0.33636363636363636,0.3909090909090909,0.5545454545454546,0.3999999999999999
 ```
-**NOTE**: If you want to re-evaluate on the same project, make sure to save `dg_cache` to other place before hand.
+**NOTE**: Ensure `dg_cache` is backed up before re-evaluating on the same project.
+
+## Expected final output
+
+Finally, we will be asking for all the predict_scores and results
+```
+final_results
+├── project_1
+|   ├── evaluate_only
+|   |   ├── predict_scores
+|   |   │   ├── com.csv
+|   |   │   ├── deepjit.csv
+|   |   │   ├── lapredict.csv
+|   |   │   ├── lr.csv
+|   |   │   ├── sim.csv
+|   |   │   └── tlel.csv
+|   |   └── results
+|   |       └── auc.csv
+|   ├── 5_epochs
+|   |   ├── predict_scores
+|   |   │   ├── com.csv
+|   |   │   ├── deepjit.csv
+|   |   │   ├── lapredict.csv
+|   |   │   ├── lr.csv
+|   |   │   ├── sim.csv
+|   |   │   └── tlel.csv
+|   |   └── results
+|   |       └── auc.csv
+|   └── 10_epochs
+|       ├── predict_scores
+|       │   ├── com.csv
+|       │   ├── deepjit.csv
+|       │   ├── lapredict.csv
+|       │   ├── lr.csv
+|       │   ├── sim.csv
+|       │   └── tlel.csv
+|       └── results
+|           └── auc.csv
+├── project_2
+...
+└── project_n
+```
