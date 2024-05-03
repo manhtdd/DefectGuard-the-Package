@@ -6,7 +6,7 @@ To archive this objective, we have 2 testing scenarios:
 
 ## Setup
 
-Refer to the `README.md` for Docker setup instructions or the "From Scratch" section if Docker is not an option.
+Refer to the `README.md` for [Docker](https://github.com/manhtdd/DefectGuard-the-Package?tab=readme-ov-file#via-docker-recommended) setup instructions or the [From Scratch](https://github.com/manhtdd/DefectGuard-the-Package?tab=readme-ov-file#from-scratch) section if Docker is not an option.
 
 `defectguard` can be run from any location on your local machine. For simplicity, follow the pipeline where this repo is cloned.
 
@@ -21,7 +21,7 @@ git -C input clone https://github.com/trekhleb/javascript-algorithms.git
 
 ## 2. Extract features and code changes from the project
 
-Ensure your `pyszz` is correctly set up. Run the following command:
+Before running Defect Prediction models, we need to label code changes and extract neccessary features from them by run the following command:
 ```
 defectguard mining \
     -repo_name javascript-algorithms \
@@ -29,6 +29,7 @@ defectguard mining \
     -repo_language JavaScript \
     -pyszz_path pyszz_v2
 ```
+Note that, this step require your `pyszz` to be correctly set up as mentioned in [Installation](https://github.com/manhtdd/DefectGuard-the-Package?tab=readme-ov-file#installation) section.
 
 The extracted features and code changes will be saved in the `dg_cache/save` directory.
 
