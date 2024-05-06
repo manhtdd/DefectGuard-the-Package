@@ -30,6 +30,7 @@ class Processor:
         self.change_codes = None
         self.change_features = None
         self.labels = None
+        self.change_files = None
 
     def run(self, szz_output, extracted_date):
         self.create_dirs()
@@ -158,6 +159,7 @@ class Processor:
         self.deepjit_codes = []
         self.simcom_codes = []
         self.labels = []
+        self.change_files = []
         self.change_codes = {
             "_id": [], "date": [], "file_name": [], "added_code": [], "removed_code": [], "deepjit": [], "simcom": [], "bug": []
         }
@@ -179,6 +181,7 @@ class Processor:
                     cc2vec_commit,
                     deepjit_commit,
                     simcom_commit,
+                    change_files,
                 ) = self.process_one_commit(commit)
 
                 change_commit = self.process_one_change_commit(commit)
@@ -192,6 +195,7 @@ class Processor:
                 self.deepjit_codes.append(deepjit_commit)
                 self.simcom_codes.append(simcom_commit)
                 self.labels.append(label)
+                self.change_files.append(change_files)
 
                 for feature, code in zip(change_commit["change_features"], change_commit["change_codes"]):
                     self.change_codes["_id"].append(id)
@@ -217,6 +221,7 @@ class Processor:
         cc2vec_commit = []
         deepjit_commit = []
         simcom_commit = []
+        change_files = len(commit["files"])
         for file in commit["files"]:
             
             cc2vec_file = {"file_name": file, "added_code": [], "removed_code": []}
@@ -248,7 +253,7 @@ class Processor:
             removed_code = " ".join(cc2vec_file["removed_code"])
             simcom_commit.append(f"{added_code} {removed_code}")
 
-        return id, mes, cc2vec_commit, deepjit_commit, simcom_commit
+        return id, mes, cc2vec_commit, deepjit_commit, simcom_commit, change_files
 
     def process_one_change_commit(self, commit):
         id = commit["commit_id"]

@@ -4,7 +4,7 @@ from .utils import save_pkl
 from defectguard.utils.logger import logger
 import numpy as np
 import pandas as pd
-import os
+import os, sys
 
 
 class Splitter:
@@ -108,6 +108,33 @@ class Splitter:
                 os.path.join(self.processor.commit_path, f"simcom_{save_part}.pkl"),
             )
         
+        def get_change_indexes(commit_size, files_size, train_test_ratio, val_train_ratio):
+            train_all_ratio = 1 / (1 + val_train_ratio + 1 / train_test_ratio)
+            val_all_ratio = 1 / (1 + val_train_ratio + 1 / (val_train_ratio * train_test_ratio))
+            test_all_ratio = 1 - train_all_ratio - val_all_ratio
+            commit_ids = np.arange(commit_size)
+            sizes = {
+                "train": round(files_size * train_all_ratio),
+                "val": round(files_size * val_all_ratio),
+                "test": round(files_size * test_all_ratio)
+            }
+            indexes = {
+                "train": [],
+                "val": [],
+                "test": []
+            }
+            
+            for key in ["train", "val", "test"]:
+                index = indexes[key]
+                file_count = 0
+                for id in commit_ids:
+                    index.append(id)
+                    file_count += self.processor.change_files[id]
+                    if file_count >= sizes[key]:
+                        commit_ids = commit_ids[id+1:]
+                        break
+            return indexes
+
         #split change data by id:commit:
         def change_level_split(indexes, prefix):
             for key in indexes:
@@ -172,14 +199,14 @@ class Splitter:
                         change_codes["simcom"],
                         change_codes["bug"]
                     ],
-                    os.path.join(self.processor.commit_path, f"change_codes_simcom_{save_part}.pkl")
+                    os.path.join(self.processor.commit_path, f"change_codes_simcom{save_part}.pkl")
                 )
-            
-        change_level_split(indexes, "commit_ids")
+        indexes = get_change_indexes(len(self.processor.ids), len(self.processor.labels), train_test_ratio, val_train_ratio)
+        change_level_split(indexes, "")
         
         #split by files:
-        indexes = self.split_train_test_indexes(len(self.processor.labels), train_test_ratio)
-        if val_train_ratio:
-            indexes = self.split_train_val_indexes(indexes, val_train_ratio)
-        change_level_split(indexes, "files")
+        # indexes = self.split_train_test_indexes(len(self.processor.labels), train_test_ratio)
+        # if val_train_ratio:
+        #     indexes = self.split_train_val_indexes(indexes, val_train_ratio)
+        # change_level_split(indexes, "files")
                 
