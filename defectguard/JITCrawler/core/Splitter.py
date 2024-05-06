@@ -110,7 +110,7 @@ class Splitter:
         
         def get_change_indexes(commit_size, files_size, train_test_ratio, val_train_ratio):
             train_all_ratio = 1 / (1 + val_train_ratio + 1 / train_test_ratio)
-            val_all_ratio = 1 / (1 + val_train_ratio + 1 / (val_train_ratio * train_test_ratio))
+            val_all_ratio = 1 / (1 + 1 / val_train_ratio + 1 / (val_train_ratio * train_test_ratio))
             test_all_ratio = 1 - train_all_ratio - val_all_ratio
             commit_ids = np.arange(commit_size)
             sizes = {
