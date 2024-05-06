@@ -120,20 +120,9 @@ def evaluating_machine_learning(pretrain, params, dg_cache_path):
         ["la"]
         if model.model_name == "lapredict"
         else [
-            "ns",
-            "nd",
-            "nf",
-            "entropy",
             "la",
             "ld",
             "lt",
-            "fix",
-            "ndev",
-            "age",
-            "nuc",
-            "exp",
-            "rexp",
-            "sexp",
         ]
     )
     commit_hashes = test_df.loc[:, "_id"].to_list()
@@ -204,6 +193,8 @@ def evaluating(params):
         df.to_csv(f'{dg_cache_path}/save/{params.repo_name}/predict_scores/{model_name}.csv', index=False, sep=',')
     
     if params.model in ["simcom"]:
+        # logger(com_hashes)
+        # logger(sim_hashes)
         assert com_hashes == sim_hashes
         simcom_proba = average(sim_proba, com_proba)
         auc_score = roc_auc_score(y_true=com_ground_truth,  y_score=simcom_proba)

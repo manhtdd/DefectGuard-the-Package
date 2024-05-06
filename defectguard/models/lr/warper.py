@@ -9,7 +9,8 @@ class LogisticRegression(BaseWraper):
         self.language = language
         self.initialized = False
         self.model = None
-        self.columns = (["ns","nd","nf","entrophy","la","ld","lt","fix","ndev","age","nuc","exp","rexp","sexp"])
+        #self.columns = (["ns","nd","nf","entrophy","la","ld","lt","fix","ndev","age","nuc","exp","rexp","sexp"])
+        self.columns = (["la","ld","lt"])
         download_folder(self.model_name, self.language)
         
     def initialize(self, pretrain=None):

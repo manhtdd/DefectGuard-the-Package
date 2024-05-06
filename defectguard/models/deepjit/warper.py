@@ -68,8 +68,8 @@ class DeepJIT(BaseWraper):
         with torch.no_grad():
             # Extract data from DataLoader
             code = torch.tensor(model_input["code"], device=self.device)
-            message = torch.tensor(model_input["message"], device=self.device)
-
+            # message = torch.tensor(model_input["message"], device=self.device)
+            message = None
             # Forward
             predict = self.model(message, code)
         

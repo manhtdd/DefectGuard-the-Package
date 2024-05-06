@@ -7,7 +7,7 @@ class DeepJITModel(nn.Module):
         super(DeepJITModel, self).__init__()
         self.params = params
 
-        V_msg = params["vocab_msg"]
+        # V_msg = params["vocab_msg"]
         V_code = params["vocab_code"]
         Dim = params["embedding_size"]
         Class = params["class_num"]
@@ -17,8 +17,8 @@ class DeepJITModel(nn.Module):
         Ks = params["filter_sizes"]  # kernel sizes
 
         # CNN-2D for commit message
-        self.embed_msg = nn.Embedding(V_msg, Dim)
-        self.convs_msg = nn.ModuleList([nn.Conv2d(Ci, Co, (K, Dim)) for K in Ks])
+        # self.embed_msg = nn.Embedding(V_msg, Dim)
+        # self.convs_msg = nn.ModuleList([nn.Conv2d(Ci, Co, (K, Dim)) for K in Ks])
 
         # CNN-2D for commit code
         self.embed_code = nn.Embedding(V_code, Dim)
@@ -27,7 +27,7 @@ class DeepJITModel(nn.Module):
 
         # other information
         self.dropout = nn.Dropout(params["dropout_rate"])
-        self.fc1 = nn.Linear(2 * len(Ks) * Co, params["hidden_size"])  # hidden units
+        self.fc1 = nn.Linear(len(Ks) * Co, params["hidden_size"])  # hidden units
         self.fc2 = nn.Linear(params["hidden_size"], Class)
         self.sigmoid = nn.Sigmoid()
 
@@ -52,13 +52,14 @@ class DeepJITModel(nn.Module):
         return x
 
     def forward(self, msg, code):
-        x_msg = self.embed_msg(msg)
-        x_msg = self.forward_msg(x_msg, self.convs_msg)
+        # x_msg = self.embed_msg(msg)
+        # x_msg = self.forward_msg(x_msg, self.convs_msg)
 
         x_code = self.embed_code(code)
         x_code = self.forward_code(x_code, self.convs_code_line, self.convs_code_file)
 
-        x_commit = torch.cat((x_msg, x_code), 1)
+        # x_commit = torch.cat((x_msg, x_code), 1)
+        x_commit = x_code
         x_commit = self.dropout(x_commit)
         out = self.fc1(x_commit)
         out = F.relu(out)

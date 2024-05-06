@@ -117,10 +117,10 @@ class Splitter:
                 labels = self.get_values(self.processor.labels, indexes[key])
 
                 change_codes = {
-                    "_id": [], "date": [], "file_name": [], "added_code": [], "removed_code": []
+                    "_id": [], "date": [], "file_name": [], "added_code": [], "removed_code": [], "deepjit": [], "simcom": [], "bug": []
                 }
                 change_features = {
-                    "_id": [], "date": [], "file_name": [], "la": [], "ld": [], "lt": []
+                    "_id": [], "date": [], "file_name": [], "la": [], "ld": [], "lt": [], "bug": []
                 }
 
                 for index, id in enumerate(self.processor.change_codes["_id"]):
@@ -133,37 +133,46 @@ class Splitter:
                         for key in self.processor.change_features:
                             change_features[key].append(self.processor.change_features[key][index])
                 
-                df = pd.DataFrame(
+                df1 = pd.DataFrame(
                     {
                         "_id": ids,
                         "date": date,
-                        "label": labels
+                        "bug": labels
                     } 
                 )
-                df.to_csv(
+                df1.to_csv(
                     os.path.join(self.processor.feature_path, f"labels_{save_part}.csv"),
                     index=False
                 )
-                del df
 
-                df = pd.DataFrame(
+                df2 = pd.DataFrame(
                     change_features
                 )
-                df.to_csv(
+                # df2 = pd.merge(df2, df1, on=["_id", "date"], how="outer")
+                df2.to_csv(
                     os.path.join(self.processor.feature_path, f"change_features_{save_part}.csv"),
                     index=False
                 )
-                del df
+                del df1, df2
 
                 save_pkl(
                     [
                         change_codes["_id"], 
-                        change_codes["date"],
                         change_codes["file_name"], 
-                        change_codes["added_code"],
-                        change_codes["removed_code"],
+                        change_codes["deepjit"],
+                        change_codes["bug"]
                     ],
-                    os.path.join(self.processor.commit_path, f"change_codes_{save_part}.pkl")
+                    os.path.join(self.processor.commit_path, f"change_codes_deepjit_{save_part}.pkl")
+                )
+
+                save_pkl(
+                    [
+                        change_codes["_id"], 
+                        change_codes["file_name"], 
+                        change_codes["simcom"],
+                        change_codes["bug"]
+                    ],
+                    os.path.join(self.processor.commit_path, f"change_codes_simcom_{save_part}.pkl")
                 )
             
         change_level_split(indexes, "commit_ids")

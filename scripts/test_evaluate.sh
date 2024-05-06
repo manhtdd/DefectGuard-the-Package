@@ -1,7 +1,2 @@
 #!bin/bash
-
-defectguard -debug -log_to_file evaluating \
-    -model deepjit \
-    -dg_save_folder . \
-    -repo_name Tic-tac-toe-Game-using-Network-Socket-APIs \
-    -repo_language C++ \
+defectguard -debug evaluating -model simcom -dg_save_folder . -repo_name Tic-tac-toe-Game-using-Network-Socket-APIs -repo_language C -feature_test_set "dg_cache/dataset/Tic-tac-toe-Game-using-Network-Socket-APIs/feature/change_features_commit_ids_Tic-tac-toe-Game-using-Network-Socket-APIs_test.csv" -commit_test_set "dg_cache/dataset/Tic-tac-toe-Game-using-Network-Socket-APIs/commit/change_codes_simcom_commit_ids_Tic-tac-toe-Game-using-Network-Socket-APIs_test.pkl"
