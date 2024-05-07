@@ -15,10 +15,8 @@ repos=(
 
 mine() {
     defectguard -debug mining \
-        -dg_save_folder /duongnd \
-        -mode local \
         -repo_name "$repo" \
-        -repo_path /duongnd/repo/ \
+        -repo_path input/ \
         -repo_language JavaScript \
         -pyszz_path /app/pyszz_v2 
 }
