@@ -1,16 +1,16 @@
 #!/bin/bash
 
 repos=(
-    # "iptv"
-    # "preact"
-    "phaser"
-    "bootstrap"
-    # "moment"
-    # "Ghost"
-    # "eslint"
-    # "mongoose"
-    # "codemirror5"
-    # "uppy"
+    "iptv"
+    "preact"
+    # "phaser"
+    # "bootstrap"
+    "moment"
+    "Ghost"
+    "eslint"
+    "mongoose"
+    "codemirror5"
+    "uppy"
 )
 
 mine() {
