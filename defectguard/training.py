@@ -87,10 +87,12 @@ def training_deep_learning(params, dg_cache_path):
     # Load dataset
     loaded_data = pickle.load(open(train_set_path, 'rb'))
     ids, messages, commits, labels = loaded_data
+    messages = ["" for ms in messages]
 
     if params.model == "simcom":
         val_data = pickle.load(open(val_set_path, 'rb'))
         val_ids, val_messages, val_codes, val_labels = val_data
+        val_messages = ["" for ms in val_messages]
 
     dict_msg, dict_code = model.message_dictionary, model.code_dictionary
 
@@ -190,20 +192,9 @@ def training_machine_learning(params, dg_cache_path):
         ["la"]
         if model.model_name == "lapredict"
         else [
-            "ns",
-            "nd",
-            "nf",
-            "entropy",
             "la",
             "ld",
             "lt",
-            "fix",
-            "ndev",
-            "age",
-            "nuc",
-            "exp",
-            "rexp",
-            "sexp",
         ]
     )
     X_train = train_df.loc[:, cols]

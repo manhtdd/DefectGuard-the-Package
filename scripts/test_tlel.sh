@@ -1,7 +1,2 @@
 #!bin/bash
-
-defectguard training \
-    -model tlel \
-    -dg_save_folder . \
-    -repo_name Tic-tac-toe-Game-using-Network-Socket-APIs \
-    -repo_language C++ \
+defectguard training -model deepjit -dg_save_folder . -repo_name Tic-tac-toe-Game-using-Network-Socket-APIs -repo_language C -commit_train_set "dg_cache/dataset/Tic-tac-toe-Game-using-Network-Socket-APIs/commit/change_codes_deepjit_commit_ids_Tic-tac-toe-Game-using-Network-Socket-APIs_train.pkl" 
