@@ -107,7 +107,7 @@ class Splitter:
                 [ids, messages, simcom_codes, labels],
                 os.path.join(self.processor.commit_path, f"simcom_{save_part}.pkl"),
             )
-        
+
         def get_change_indexes(commit_size, files_size, train_test_ratio, val_train_ratio):
             train_all_ratio = 1 / (1 + val_train_ratio + 1 / train_test_ratio)
             val_all_ratio = 1 / (1 + 1 / val_train_ratio + 1 / (val_train_ratio * train_test_ratio))
@@ -160,27 +160,28 @@ class Splitter:
                         for key in self.processor.change_features:
                             change_features[key].append(self.processor.change_features[key][index])
                 
-                df1 = pd.DataFrame(
-                    {
-                        "_id": ids,
-                        "date": date,
-                        "bug": labels
-                    } 
-                )
-                df1.to_csv(
-                    os.path.join(self.processor.feature_path, f"labels_{save_part}.csv"),
-                    index=False
-                )
+                # df1 = pd.DataFrame(
+                #     {
+                #         "_id": ids,
+                #         "date": date,
+                #         "bug": labels
+                #     } 
+                # )
+                # df1.to_csv(
+                #     os.path.join(self.processor.feature_path, f"labels_{save_part}.csv"),
+                #     index=False
+                # )
+                # del df1
 
                 df2 = pd.DataFrame(
                     change_features
                 )
                 # df2 = pd.merge(df2, df1, on=["_id", "date"], how="outer")
                 df2.to_csv(
-                    os.path.join(self.processor.feature_path, f"change_features_{save_part}.csv"),
+                    os.path.join(self.processor.feature_path, f"change_features{save_part}.csv"),
                     index=False
                 )
-                del df1, df2
+                del df2
 
                 save_pkl(
                     [
@@ -189,7 +190,7 @@ class Splitter:
                         change_codes["deepjit"],
                         change_codes["bug"]
                     ],
-                    os.path.join(self.processor.commit_path, f"change_codes_deepjit_{save_part}.pkl")
+                    os.path.join(self.processor.commit_path, f"change_codes_deepjit{save_part}.pkl")
                 )
 
                 save_pkl(
@@ -201,9 +202,10 @@ class Splitter:
                     ],
                     os.path.join(self.processor.commit_path, f"change_codes_simcom{save_part}.pkl")
                 )
+
         indexes = get_change_indexes(len(self.processor.ids), len(self.processor.labels), train_test_ratio, val_train_ratio)
         change_level_split(indexes, "")
-        
+
         #split by files:
         # indexes = self.split_train_test_indexes(len(self.processor.labels), train_test_ratio)
         # if val_train_ratio:

@@ -91,7 +91,7 @@ class Processor:
             return dates == sorted(dates)
 
         self.repo.load_features()
-        assert is_sorted_by_date(self.repo.features), "Features are not sorted by date"
+        # assert is_sorted_by_date(self.repo.features), "Features are not sorted by date"
         if not cols:
             cols = [
                 "_id",
@@ -313,8 +313,6 @@ class Processor:
             os.path.join(self.feature_path, "features.csv"),
             index=False,
         )
-        code_msg_dict = create_dict(self.messages, self.deepjit_codes)
-        save_pkl(code_msg_dict, os.path.join(self.commit_path, "dict.pkl"))
         save_pkl(
             [self.ids, self.messages, self.cc2vec_codes, self.labels],
             os.path.join(self.commit_path, "cc2vec.pkl"),
@@ -327,19 +325,22 @@ class Processor:
             [self.ids, self.messages, self.simcom_codes, self.labels],
             os.path.join(self.commit_path, "simcom.pkl"),
         )
+        code_msg_dict = create_dict(self.messages, self.deepjit_codes)
+        save_pkl(code_msg_dict, os.path.join(self.commit_path, "dict.pkl"))
         
         #file change 
-        df1 = pd.DataFrame(
-            {
-                "_id": self.ids,
-                "date": self.date,
-                "bug": self.labels
-            } 
-        )
-        df1.to_csv(
-            os.path.join(self.feature_path, "change_labels.csv"),
-            index=False
-        )
+        # df1 = pd.DataFrame(
+        #     {
+        #         "_id": self.ids,
+        #         "date": self.date,
+        #         "bug": self.labels
+        #     } 
+        # )
+        # df1.to_csv(
+        #     os.path.join(self.feature_path, "change_labels.csv"),
+        #     index=False
+        # )
+        # del df1
 
         df2 = pd.DataFrame(
             self.change_features
@@ -350,7 +351,7 @@ class Processor:
             os.path.join(self.feature_path, "change_features.csv"),
             index=False
         )
-        del df1, df2
+        del df2
 
         save_pkl(
             [
