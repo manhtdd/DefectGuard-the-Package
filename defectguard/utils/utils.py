@@ -135,6 +135,7 @@ def create_download_list(model_name, language):
 def download_file(file_id, folder_path):
     if not os.path.isfile(folder_path):
         gdown.download(f'https://drive.google.com/file/d/{file_id}/view?usp=sharing', output=folder_path, fuzzy=True)
+        # gdown.download(f'https://drive.google.com/file/uc?id={file_id}', output=folder_path, fuzzy=True)
 
 def download_folder(model_name, language):
     # Check if the file exists locally
