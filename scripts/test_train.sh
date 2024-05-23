@@ -1,2 +1,3 @@
 #!bin/bash
-defectguard training -model simcom -dg_save_folder . -repo_name Tic-tac-toe-Game-using-Network-Socket-APIs -repo_language C -feature_train_set "dg_cache/dataset/Tic-tac-toe-Game-using-Network-Socket-APIs/feature/change_features_commit_ids_Tic-tac-toe-Game-using-Network-Socket-APIs_train.csv" -commit_train_set "dg_cache/dataset/Tic-tac-toe-Game-using-Network-Socket-APIs/commit/change_codes_simcom_commit_ids_Tic-tac-toe-Game-using-Network-Socket-APIs_train.pkl" -commit_val_set "dg_cache/dataset/Tic-tac-toe-Game-using-Network-Socket-APIs/commit/change_codes_simcom_commit_ids_Tic-tac-toe-Game-using-Network-Socket-APIs_val.pkl"
+defectguard -debug training -model lr -dg_save_folder . -repo_name javascript -repo_language JavaScript;
+defectguard -debug evaluating -model lr -dg_save_folder . -repo_name javascript -repo_language JavaScript;

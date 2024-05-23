@@ -5,6 +5,7 @@ from tqdm import tqdm
 import numpy as np
 import pandas as pd
 import datetime
+from defectguard.utils.logger import logger
 
 class Extractor:
     def __init__(
@@ -102,7 +103,7 @@ class Extractor:
         os.chdir(cur_dir)
         return ids
 
-    def extract_one_commit_diff(self, commit_id: str, languages=[]):
+    def extract_one_commit_diff(self, commit_id: str, languages=[], pull_log=None):
         """
         Input:
             commit_id: the id of the commit
@@ -118,23 +119,26 @@ class Extractor:
                 |- diff: the dict of files diff in the commit
                 |- blame: the dict of files blame in the commit
         """
-        command = "git show {} --name-only --pretty=format:'%H%n%P%n%an%n%ct%n%s%n%B%n[ALL CHANGE FILES]'"
+        if pull_log is None:
+            command = 'git show {} --name-only --pretty=format:"%H%n%P%n%an%n%ct%n%s%n%B%n[ALL CHANGE FILES]"'
 
-        show_msg = exec_cmd(command.format(commit_id))
-        show_msg = [msg.strip() for msg in show_msg]
-        file_index = show_msg.index("[ALL CHANGE FILES]")
+            show_msg = exec_cmd(command.format(commit_id))
+            show_msg = [msg.strip() for msg in show_msg]
+            file_index = show_msg.index("[ALL CHANGE FILES]")
 
-        subject = show_msg[4]
-        head = show_msg[:5]
-        commit_msg = show_msg[5:file_index]
+            subject = show_msg[4]
+            head = show_msg[:5]
+            commit_msg = show_msg[5:file_index]
 
-        parent_id = head[1]
-        author = head[2]
-        commit_date = head[3]
-        commit_msg = " ".join(commit_msg)
+            parent_id = head[1]
+            author = head[2]
+            commit_date = head[3]
+            commit_msg = " ".join(commit_msg)
 
-        command = "git show {} --pretty=format: --unified=999999999"
-        diff_log = split_diff_log(exec_cmd(command.format(commit_id)))
+            command = 'git show {} --pretty=format: --unified=999999999'
+            diff_log = split_diff_log(exec_cmd(command.format(commit_id)))
+        else:
+            diff_log = split_diff_log(pull_log)
         commit_diff = {}
         commit_blame = {}
         files = []
@@ -165,27 +169,34 @@ class Extractor:
                     if file_language not in languages:
                         continue
 
-                command = "git blame -t -n -l {} '{}'"
-                file_blame_log = exec_cmd(command.format(parent_id, file_name_a))
-                if not file_blame_log:
-                    continue
-                file_blame = get_file_blame(file_blame_log)
+                if pull_log is None:
+                    command = 'git blame -t -n -l {} "{}"'
+                    file_blame_log = exec_cmd(command.format(parent_id, file_name_a))
+                    if not file_blame_log:
+                        continue
+                    file_blame = get_file_blame(file_blame_log)
 
-                commit_blame[file_name_b] = file_blame
+                    commit_blame[file_name_b] = file_blame
                 commit_diff[file_name_b] = file_diff
                 files.append(file_name_b)
-
-        commit = {
-            "commit_id": commit_id,
-            "parent_id": parent_id,
-            "subject": subject,
-            "message": commit_msg,
-            "author": author,
-            "date": int(commit_date),
-            "files": files,
-            "diff": commit_diff,
-            "blame": commit_blame,
-        }
+        
+        if pull_log is None:
+            commit = {
+                "commit_id": commit_id,
+                "parent_id": parent_id,
+                "subject": subject,
+                "message": commit_msg,
+                "author": author,
+                "date": int(commit_date),
+                "files": files,
+                "diff": commit_diff,
+                "blame": commit_blame,
+            }
+        else:
+            commit = {
+                "files": files,
+                "diff": commit_diff,
+            }
         return commit
 
     def extract_repo_commit_diffs(self):
@@ -201,7 +212,7 @@ class Extractor:
 
         for commit_id in tqdm(extracting_ids):
             try:
-                commit = self.extract_one_commit_diff(commit_id, self.language)
+                commit = self.extract_one_commit_diff(commit_id=commit_id, languages=self.language)
                 if not commit["diff"]:
                     self.repo.ids[commit_id] = -2
                     continue
