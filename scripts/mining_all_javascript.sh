@@ -3,8 +3,8 @@
 repos=(
     "iptv"
     "preact"
-    # "phaser"
-    # "bootstrap"
+    "phaser"
+    "bootstrap"
     "moment"
     "Ghost"
     "eslint"
@@ -14,7 +14,7 @@ repos=(
 )
 
 mine() {
-    defectguard -debug mining \
+    defectguard -debug -log_to_file mining \
         -repo_name "$repo" \
         -repo_path input/ \
         -repo_language JavaScript \
