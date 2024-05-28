@@ -72,7 +72,7 @@ class CustomDataset(Dataset):
     
 def training_deep_learning(params, dg_cache_path):
     commit_path = f'{dg_cache_path}/dataset/{params.repo_name}/commit'
-    dictionary_path = f'{commit_path}/change_codes_{params.repo_name}_train_dict.pkl' if params.dictionary is None else params.dictionary
+    dictionary_path = f'{commit_path}/change_codes_{params.model}_{params.repo_name}_train_dict.pkl' if params.dictionary is None else params.dictionary
     train_set_path = f'{commit_path}/change_codes_{params.model}_{params.repo_name}_train.pkl' if params.commit_train_set is None else params.commit_train_set
     val_set_path = f'{commit_path}/change_codes_{params.model}_{params.repo_name}_val.pkl' if params.commit_val_set is None else params.commit_val_set
     model_save_path = f'{dg_cache_path}/save/{params.repo_name}'
@@ -232,5 +232,3 @@ def training(params):
 
     if params.model in ["lapredict", "lr", "tlel", "simcom"]:
         training_machine_learning(params, dg_cache_path)
-
-    
