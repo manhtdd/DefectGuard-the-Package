@@ -51,8 +51,8 @@ def main(args=None):
     inferencing_parser.add_argument("-vsc", action="store_true", help="Output for vsc")
     inferencing_parser.add_argument("-threshold", type=float, default=0.5, help="Threshold for warning")
     inferencing_parser.add_argument("-no_warning", action="store_true", help="Supress output warning")
-    inferencing_parser.add_argument("-commit_hash", nargs="+", type=str, default=[], help="List of commit hashes")
-    inferencing_parser.add_argument("-top", type=int, default=0, help="Number of top commits")
+    inferencing_parser.add_argument("-pull_numbers", nargs="+", type=int, default=[], help="List of pull request numbers")
+    inferencing_parser.add_argument("-access_key", type=str, default="./input", help="Path to access_key.json")
 
     training_parser = argparse.ArgumentParser(parents=[common_parser], add_help=False)
     training_parser.set_defaults(func=training)

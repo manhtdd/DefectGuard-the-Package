@@ -20,7 +20,7 @@ class Fetcher:
         self.extractor = Extractor()
         self.processor = Processor("dg_cache")
 
-    def set_access_token(self, token):
+    def set_access_token(self, token=None):
         self.access_token = token
 
     def get_headers(self):
