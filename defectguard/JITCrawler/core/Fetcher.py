@@ -1,12 +1,7 @@
-'''
-INCOMPLETED
-Need extract features
-'''
-from .utils import calu_modified_lines
 from .Extractor import Extractor
 from .Processor import Processor
+from defectguard.utils.logger import logger
 import requests
-import base64
 
 class Fetcher:
     def __init__(
@@ -63,24 +58,27 @@ class Fetcher:
 
     def get_one_pull_requests_diff(self, pull_request_number):
         headers = self.get_headers()
+        print(f"Fetching pull request #{pull_request_number}...")
         response = requests.get(f'https://api.github.com/repos/{self.owner}/{self.repo}/pulls/{pull_request_number}', headers=headers)
         if response.status_code == 200:
             pull_request = response.json()
             if pull_request:
                 base = pull_request["base"]["sha"]
+                print(f"Fetching diff for pull request #{pull_request_number}...")
                 diff_response = requests.get(pull_request['diff_url'], headers=headers)
             
                 if diff_response.status_code == 200:
                     diff = diff_response.text.split('\n')
                     if len(diff[-1]) == 0:
                         diff.pop()
+                    print(f"Successfully fetched diff for pull request #{pull_request_number}.")
                     return base, diff
                 else:
-                    print(f"Failed to fetch diff for PR #{pull_request_number}: {diff_response.status_code}")
+                    logger(f"Failed to fetch diff for PR #{pull_request_number}: {diff_response.status_code}")
             else:
-                print("No pull requests found.")
+                logger("No pull requests found.")
         else:
-            print(f"Failed to fetch pull requests: {response.status_code}")
+            logger(f"Failed to fetch pull requests: {response.status_code}")
 
     def get_pull_request_data(self, pull_request_numbers):
         pull_diffs = []

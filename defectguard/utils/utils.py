@@ -1,5 +1,6 @@
 from importlib.resources import files
-import os, gdown
+import os, gdown, json
+from defectguard.utils.logger import logger
 
 SRC_PATH = str(files('defectguard'))
 
@@ -67,6 +68,17 @@ IDS = {
     'cc2vec': '',
     'jitline': '',
 }
+
+def load_json(file_path):
+    try:
+        with open(file_path, 'r') as file:
+            return json.load(file)
+    except FileNotFoundError:
+        logger(f"Error: The file {file_path} was not found.")
+    except json.JSONDecodeError:
+        logger(f"Error: The file {file_path} is not a valid JSON file.")
+    except Exception as e:
+        logger(f"An unexpected error occurred: {e}")
 
 def sort_by_predict(commit_list):
     # Sort the list of dictionaries based on the "predict" value in descending order
