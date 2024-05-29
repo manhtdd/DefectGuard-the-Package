@@ -120,7 +120,7 @@ def training_deep_learning(params, dg_cache_path):
 
     for epoch in range(1, params.epochs + 1):
         total_loss = 0
-        for batch in code_dataloader:
+        for batch in tqdm(code_dataloader):
             # Extract data from DataLoader
             code = batch["code"].to(model.device)
             message = batch["message"].to(model.device)
