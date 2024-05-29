@@ -5,7 +5,7 @@ SRC_PATH = str(files('defectguard'))
 
 IDS = {
     'deepjit': {
-        'hyperparameters': '18TIg-2DhxI0Ou0vdUg5g8nx6c5GHEzWQ',
+        'hyperparameters': '1AXbOZD-3ri3yjfvivQsvcb8BWTiRTD3s',
         'Java': '10XhImFwLt2VZ7Ra7nydN2bhBm3nEW6wY',
         'Java_dictionary': '1o2CgfK3KnvS4Ud2xZdXTEkKTaQ-z6Ioa',
         'Go': '1vf6LWG2BVkvgl5VOpxguAXYuIITtPOOs',
@@ -20,7 +20,7 @@ IDS = {
         'Python_dictionary': '1P326mIDCwWRK_HEX4YcJoSGNgKDIruIW',
     },
     'simcom': {
-        'hyperparameters': '18TIg-2DhxI0Ou0vdUg5g8nx6c5GHEzWQ',
+        'hyperparameters': '1AXbOZD-3ri3yjfvivQsvcb8BWTiRTD3s',
         'sim_Java': '1jEvRx4OwScOHh35_5GhlrXdmpU8Hd1nr',
         'sim_C++': '1jlXULkT6spmvlAYp_g0kOaZjWsUj0sJy',
         'sim_Go': '14it5ddgzhVUo-EVBqNslp7fBtf-fSAqn',

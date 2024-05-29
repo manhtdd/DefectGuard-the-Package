@@ -85,24 +85,23 @@ def inferencing(params):
     # extract repo
     start_extract_time = time.time()
 
-    crawler = BasicPipeline(cfg)
+    # crawler = BasicPipeline(cfg)
     # crawler.set_repo(cfg)
     # crawler.run()
 
-    fetcher = Fetcher(owner=params.owner, repo=params.repo_name)
-    file_path = f'{params.access_key}/access_key.json'
     try:
-        with open(file_path, 'r') as file:
+        with open(params.access_key, 'r') as file:
             access_key = json.load(file)
     except FileNotFoundError:
-        logger(f"Error: The file {file_path} was not found.")
+        logger(f"Error: The file {params.access_key} was not found.")
     except json.JSONDecodeError:
-        logger(f"Error: The file {file_path} is not a valid JSON file.")
+        logger(f"Error: The file {params.access_key} is not a valid JSON file.")
     except Exception as e:
         logger(f"An unexpected error occurred: {e}")
+    fetcher = Fetcher(owner=params.repo_owner, repo=params.repo_name, access_token=access_key)
+    pull_requests = fetcher.get_pull_request_data(params.pull_numbers)
 
-    fetcher.set_access_token(access_key)
-    pull_requests = fetcher.get_pull_request_data(params.pull_request_numbers)
+    logger(pull_requests)
     
     # commits, features, not_found_ids = crawler.repo.get_commits(params.commit_hash)
     # logger(commits, features, not_found_ids)
@@ -128,14 +127,14 @@ def inferencing(params):
             model_list[model] = init_model(model, params.repo_language, params.device)
 
         # Inference
-        outputs = {"no_code_change_commit": not_found_ids}
+        outputs = {}
         for model in model_list.keys():
             start_inference_time = time.time()
 
             outputs[model] = (
-                sort_by_predict(model_list[model].handle(user_input))
+                sort_by_predict(model_list[model].handle(pull_requests))
                 if params.sort
-                else model_list[model].handle(user_input)
+                else model_list[model].handle(pull_requests)
             )
 
             end_inference_time = time.time()

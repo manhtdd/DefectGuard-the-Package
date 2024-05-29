@@ -21,14 +21,13 @@ class Fetcher:
         self.processor = Processor("dg_cache")
 
     def set_access_token(self, token=None):
-        self.access_token = token
+        self.access_token = token["token"]
 
     def get_headers(self):
         if self.access_token is None:
             return None
         else:
-            return 
-            {
+            return {
                 'Authorization': f'token {self.access_token}',
                 'Accept': 'application/vnd.github.v3+json'
             }
