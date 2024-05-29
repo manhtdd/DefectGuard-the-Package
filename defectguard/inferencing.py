@@ -148,13 +148,8 @@ def inferencing(params):
 
         print(json.dumps(outputs, indent=2))
 
-        if not params.no_warning:
-            defect_outputs = check_threshold(outputs, params.threshold)
-            for model, commits in defect_outputs.items():
-                for commit in commits:
-                    raise Exception(
-                        f"{model}: commit {commit['commit_hash']} has {commit['predict']} chance of being defect. Please review it."
-                    )
+    else:
+        raise Exception("No pull request to inference. Please check if your pull requests contain any code change.")
 
     end_whole_process_time = time.time()
 

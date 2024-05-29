@@ -13,10 +13,11 @@ class Fetcher:
         self,
         access_token = None,
         owner = None,
-        repo = None
+        repo = None,
+        language = None
     ):
         self.set_access_token(access_token)
-        self.set_repo(owner, repo)
+        self.set_repo(owner, repo, language)
         self.extractor = Extractor()
         self.processor = Processor("dg_cache")
 
@@ -32,12 +33,33 @@ class Fetcher:
                 'Accept': 'application/vnd.github.v3+json'
             }
 
-    def set_repo(self, owner, repo):
+    def set_repo(self, owner, repo, language):
         if owner is None or repo is None:
             print(f"Failed to set repository with owner: {owner} - repository: {repo}")
             return None
         self.owner = owner
         self.repo = repo
+        self.language = language
+
+    def check_extension(self, file_name):
+        # Define the expected extensions for each language
+        extensions = {
+            'JavaScript': '.js',
+            'Python': '.py',
+            'Java': '.java',
+            'C++': '.cpp',
+            'HTML': '.html',
+            'CSS': '.css',
+            # Add more languages and their extensions as needed
+        }
+        
+        # Get the extension for the current language
+        expected_extension = extensions.get(self.language)
+        
+        # Check if the file_name ends with the expected extension
+        if expected_extension and file_name.endswith(expected_extension):
+            return True
+        return False
 
     def get_one_pull_requests_diff(self, pull_request_number):
         headers = self.get_headers()
@@ -70,17 +92,19 @@ class Fetcher:
             data[i]={}
             output = self.processor.process_one_change_commit(pull)
             for codes, features in zip(output['change_codes'], output['change_features']):
-                data[i][codes['file_name']] = {
-                    'added_code': codes['added_code'],
-                    'removed_code': codes['removed_code'],
-                    'deepjit': codes['deepjit'],
-                    'simcom': codes['simcom'],
-                    'feature': {
-                        'la': features['la'],
-                        'ld': features['ld'],
-                        'lt': features['lt']
+                if self.check_extension(codes['file_name']):
+                    data[i][codes['file_name']] = {
+                        'added_code': codes['added_code'],
+                        'removed_code': codes['removed_code'],
+                        'deepjit': codes['deepjit'],
+                        'simcom': codes['simcom'],
+                        'feature': {
+                            'la': features['la'],
+                            'ld': features['ld'],
+                            'lt': features['lt']
+                        }
                     }
-                }
-            pull_diffs.append(data)
+            if data[i]:
+                pull_diffs.append(data)
         return pull_diffs
     
