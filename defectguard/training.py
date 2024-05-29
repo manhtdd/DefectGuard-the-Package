@@ -171,7 +171,6 @@ def training_deep_learning(params, dg_cache_path):
                     break
         else:
             loss_score = total_loss.item()
-            print(loss_score < smallest_loss, loss_score, smallest_loss)
             if loss_score < smallest_loss:
                 smallest_loss = loss_score
                 print('Save a better model', smallest_loss)
