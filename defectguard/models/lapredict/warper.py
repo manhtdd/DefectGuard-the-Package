@@ -27,11 +27,27 @@ class LAPredict(BaseWraper):
             self.initialize()
         print("Preprocessing...")
 
-        df = pd.DataFrame(data['features'])
-        commit_ids = df["_id"].to_list()
+        feature_table = []
+        for datapoint in data:
+            for pull_number, files in datapoint.items():
+                for file_name, file_content in files.items():
+                    row = {}
+                    row['pull_number'] = pull_number
+                    row['file_name'] = file_name
+                    row.update(file_content['feature'])
+                    feature_table.append(row)
+
+        logger(feature_table)
+
+        df = pd.DataFrame(feature_table)
+        pull_number = df.loc[:, ["pull_number", "file_name"]]
+        pull_number = list(pull_number.itertuples(index=False, name=None))
         df = df.loc[:, self.columns]
 
-        return commit_ids, df
+        logger(pull_number)
+        logger(df)
+
+        return pull_number, df
 
     def inference(self, model_input):
         if not self.initialized:
@@ -40,13 +56,13 @@ class LAPredict(BaseWraper):
         output = self.model.predict_proba(model_input)[:, 1]
         return output
 
-    def postprocess(self, commit_ids, inference_output):
+    def postprocess(self, pull_number, inference_output):
         if not self.initialized:
             self.initialize()
 
         result = []
-        for commit_id, output in zip(commit_ids, inference_output):
-            json_obj = {'commit_hash': commit_id, 'predict': output}
+        for pull_info, output in zip(pull_number, inference_output):
+            json_obj = {'pull_number': pull_info[0], 'file_name': pull_info[1], 'predict': output}
             result.append(json_obj)
 
         return result
@@ -55,9 +71,9 @@ class LAPredict(BaseWraper):
         if not self.initialized:
             self.initialize()
 
-        commit_ids, preprocessed_data = self.preprocess(data)
+        pull_number, preprocessed_data = self.preprocess(data)
         model_output = self.inference(preprocessed_data)
-        final_prediction = self.postprocess(commit_ids, model_output)
+        final_prediction = self.postprocess(pull_number, model_output)
 
         return final_prediction
     

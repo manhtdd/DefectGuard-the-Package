@@ -75,9 +75,12 @@ class Fetcher:
                     'removed_code': codes['removed_code'],
                     'deepjit': codes['deepjit'],
                     'simcom': codes['simcom'],
-                    'la': features['la'],
-                    'ld': features['ld'],
-                    'lt': features['lt']
+                    'feature': {
+                        'la': features['la'],
+                        'ld': features['ld'],
+                        'lt': features['lt']
+                    }
                 }
-        return data
+            pull_diffs.append(data)
+        return pull_diffs
     

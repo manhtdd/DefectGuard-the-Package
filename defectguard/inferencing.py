@@ -120,7 +120,7 @@ def inferencing(params):
 
     end_extract_time = time.time()
 
-    if len(pull_requests.keys()) > 0:
+    if len(pull_requests) > 0:
         # Load Model
         model_list = {}
         for model in params.models:

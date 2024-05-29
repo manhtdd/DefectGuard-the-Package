@@ -1,7 +1,7 @@
 #!bin/bash
 
 defectguard -debug -log_to_file inferencing \
-    -model deepjit \
+    -model lr lapredict tlel \
     -repo_language JavaScript \
     -repo_owner eslint \
     -repo_name eslint \
