@@ -15,6 +15,7 @@ from .utils.utils import (
     check_threshold,
 )
 from .JITCrawler import BasicPipeline
+from .JITCrawler.core.Fetcher import Fetcher
 from argparse import Namespace
 
 def init_model(model_name, language, device):
@@ -59,47 +60,68 @@ def inferencing(params):
     logger(user_input)
 
     # User's input handling
-    cfg = {
-        "mode": params.mode,
-        "repo_owner": params.repo_owner,
-        "repo_name": params.repo_name,
-        "repo_path": params.repo_path,
-        "repo_language": [params.repo_language],
-        "repo_save_path": f"{dg_cache_path}/save",
-        "extractor_save": True,
-        "extractor_reextract": params.reextract,
-        "create_dataset": False,
-        "num_commits_per_file": 5000,
-    }
+    # cfg = {
+    #     "mode": params.mode,
+    #     "repo_owner": params.repo_owner,
+    #     "repo_name": params.repo_name,
+    #     "repo_path": params.repo_path,
+    #     "repo_language": [params.repo_language],
+    #     "repo_save_path": f"{dg_cache_path}/save",
+    #     "extractor_save": True,
+    #     "extractor_reextract": params.reextract,
+    #     "create_dataset": False,
+    #     "num_commits_per_file": 5000,
+    # }
 
-    if params.mode == "remote":
-        cfg["repo_clone_path"] = f"{dg_cache_path}/repo"
-        cfg["repo_clone_url"] = f"https://github.com/{params.repo_owner}/{params.repo_name}.git"
-        cfg["extractor_check_uncommit"] = False
-    else:
-        cfg["extractor_check_uncommit"] = params.uncommit
+    # if params.mode == "remote":
+    #     cfg["repo_clone_path"] = f"{dg_cache_path}/repo"
+    #     cfg["repo_clone_url"] = f"https://github.com/{params.repo_owner}/{params.repo_name}.git"
+    #     cfg["extractor_check_uncommit"] = False
+    # else:
+    #     cfg["extractor_check_uncommit"] = params.uncommit
 
-    cfg = Namespace(**cfg)
+    # cfg = Namespace(**cfg)
 
     # extract repo
     start_extract_time = time.time()
 
     crawler = BasicPipeline(cfg)
-    crawler.set_repo(cfg)
-    crawler.run()
+    # crawler.set_repo(cfg)
+    # crawler.run()
 
-    if len(params.commit_hash) == 0:
-        params.commit_hash = crawler.extractor.extract_repo_top_commit_ids(params.top)    
-    commits, features, not_found_ids = crawler.repo.get_commits(params.commit_hash)
-    user_input["commit_hashes"] = [id for id in params.commit_hash if id not in not_found_ids]
-    user_input["features"] = features
-    user_input["commit_info"] = []
-    for i in range(len(user_input["commit_hashes"])):
-        user_input["commit_info"].append(commits[i])
+    fetcher = Fetcher(owner=params.owner, repo=params.repo_name)
+    file_path = f'{params.access_key}/access_key.json'
+    try:
+        with open(file_path, 'r') as file:
+            access_key = json.load(file)
+    except FileNotFoundError:
+        logger(f"Error: The file {file_path} was not found.")
+    except json.JSONDecodeError:
+        logger(f"Error: The file {file_path} is not a valid JSON file.")
+    except Exception as e:
+        logger(f"An unexpected error occurred: {e}")
+
+    fetcher.set_access_token(access_key)
+    pull_requests = fetcher.get_pull_request_data(params.pull_request_numbers)
+    
+    # commits, features, not_found_ids = crawler.repo.get_commits(params.commit_hash)
+    # logger(commits, features, not_found_ids)
+    # user_input["commit_hashes"] = [id for id in params.commit_hash if id not in not_found_ids]
+    # user_input["features"] = features
+    # user_input["commit_info"] = []
+    # for i in range(len(user_input["commit_hashes"])):
+    #     id, mes, cc2vec_commit, deepjit_commit, simcom_commit = crawler.processor.process_one_commit(commits[i])
+    #     user_input["commit_info"].append({
+    #         "id": id,
+    #         "message": mes,
+    #         "cc2vec": cc2vec_commit,
+    #         "deepjit": deepjit_commit,
+    #         "simcom": simcom_commit
+    #     })
 
     end_extract_time = time.time()
 
-    if len(user_input["commit_info"]) > 0:
+    if len(pull_requests.keys()) > 0:
         # Load Model
         model_list = {}
         for model in params.models:

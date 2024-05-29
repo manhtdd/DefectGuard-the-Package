@@ -295,7 +295,7 @@ class Processor:
                         line = " ".join(line.split(" ")).lower()
                         change_code["added_code"].append(line)
                         change_code["deepjit"].append(line)
-                        
+                               
             added_code = " ".join(change_code["added_code"])
             removed_code = " ".join(change_code["removed_code"])
             change_code["simcom"].append(f"{added_code} {removed_code}")

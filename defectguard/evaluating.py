@@ -62,7 +62,7 @@ class CustomDataset(Dataset):
     
 def evaluating_deep_learning(pretrain, params, dg_cache_path):
     commit_path = f'{dg_cache_path}/dataset/{params.repo_name}/commit'
-    dictionary_path = f'{commit_path}/{params.repo_name}_train_dict.pkl' if params.dictionary is None else params.dictionary
+    dictionary_path = f'{commit_path}/change_codes_{params.model}_{params.repo_name}_train_dict.pkl' if params.dictionary is None else params.dictionary
     test_set_path = f'{commit_path}/change_codes_{params.model}_{params.repo_name}_test.pkl' if params.commit_test_set is None else params.commit_test_set
     pretrain_path = f'{dg_cache_path}/save/{params.repo_name}/{pretrain}'
 
