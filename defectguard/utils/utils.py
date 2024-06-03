@@ -1,11 +1,12 @@
 from importlib.resources import files
-import os, gdown
+import os, gdown, json
+from defectguard.utils.logger import logger
 
 SRC_PATH = str(files('defectguard'))
 
 IDS = {
     'deepjit': {
-        'hyperparameters': '18TIg-2DhxI0Ou0vdUg5g8nx6c5GHEzWQ',
+        'hyperparameters': '1AXbOZD-3ri3yjfvivQsvcb8BWTiRTD3s',
         'Java': '10XhImFwLt2VZ7Ra7nydN2bhBm3nEW6wY',
         'Java_dictionary': '1o2CgfK3KnvS4Ud2xZdXTEkKTaQ-z6Ioa',
         'Go': '1vf6LWG2BVkvgl5VOpxguAXYuIITtPOOs',
@@ -20,7 +21,7 @@ IDS = {
         'Python_dictionary': '1P326mIDCwWRK_HEX4YcJoSGNgKDIruIW',
     },
     'simcom': {
-        'hyperparameters': '18TIg-2DhxI0Ou0vdUg5g8nx6c5GHEzWQ',
+        'hyperparameters': '1AXbOZD-3ri3yjfvivQsvcb8BWTiRTD3s',
         'sim_Java': '1jEvRx4OwScOHh35_5GhlrXdmpU8Hd1nr',
         'sim_C++': '1jlXULkT6spmvlAYp_g0kOaZjWsUj0sJy',
         'sim_Go': '14it5ddgzhVUo-EVBqNslp7fBtf-fSAqn',
@@ -67,6 +68,17 @@ IDS = {
     'cc2vec': '',
     'jitline': '',
 }
+
+def load_json(file_path):
+    try:
+        with open(file_path, 'r') as file:
+            return json.load(file)
+    except FileNotFoundError:
+        logger(f"Error: The file {file_path} was not found.")
+    except json.JSONDecodeError:
+        logger(f"Error: The file {file_path} is not a valid JSON file.")
+    except Exception as e:
+        logger(f"An unexpected error occurred: {e}")
 
 def sort_by_predict(commit_list):
     # Sort the list of dictionaries based on the "predict" value in descending order
@@ -135,6 +147,7 @@ def create_download_list(model_name, language):
 def download_file(file_id, folder_path):
     if not os.path.isfile(folder_path):
         gdown.download(f'https://drive.google.com/file/d/{file_id}/view?usp=sharing', output=folder_path, fuzzy=True)
+        # gdown.download(f'https://drive.google.com/file/uc?id={file_id}', output=folder_path, fuzzy=True)
 
 def download_folder(model_name, language):
     # Check if the file exists locally
