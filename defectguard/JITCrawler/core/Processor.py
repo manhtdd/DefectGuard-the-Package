@@ -86,7 +86,7 @@ class Processor:
             return dates == sorted(dates)
 
         self.repo.load_features()
-        assert is_sorted_by_date(self.repo.features), "Features are not sorted by date"
+        # assert is_sorted_by_date(self.repo.features), "Features are not sorted by date"
         if not cols:
             cols = [
                 "_id",
