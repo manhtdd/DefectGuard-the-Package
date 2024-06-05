@@ -87,7 +87,7 @@ dg_cache
 
 For the first scenario, we will use a pre-written script:
 
-**NOTE**: this script run with assumption the main language of the repo is JavaScript. Please check the script before running it.
+**NOTE**: this script run with assumption the main language of the repo is JavaScript. Please check the script before running it. Run this script for each project.
 ```
 bash scripts/objective_1_evaluate.sh javascript-algorithms
 ```
@@ -126,7 +126,7 @@ The `auc.csv` will display results as follows:
 Project Name,lapredict,lr,tlel,deepjit,sim,com,simcom
 javascript-algorithms,0.596969696969697,0.2545454545454545,0.4939393939393939,0.593939393939394,0.3909090909090909,0.5545454545454546,0.3999999999999999
 ```
-**NOTE**: Back up `dg_cache` before re-evaluating the same project.
+**NOTE**: Back up `dg_cache` before re-evaluating the same project. Rename the `dg_cache` to something else should do the trick.
 
 ## 4. Fine-Tuning and Evaluating Models (ABORT)
 
@@ -231,16 +231,15 @@ Finally, we will be asking for all the predict_scores and results
 ```
 final_results
 ├── project_1
-|   └── evaluate_only
-|       ├── predict_scores
-|       │   ├── com.csv
-|       │   ├── deepjit.csv
-|       │   ├── lapredict.csv
-|       │   ├── lr.csv
-|       │   ├── sim.csv
-|       │   └── tlel.csv
-|       └── results
-|           └── auc.csv
+|   ├── predict_scores
+|   │   ├── com.csv
+|   │   ├── deepjit.csv
+|   │   ├── lapredict.csv
+|   │   ├── lr.csv
+|   │   ├── sim.csv
+|   │   └── tlel.csv
+|   └── results
+|       └── auc.csv
 ├── project_2
 ...
 └── project_n
