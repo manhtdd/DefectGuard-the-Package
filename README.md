@@ -16,7 +16,7 @@
 **Please checkout #2 in [TROUBLESHOOT.md](https://github.com/manhtdd/DefectGuard-the-Package/blob/main/TROUBLESHOOT.md) if you do not have GPU(s) on your machine**
 
 ```
-docker compose up --build -d
+docker compose up -d
 docker exec -it defectguard /bin/bash
 ```
 

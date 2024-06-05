@@ -1,7 +1,7 @@
 services:
   defectguard:
     container_name: defectguard
-    image: defectguard:1.0
+    image: manhtdd/defectguard:1.0
     build:
       context: .
       dockerfile: Dockerfile
