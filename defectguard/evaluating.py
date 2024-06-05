@@ -209,5 +209,5 @@ def evaluating(params):
         assert com_hashes == sim_hashes
         simcom_proba = average(sim_proba, com_proba)
         auc_score = roc_auc_score(y_true=com_ground_truth,  y_score=simcom_proba)
-        print(f"{model_name} AUC: {auc_score}")
+        print(f"simcom AUC: {auc_score}")
         logs(f'{dg_cache_path}/save/{params.repo_name}/results/auc.csv', params.repo_name, auc_score, params.model)
