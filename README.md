@@ -15,12 +15,20 @@
 
 **Please checkout #2 in [TROUBLESHOOT.md](https://github.com/manhtdd/DefectGuard-the-Package/blob/main/TROUBLESHOOT.md) if you do not have GPU(s) on your machine**
 
+I pushed the image to Docker Hub
+```
+docker pull manhtdd/defectguard:1.0
+```
+If pulling does not work, the image can be built via `Dockerfile`.
+
+Below command will automatic pull the image:
 ```
 docker compose up -d
 docker exec -it defectguard /bin/bash
 ```
+Use `docker compose up -d --build` instead if you need to build the image via `Dockerfile`
 
-Inside docker container:
+**INSIDE THE CREATED DOCKER CONTAINER**:
 
 ```
 # This setup pyszz and defectguard
