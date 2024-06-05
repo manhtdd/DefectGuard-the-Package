@@ -7,12 +7,13 @@ services:
       dockerfile: Dockerfile
     volumes:
       - .:/app
+      - /home/manhtd/Downloads:/projects
     stdin_open: true
     tty: true
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]

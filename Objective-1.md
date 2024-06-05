@@ -19,6 +19,23 @@ mkdir input
 git -C input clone https://github.com/trekhleb/javascript-algorithms.git
 ```
 
+Incase your projects located elsewhere (e.g. `/home/manhtd/Downloads` instead of `/home/manhtd/Documents/DefectGuard-the-Package/input`), please kindly update the `volumes` part of the `docker-compose.yml` as following:
+
+```
+services:
+  defectguard:
+    container_name: defectguard
+    image: defectguard:1.0
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+      - /home/manhtd/Downloads:/projects # Please add the path to your path here instead
+    stdin_open: true
+    tty: true
+```
+
 ## 2. Extract features and code changes from the project
 
 Before running Defect Prediction models, we need to label code changes and extract neccessary features from them by run the following command:
@@ -111,7 +128,7 @@ javascript-algorithms,0.596969696969697,0.2545454545454545,0.4939393939393939,0.
 ```
 **NOTE**: Back up `dg_cache` before re-evaluating the same project.
 
-## 4. Fine-Tuning and Evaluating Models
+## 4. Fine-Tuning and Evaluating Models (ABORT)
 
 For the second scenario, use the following scripts based on your preference for the number of training epochs:
 
@@ -214,27 +231,7 @@ Finally, we will be asking for all the predict_scores and results
 ```
 final_results
 ├── project_1
-|   ├── evaluate_only
-|   |   ├── predict_scores
-|   |   │   ├── com.csv
-|   |   │   ├── deepjit.csv
-|   |   │   ├── lapredict.csv
-|   |   │   ├── lr.csv
-|   |   │   ├── sim.csv
-|   |   │   └── tlel.csv
-|   |   └── results
-|   |       └── auc.csv
-|   ├── 5_epochs
-|   |   ├── predict_scores
-|   |   │   ├── com.csv
-|   |   │   ├── deepjit.csv
-|   |   │   ├── lapredict.csv
-|   |   │   ├── lr.csv
-|   |   │   ├── sim.csv
-|   |   │   └── tlel.csv
-|   |   └── results
-|   |       └── auc.csv
-|   └── 10_epochs
+|   └── evaluate_only
 |       ├── predict_scores
 |       │   ├── com.csv
 |       │   ├── deepjit.csv
