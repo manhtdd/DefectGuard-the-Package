@@ -42,7 +42,7 @@ Before running Defect Prediction models, we need to label code changes and extra
 ```
 defectguard mining \
     -repo_name javascript-algorithms \
-    -repo_path input/ \ # Relative path to your project is input/javascript-algorithms
+    -repo_path /projects/ \ # Relative path to your project is input/javascript-algorithms
     -repo_language JavaScript \
     -pyszz_path pyszz_v2
 ```
