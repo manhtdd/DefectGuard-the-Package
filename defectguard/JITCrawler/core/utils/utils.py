@@ -4,6 +4,7 @@ import subprocess
 import re
 import pickle
 import json
+import sys
 
 
 def clone_repo(clone_path: str, owner: str, name: str, url: str):
@@ -37,18 +38,27 @@ def exec_cmd(command: str):
 
 
 def get_commit_hashes(start=None, end=None):
-    """
-    Get commit hashes of a repository between `start` and `end` in the format of '%Y-%m-%d'
-    """
-    if start is None and end is None:
-        command = 'git log --all --no-decorate --no-merges --pretty=format:"%H"'
-    elif start is None:
-        command = f'git log --all --before={end} --no-decorate --no-merges --pretty=format:"%H"'
-    elif end is None:
-        command = f'git log --all --after={start} --no-decorate --no-merges --pretty=format:"%H"'
-    else:
-        command = f'git log --all --after={start} --before={end} --no-decorate --no-merges --pretty=format:"%H"'
-    return exec_cmd(command)
+  """
+  Get commit hashes of a repository between `start` and `end` in the format of '%Y-%m-%d'
+  """
+  if start is None and end is None:
+    command = "git log --all --no-decorate --no-merges --pretty=format:\"%H\""
+  elif start is None:
+    command = f"git log --all --before={end} --no-decorate --no-merges --pretty=format:\"%H\""
+  elif end is None:
+    command = f"git log --all --after={start} --no-decorate --no-merges --pretty=format:\"%H\""
+  else:
+    command = f"git log --all --after={start} --before={end} --no-decorate --no-merges --pretty=format:\"%H\""
+
+  try:
+    # Assuming exec_cmd is a function that executes the command
+    output = exec_cmd(command)
+    if len(output) == 0:
+        raise RuntimeError("ERROR: No commits found. Try run git log at your repo's location")
+    return output
+  except Exception as e:
+    print(e)
+    sys.exit(1)
 
 def get_top_commit_hashes(n=10):
     """
