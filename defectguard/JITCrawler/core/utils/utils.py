@@ -58,6 +58,8 @@ def get_commit_hashes(start=None, end=None):
     return output
   except Exception as e:
     print(e)
+    print("Execute location: " + os.getcwd())
+    print("Command: " + command)
     sys.exit(1)
 
 def get_top_commit_hashes(n=10):
