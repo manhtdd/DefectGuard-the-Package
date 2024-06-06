@@ -17,6 +17,7 @@ for model in "${models[@]}"; do
     defectguard evaluating \
         -model $model \
         -from_pretrain \
+        -test_full_project \
         -repo_name $repo_name \
         -repo_language JavaScript
 done

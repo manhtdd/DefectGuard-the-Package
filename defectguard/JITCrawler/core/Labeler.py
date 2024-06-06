@@ -54,7 +54,9 @@ class PySZZ:
 
         # run pyszz
         cmd = "python3 main.py {} {} {}".format(bug_fix_path, szz_conf_path, repo_path)
-        out = exec_cmd(cmd)
+
+        print("Running Pyszz. This might take a while ...")
+        out = exec_cmd(cmd, True)
         ## debug
         # print(out)
         

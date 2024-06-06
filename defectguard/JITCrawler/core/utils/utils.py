@@ -27,14 +27,18 @@ def clone_repo(clone_path: str, owner: str, name: str, url: str):
     os.chdir(cur_dir)
 
 
-def exec_cmd(command: str):
+def exec_cmd(command: str, print_output: bool = False):
     """
-    Get ouput of executing a command
+    Get output of executing a command, optionally printing real-time output to stdout.
     """
-    result = subprocess.run(command, shell=True, capture_output=True, text=False)
-    output = result.stdout.strip(b"\n").split(b"\n") if result.stdout else []
-    output = [line.decode(encoding="utf8", errors="replace") for line in output]
-    return output
+    if print_output:
+        result = subprocess.run(command, shell=True)
+        return None
+    else:
+        result = subprocess.run(command, shell=True, capture_output=True, text=False)
+        output = result.stdout.strip(b"\n").split(b"\n") if result.stdout else []
+        output = [line.decode(encoding="utf8", errors="replace") for line in output]
+        return output
 
 
 def get_commit_hashes(start=None, end=None):
