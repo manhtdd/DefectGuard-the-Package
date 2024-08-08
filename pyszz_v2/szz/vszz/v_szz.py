@@ -55,7 +55,7 @@ class VSZZ(AbstractSZZ):
         ignore_revs_file_path = kwargs.get('ignore_revs_file_path', None)
         # self._set_working_tree_to_commit(fix_commit_hash)
 
-        bug_introd_commits = set()
+        bic = set()
         for imp_file in impacted_files:
             # print('impacted file', imp_file.file_path)
             try:
@@ -103,6 +103,7 @@ class VSZZ(AbstractSZZ):
                 # bug_introd_commits[entry.line_num] = {'line_str': entry.line_str, 'file_path': entry.file_path, 'previous_commits': previous_commits}
                 # bug_introd_commits.append({'line_num':entry.line_num, 'line_str': entry.line_str, 'file_path': entry.file_path, 'previous_commits': previous_commits})
                 # bug_introd_commits.append(previous_commits)
+                # print(previous_commits)
                 bic.update([commit[0] for commit in previous_commits])
             except:
                 log.error(traceback.format_exc())

@@ -1,5 +1,5 @@
 ### szz implementation
-szz_name: b
+szz_name: v
 
 ### obtain the diff only for the specified file extensions
 # file_ext_to_parse:
