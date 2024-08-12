@@ -81,7 +81,7 @@ class PySZZ:
         output_files = self.get_outputs()
         for file in output_files:
             data = load_json(os.path.join(self.path, "out", file))
-            if data[0]["repo_name"] == os.path.join(repo_owner, repo_name):    
+            if data[0]["repo_name"] == repo_name:    
                 return data
         raise FileNotFoundError("PySZZ: No output found for {}/{}".format(repo_owner, repo_name))
     
