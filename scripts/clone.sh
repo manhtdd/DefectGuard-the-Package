@@ -14,7 +14,22 @@ repos=(
   "https://github.com/transloadit/uppy"
 )
 
+repo_names=(
+  "iptv"
+  "preact"
+  "phaser"
+  "bootstrap"
+  "moment"
+  "ghost"
+  "eslint"
+  "mongoose"
+  "codemirror"
+  "uppy"
+)
+
 # Loop through each repository URL and clone it
-for repo in "${repos[@]}"; do
-  git clone "$repo"
+for ((i=0; i<${#repos[@]}; i++)); do
+  repo="${repos[$i]}"
+  repo_name="${repo_names[$i]}"
+  git clone "$repo" "./input/$repo_name"
 done
