@@ -90,7 +90,7 @@ class Repository:
     def get_repo_path(self):
         return self.repo_path
 
-    def get_pyszz_conf_path(self, conf="bszz"):
+    def get_pyszz_conf_path(self, conf="vszz"):
         return self.paths["pyszz_conf"].format(conf)
 
     def get_path(self):

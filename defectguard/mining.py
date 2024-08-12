@@ -21,6 +21,8 @@ def mining(params):
         "repo_owner": params.repo_owner,
         "repo_name": params.repo_name,
         "repo_path": params.repo_path,
+        "repo_clone_url": params.repo_clone_url,
+        "repo_clone_path": params.repo_clone_path,
         "repo_language": [params.repo_language],
         "repo_save_path": f"{dg_cache_path}/save",
         "extractor_save": True,
@@ -33,8 +35,10 @@ def mining(params):
     }
 
     if params.mode == "remote":
-        cfg["repo_clone_path"] = f"{dg_cache_path}/repo"
-        cfg["repo_clone_url"] = f"https://github.com/{params.repo_owner}/{params.repo_name}.git"
+        if cfg["repo_clone_path"] is None:
+            cfg["repo_clone_path"] = f"{dg_cache_path}/repo"
+        if cfg["repo_clone_url"] is None:
+            cfg["repo_clone_url"] = f"https://github.com/{params.repo_owner}/{params.repo_name}.git"
         cfg["extractor_check_uncommit"] = False
     else:
         cfg["extractor_check_uncommit"] = params.uncommit

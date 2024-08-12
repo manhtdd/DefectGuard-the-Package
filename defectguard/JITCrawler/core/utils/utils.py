@@ -10,11 +10,11 @@ def clone_repo(clone_path: str, owner: str, name: str, url: str):
     """
     Clones a repository to the current directory
     """
-    assert owner and name and url, "Invalid repository info"
+    assert (owner and name) or url, "Invalid repository info"
     cur_dir = os.getcwd()
-    if owner not in os.listdir(clone_path):
-        os.mkdir(os.path.join(clone_path, owner))
-    os.chdir(os.path.join(clone_path, owner))
+    # if owner not in os.listdir(clone_path):
+    #     os.mkdir(os.path.join(clone_path, owner))
+    os.chdir(clone_path)
     if name not in os.listdir():
         print(f"Cloning ... {url}")
         command = "git clone {}"
@@ -183,15 +183,20 @@ def calc_entropy(totalLOCModified, locModifiedPerFile):
 
     return entropy
 
+STRONG_VUL = re.compile(r'(?i)(denial.of.service|remote.code.execution|\bopen.redirect|OSVDB|\bXSS\b|\bReDoS\b|\bNVD\b|malicious|x−frame−options|attack|cross.site|exploit|directory.traversal|\bRCE\b|\bdos\b|\bXSRF\b|clickjack|session.fixation|hijack|advisory|insecure|security|\bcross−origin\b|unauthori[z|s]ed|infinite.loop)')
+MEDIUM_VUL =re.compile(r'(?i)(authenticat(e|ion)|bruteforce|bypass|constant.time|crack|credential|\bDoS\b|expos(e|ing)|hack|harden|injection|lockout|overflow|password|\bPoC\b|proof.of.concept|poison|privelage|\b(in)?secur(e|ity)|(de)?serializ|spoof|timing|traversal)')
 
 def check_fix(msg):
     # List of keywords indicating bug fixes
-    bug_keywords = ["fix", "bug", "issue"]
-    wrong_keywords = ["fix typo", "fix build", "non-fix"]
-    if any(keyword in msg for keyword in bug_keywords):
-        if not any(keyword in msg for keyword in wrong_keywords):
-            return 1
-    return 0
+    if not isinstance(msg, str) and math.isnan(msg):
+        return 0
+        
+    m = STRONG_VUL.search(msg)
+    n = MEDIUM_VUL.search(msg)
+    if m or n:
+        return 1
+    else:
+        return 0
 
 
 def get_prev_time(blame, file):
