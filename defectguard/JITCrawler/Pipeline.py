@@ -21,7 +21,7 @@ class BasicPipeline:
             self.pyszz = PySZZ(
                 pyszz_path=cfg.pyszz_path,
                 keep_output=20,
-                pyszz_conf="vszz",
+                pyszz_conf="bszz",
             )
 
             # init processor
