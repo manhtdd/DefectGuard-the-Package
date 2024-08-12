@@ -35,6 +35,8 @@ def main(args=None):
     common_parser.add_argument("-repo_name", type=str, default="", help="Repo name")
     common_parser.add_argument("-repo_owner", type=str, default="", help="Repo owner name")
     common_parser.add_argument("-repo_path", type=str, default="", help="Path to git repository")
+    common_parser.add_argument("-repo_clone_url", type=str, default=None, help="URL to repository")
+    common_parser.add_argument("-repo_clone_path", type=str, default=None, help="Path to clone repository")
     common_parser.add_argument("-repo_language", type=str, default="", choices=available_languages, help="Main language of repo")
     common_parser.add_argument("-uncommit", action="store_true", help="Include uncommit in list when using -top")
     common_parser.add_argument("-reextract", action="store_true", help="Re-extract data from repository")

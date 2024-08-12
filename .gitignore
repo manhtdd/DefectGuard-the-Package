@@ -8,6 +8,6 @@ build-publish-test.sh
 remove-files.sh
 metadata
 logs
-pyszz*
 dg_cache
 input
+test
