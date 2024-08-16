@@ -52,8 +52,8 @@ class PySZZ:
             yaml.dump(conf, f)
 
         # run pyszz
-        cmd = "python3 main.py {} {} {}".format(bug_fix_path, szz_conf_path, repo_path)
-        out = exec_cmd(cmd)
+        cmd = "python3 main.py {} {} {} {}".format(bug_fix_path, szz_conf_path, repo_path, 3)
+        out = exec_cmd(cmd, True)
         ## debug
         # print(out)
         
@@ -83,7 +83,7 @@ class PySZZ:
             data = load_json(os.path.join(self.path, "out", file))
             if data[0]["repo_name"] == repo_name:    
                 return data
-        raise FileNotFoundError("PySZZ: No output found for {}/{}".format(repo_owner, repo_name))
+        raise FileNotFoundError("PySZZ: No output found for {} {}/{}".format(len(output_files), repo_owner, repo_name))
     
     def remove_historical_output(self):
         output_files = self.get_outputs()
