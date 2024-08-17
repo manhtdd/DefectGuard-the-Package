@@ -31,5 +31,5 @@ repo_names=(
 for ((i=0; i<${#repos[@]}; i++)); do
   repo="${repos[$i]}"
   repo_name="${repo_names[$i]}"
-  git clone "$repo" "./input/c/$repo_name"
+  git clone "$repo" "./input/c_top10/$repo_name"
 done
