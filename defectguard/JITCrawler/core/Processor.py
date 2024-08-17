@@ -78,7 +78,7 @@ class Processor:
                     for id in out["inducing_commit_hash"]:
                         if id['commit'] not in szz_bug_ids:
                             szz_bug_ids[id['commit']] = []
-                        szz_bug_ids[id['commit']].append(out["fix_commit_hash"])
+                        szz_bug_ids[id['commit']].append(id["file_path"])
         return szz_bug_ids
 
     def process_features(self, bug_ids, cols=[], time_upper_limit=None):
@@ -159,6 +159,7 @@ class Processor:
         self.deepjit_codes = []
         self.simcom_codes = []
         self.labels = []
+        self.change_labels = []
         self.change_files = []
         self.change_codes = {
             "_id": [], "date": [], "file_name": [], "added_code": [], "removed_code": [], "deepjit": [], "simcom": [], "bug": []
@@ -188,6 +189,15 @@ class Processor:
                 date = self.df.loc[self.df['_id'] == id, 'date'].values[0]
 
                 label = 1 if id in bug_ids else 0
+                if id in bug_ids:
+                    change_labels = []
+                    for file in change_commit["change_features"]:
+                        if file["file_name"] in bug_ids[id]:
+                            change_labels.append(1)
+                        else:
+                            change_labels.append(0)
+                else:
+                    change_labels = [0 for _ in range(change_files)]
                 self.ids.append(id)
                 self.date.append(date)
                 self.messages.append(mes)
@@ -195,20 +205,22 @@ class Processor:
                 self.deepjit_codes.append(deepjit_commit)
                 self.simcom_codes.append(simcom_commit)
                 self.labels.append(label)
+                self.change_labels.append(change_labels)
                 self.change_files.append(change_files)
 
-                for feature, code in zip(change_commit["change_features"], change_commit["change_codes"]):
+                for feature, code, _label in zip(change_commit["change_features"], change_commit["change_codes"], change_labels):
+                    if _label == 1:
+                        logger(id, feature, _label)
                     self.change_codes["_id"].append(id)
                     self.change_codes["date"].append(date)
-                    self.change_codes["bug"].append(label)
                     self.change_features["_id"].append(id)
                     self.change_features["date"].append(date)
-                    self.change_features["bug"].append(label)
+                    self.change_features["bug"].append(_label)
+                    self.change_codes["bug"].append(_label)
                     for key, _ in code.items():
                         self.change_codes[key].append(code[key])
                     for key, _ in feature.items():
                         self.change_features[key].append(feature[key])
-                    
                 
                 del commit, id, mes, cc2vec_commit, deepjit_commit, simcom_commit, label, change_commit
         self.code_dict = create_dict(self.messages, self.deepjit_codes)
