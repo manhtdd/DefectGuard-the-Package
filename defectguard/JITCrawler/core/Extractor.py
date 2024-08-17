@@ -89,7 +89,7 @@ class Extractor:
         """
         Extract the repository's commit ids
         """
-        return get_commit_hashes(self.start, self.end)
+        return get_commit_hashes(self.start, self.end, self.repo.get_path())
 
     def extract_repo_top_commit_ids(self, num_commits: int):
         """

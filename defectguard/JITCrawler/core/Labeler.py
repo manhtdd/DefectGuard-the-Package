@@ -1,7 +1,7 @@
 import logging
 import os
 import yaml
-from .utils import exec_cmd, load_json, LANG2EXT
+from .utils import exec_cmd, load_jsonl, LANG2EXT
 
 class PySZZ:
     def __init__(
@@ -31,7 +31,7 @@ class PySZZ:
         with open(os.path.join(self.path, "conf", conf + ".yml"), "r") as f:
             self.base_conf = yaml.load(f, Loader=yaml.FullLoader)
 
-    def run(self, bug_fix_path, szz_conf_path, repo_path, repo_language):
+    def run(self, bug_fix_path, szz_conf_path, repo_path, repo_language, num_core):
         # logging.basicConfig(
         #     filename=os.path.join(self.log_path, "pyszz_log.log"),
         #     level=logging.DEBUG,
@@ -52,7 +52,7 @@ class PySZZ:
             yaml.dump(conf, f)
 
         # run pyszz
-        cmd = "python3 main.py {} {} {} {}".format(bug_fix_path, szz_conf_path, repo_path, 3)
+        cmd = "python3 main.py {} {} {} {}".format(bug_fix_path, szz_conf_path, repo_path, num_core)
         out = exec_cmd(cmd, True)
         ## debug
         # print(out)
@@ -80,7 +80,7 @@ class PySZZ:
     def get_lastest_output(self, repo_owner, repo_name):
         output_files = self.get_outputs()
         for file in output_files:
-            data = load_json(os.path.join(self.path, "out", file))
+            data = load_jsonl(os.path.join(self.path, "out", file))
             if data[0]["repo_name"] == repo_name:    
                 return data
         raise FileNotFoundError("PySZZ: No output found for {} {}/{}".format(len(output_files), repo_owner, repo_name))

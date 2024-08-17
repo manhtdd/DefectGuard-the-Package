@@ -42,18 +42,18 @@ def exec_cmd(command: str, print_output: bool = False):
         output = [line.decode(encoding="utf8", errors="replace") for line in output]
         return output
 
-def get_commit_hashes(start=None, end=None):
+def get_commit_hashes(start=None, end=None, repo_dir='.'):
     """
     Get commit hashes of a repository between `start` and `end` in the format of '%Y-%m-%d'
     """
     if start is None and end is None:
-        command = 'git log --all --no-decorate --no-merges --pretty=format:"%H"'
+        command = f'git -C {repo_dir} log --all --no-decorate --no-merges --pretty=format:"%H"'
     elif start is None:
-        command = f'git log --all --before={end} --no-decorate --no-merges --pretty=format:"%H"'
+        command = f'git -C {repo_dir} log --all --before={end} --no-decorate --no-merges --pretty=format:"%H"'
     elif end is None:
-        command = f'git log --all --after={start} --no-decorate --no-merges --pretty=format:"%H"'
+        command = f'git -C {repo_dir} log --all --after={start} --no-decorate --no-merges --pretty=format:"%H"'
     else:
-        command = f'git log --all --after={start} --before={end} --no-decorate --no-merges --pretty=format:"%H"'
+        command = f'git -C {repo_dir} log --all --after={start} --before={end} --no-decorate --no-merges --pretty=format:"%H"'
     return exec_cmd(command)
 
 def get_top_commit_hashes(n=10):
@@ -296,6 +296,16 @@ def load_json(path):
         data = json.load(f)
     return data
 
+def load_jsonl(path):
+    if not os.path.exists(path):
+        return []
+    
+    data = []
+    with open(path, "r") as f:
+        for line in f:
+            data.append(json.loads(line))
+    
+    return data
 
 def save_pkl(data, path):
     with open(path, "wb") as f:

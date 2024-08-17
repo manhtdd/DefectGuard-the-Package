@@ -17,6 +17,7 @@ class BasicPipeline:
 
         if cfg.create_dataset:
             self.create_dataset = True
+            self.num_core = cfg.num_core
             # init pyszz
             self.pyszz = PySZZ(
                 pyszz_path=cfg.pyszz_path,
@@ -84,6 +85,7 @@ class BasicPipeline:
                 szz_conf_path=self.repo.get_pyszz_conf_path(),
                 repo_path=self.repo.get_repo_path(),
                 repo_language=self.repo.get_language(),
+                num_core=self.num_core
             )
             szz_output = self.pyszz.get_lastest_output(
                 repo_owner=self.repo.owner,
