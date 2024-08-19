@@ -1,7 +1,7 @@
 #!/bin/bash
 
 repos=(
-  "linux"
+  "curl"
   "scrcpy"
   "netdata"
   "redis"

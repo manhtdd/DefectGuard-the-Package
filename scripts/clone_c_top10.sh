@@ -2,7 +2,7 @@
 
 # Array of GitHub repository URLs
 repos=(
-  "https://github.com/torvalds/linux"
+  "https://github.com/curl/curl"
   "https://github.com/Genymobile/scrcpy"
   "https://github.com/netdata/netdata"
   "https://github.com/redis/redis"
@@ -15,7 +15,7 @@ repos=(
 )
 
 repo_names=(
-  "linux"
+  "curl"
   "scrcpy"
   "netdata"
   "redis"
