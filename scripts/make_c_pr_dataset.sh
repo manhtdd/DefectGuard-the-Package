@@ -54,7 +54,7 @@ mine() {
         -repo_name "$1" \
         -repo_path input/c_top10/ \
         -repo_language C \
-        -pyszz_path /app/pyszz_v2 \
+        -pyszz_path ./pyszz_v2 \
         -num_core 4
 }
 
