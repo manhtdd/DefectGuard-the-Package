@@ -18,7 +18,7 @@ repo_names=(
 input_folder="./input/c_top5"
 dataset_folder="./dg_cache/dataset"
 repo_id="LongK/DefectGuard-PR"
-repo_folder="./c_top5"
+repo_folder="c_top5"
 token=$1
 echo $token
 
