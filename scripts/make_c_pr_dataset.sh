@@ -22,7 +22,9 @@ token=$1
 commit_message=${2:-"Update dataset"}
 
 switch_to_PR_mode() {
-    git -C AI4C-SZZ checkout commit-w-file-PR-only
+    cd pyszz_v2
+    git checkout commit-w-file-PR-only
+    cd ..
 }
 
 upload_dataset() {
@@ -59,6 +61,7 @@ for ((i=0; i<${#repos[@]}; i++)); do
   repo="${repos[$i]}"
   repo_name="${repo_names[$i]}"
   git clone "$repo" "$input_folder/$repo_name"
+  echo "Mining $repo_name"
   mine "$repo_name"
   upload_dataset
   rm -rf "$input_folder/$repo_name"
