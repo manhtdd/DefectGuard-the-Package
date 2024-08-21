@@ -15,15 +15,17 @@ repo_names=(
   "obs-studio"
 )
 
-input_folder="./input/c_top10"
+input_folder="./input/c_top5"
 dataset_folder="./dg_cache/dataset"
 repo_id="LongK/DefectGuard-PR"
+repo_folder = "./c_top5"
 token=$1
 commit_message=${2:-"Update dataset"}
 
 switch_to_PR_mode() {
     cd pyszz_v2 || exit 1
     git checkout commit-w-file-PR-only
+    mkdir out
     cd ..
 }
 
@@ -38,7 +40,7 @@ upload_dataset() {
     fi
 
     # Push dataset to Hugging Face Hub
-    huggingface-cli repo upload $1 --repo_id $2 --commit-message "$3" --token $4
+    huggingface-cli upload $2 $1 $repo_folder --repo-type dataset --commit-message="$3" --token=$4
 
     # Check if the upload was successful
     if [ $? -eq 0 ]; then
@@ -52,7 +54,7 @@ upload_dataset() {
 mine() {
     defectguard -debug -log_to_file mining \
         -repo_name "$1" \
-        -repo_path input/c_top10/ \
+        -repo_path input/c_top5/ \
         -repo_language C \
         -pyszz_path ./pyszz_v2 \
         -num_core 4
