@@ -20,7 +20,7 @@ dataset_folder="./dg_cache/dataset"
 repo_id="LongK/DefectGuard-PR"
 repo_folder="./c_top5"
 token=$1
-commit_message=${2:-"Update dataset"}
+echo $token
 
 switch_to_PR_mode() {
     cd pyszz_v2 || exit 1
@@ -40,7 +40,7 @@ upload_dataset() {
     fi
 
     # Push dataset to Hugging Face Hub
-    huggingface-cli upload $2 $1 $repo_folder --repo-type dataset --commit-message "$3" --token $4
+    huggingface-cli upload $2 $1 $repo_folder --repo-type dataset --token=$3
 
     # Check if the upload was successful
     if [ $? -eq 0 ]; then
@@ -69,6 +69,6 @@ for ((i=0; i<${#repos[@]}; i++)); do
   git clone "$repo" "$input_folder/$repo_name"
   echo "Mining $repo_name"
   mine "$repo_name"
-  upload_dataset $dataset_folder $repo_id $commit_message $token
+  upload_dataset $dataset_folder $repo_id $token
   rm -rf "$input_folder/$repo_name"
 done
