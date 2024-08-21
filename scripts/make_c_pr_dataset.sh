@@ -40,7 +40,7 @@ upload_dataset() {
     fi
 
     # Push dataset to Hugging Face Hub
-    huggingface-cli upload $2 $1 $repo_folder --repo-type dataset --commit-message="$3" --token=$4
+    huggingface-cli upload $2 $1 $repo_folder --repo-type dataset --commit-message "$3" --token $4
 
     # Check if the upload was successful
     if [ $? -eq 0 ]; then
@@ -57,7 +57,7 @@ mine() {
         -repo_path input/c_top5/ \
         -repo_language C \
         -pyszz_path ./pyszz_v2 \
-        -num_core 4
+        -num_core 8
 }
 
 
