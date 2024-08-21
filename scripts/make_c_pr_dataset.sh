@@ -28,17 +28,17 @@ switch_to_PR_mode() {
 }
 
 upload_dataset() {
-    local dataset_folder=$1
-    local repo_id=$2
-    local commit_message=$3
-    local token=$4
-    if [ ! -d "$dataset_folder" ]; then
-        echo "Error: Folder '$dataset_folder' does not exist."
+    # local dataset_folder=$1
+    # local repo_id=$2
+    # local commit_message=$3
+    # local token=$4
+    if [ ! -d "$1" ]; then
+        echo "Error: Folder '$1' does not exist."
         exit 1
     fi
 
     # Push dataset to Hugging Face Hub
-    huggingface-cli repo upload $dataset_folder --repo_id $repo_id --commit-message "$commit_message" --token $token
+    huggingface-cli repo upload $1 --repo_id $2 --commit-message "$3" --token $4
 
     # Check if the upload was successful
     if [ $? -eq 0 ]; then
@@ -55,6 +55,7 @@ mine() {
         -repo_path input/c_top10/ \
         -repo_language C \
         -pyszz_path /app/pyszz_v2 
+        -num_cores 4
 }
 
 
