@@ -305,7 +305,7 @@ def load_json(path):
 
 def load_jsonl(path):
     if not os.path.exists(path):
-        print("no file")
+        print(f"No file: {path}")
         return []
     data = []
     with open(path, 'r') as f:
