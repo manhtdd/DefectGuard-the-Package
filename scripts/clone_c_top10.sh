@@ -2,7 +2,6 @@
 
 # Array of GitHub repository URLs
 repos=(
-  "https://github.com/torvalds/linux"
   "https://github.com/Genymobile/scrcpy"
   "https://github.com/netdata/netdata"
   "https://github.com/redis/redis"
@@ -12,10 +11,10 @@ repos=(
   "https://github.com/FFmpeg/FFmpeg"
   "https://github.com/php/php-src"
   "https://github.com/wg/wrk"
+  "https://github.com/curl/curl"
 )
 
 repo_names=(
-  "linux"
   "scrcpy"
   "netdata"
   "redis"
@@ -25,11 +24,12 @@ repo_names=(
   "ffmpeg"
   "php-src"
   "wrk"
+  "curl"
 )
 
 # Loop through each repository URL and clone it
 for ((i=0; i<${#repos[@]}; i++)); do
   repo="${repos[$i]}"
   repo_name="${repo_names[$i]}"
-  git clone "$repo" "./input/c/$repo_name"
+  git clone "$repo" "./input/c_top10/$repo_name"
 done
