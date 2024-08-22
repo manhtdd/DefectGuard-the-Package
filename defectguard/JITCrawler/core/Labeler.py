@@ -1,7 +1,8 @@
 import logging
 import os
 import yaml
-from .utils import exec_cmd, load_jsonl, LANG2EXT
+from .utils import exec_cmd, load_json, load_jsonl, LANG2EXT
+
 
 class PySZZ:
     def __init__(
@@ -9,7 +10,7 @@ class PySZZ:
         pyszz_path: str,
         # log_path: str = "log",
         pyszz_conf: str = "bszz",
-        keep_output: int = 50,
+        workers: int = 1,
     ):
         """
         Wrapper for PySZZ from https://github.com/grosa1/pyszz_v2
@@ -20,7 +21,8 @@ class PySZZ:
         self.path = os.path.abspath(pyszz_path)
         # self.log_path = os.path.abspath(log_path)
         self.set_conf(pyszz_conf)
-        self.keep_output = keep_output
+        self.pyszz_conf = pyszz_conf
+        self.workers = workers
 
     def set_conf(self, conf="bszz"):
         valid_conf = list(
@@ -31,7 +33,7 @@ class PySZZ:
         with open(os.path.join(self.path, "conf", conf + ".yml"), "r") as f:
             self.base_conf = yaml.load(f, Loader=yaml.FullLoader)
 
-    def run(self, bug_fix_path, szz_conf_path, repo_path, repo_language, num_core):
+    def run(self, bug_fix_path, szz_conf_path, repo_path, repo_language):
         # logging.basicConfig(
         #     filename=os.path.join(self.log_path, "pyszz_log.log"),
         #     level=logging.DEBUG,
@@ -52,42 +54,17 @@ class PySZZ:
             yaml.dump(conf, f)
 
         # run pyszz
-        cmd = "python3 main.py {} {} {} {}".format(bug_fix_path, szz_conf_path, repo_path, num_core)
-        out = exec_cmd(cmd, True)
+        cmd = "python3 main.py {} {} {} {}".format(bug_fix_path, szz_conf_path, repo_path, self.workers)
+        out = exec_cmd(cmd)
+        # print(cmd)
         ## debug
         # print(out)
         
-        # remove historical output
-        self.remove_historical_output()
-        
         os.chdir(cur_dir)
 
-    def get_outputs(self):
-        assert "out" in os.listdir(self.path), "PySZZ: No output folder"
-        output_files = [
-            file
-            for file in os.listdir(os.path.join(self.path, "out"))
-            if self.conf in file
-        ]
-
-        sorted_output_files = sorted(
-            output_files,
-            key=lambda x: os.path.getmtime(os.path.join(self.path, "out", x)),
-            reverse=True,
-        )
-        return sorted_output_files
-
-    def get_lastest_output(self, repo_owner, repo_name):
-        output_files = self.get_outputs()
-        for file in output_files:
-            data = load_jsonl(os.path.join(self.path, "out", file))
-            if data[0]["repo_name"] == repo_name:    
-                return data
-        raise FileNotFoundError("PySZZ: No output found for {} {}/{}".format(len(output_files), repo_owner, repo_name))
-    
-    def remove_historical_output(self):
-        output_files = self.get_outputs()
-        if len(output_files) > self.keep_output:
-            print("Removing historical output")
-            for file in output_files[self.keep_output:]:
-                os.remove(os.path.join(self.path, "out", file))
+    def get_output(self, repo_name):
+        out_file = os.path.join(self.path, "out", f"bic_{self.pyszz_conf}_{repo_name}.jsonl")
+        data = load_jsonl(out_file)
+        if data[0]["repo_name"] == repo_name:
+            return data
+        raise FileNotFoundError("PySZZ: No output found for {}/{}".format(repo_owner, repo_name))

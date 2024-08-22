@@ -14,11 +14,7 @@ repos=(
 )
 
 mine() {
-    defectguard -debug -log_to_file mining \
-        -repo_name "$repo" \
-        -repo_path input/java_top10/ \
-        -repo_language Java \
-        -pyszz_path /app/pyszz_v2 
+    echo "!defectguard -debug -log_to_file mining -repo_name $repo -repo_path /kaggle/working/input -repo_language Java -pyszz_path /kaggle/working/DefectGuard-the-Package/AI4C-SZZ -num_core 4"
 }
 
 for repo in "${repos[@]}"; do

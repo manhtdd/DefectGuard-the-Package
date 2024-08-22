@@ -1,10 +1,9 @@
 from .Processor import Processor
 from .Dict import create_dict
-from .utils import save_pkl
-from defectguard.utils.logger import logger
+from .utils import save_pkl, save_json, save_jsonl
 import numpy as np
 import pandas as pd
-import os, sys
+import os
 
 
 class Splitter:
@@ -69,7 +68,6 @@ class Splitter:
         """
         name = self.processor.repo.name
         indexes = self.split_train_test_indexes(len(self.processor.df), train_test_ratio)
-        
         # split features
         for key in indexes:
             splitted_df = self.processor.df.iloc[indexes[key]]
@@ -81,32 +79,6 @@ class Splitter:
         if val_train_ratio:
             indexes = self.split_train_val_indexes(indexes, val_train_ratio)
         # split cc2vec and deepjit codes
-        for key in indexes:
-            save_part = f"{name}_{key}"
-            ids = self.get_values(self.processor.ids, indexes[key])
-            messages = self.get_values(self.processor.messages, indexes[key])
-            cc2vec_codes = self.get_values(self.processor.cc2vec_codes, indexes[key])
-            deepjit_codes = self.get_values(self.processor.deepjit_codes, indexes[key])
-            simcom_codes = self.get_values(self.processor.simcom_codes, indexes[key])
-            labels = self.get_values(self.processor.labels, indexes[key])
-            if key == "train":
-                train_dict = create_dict(messages, deepjit_codes)
-                save_pkl(
-                    train_dict,
-                    os.path.join(self.processor.commit_path, f"{save_part}_dict.pkl"),
-                )
-            save_pkl(
-                [ids, messages, cc2vec_codes, labels],
-                os.path.join(self.processor.commit_path, f"cc2vec_{save_part}.pkl"),
-            )
-            save_pkl(
-                [ids, messages, deepjit_codes, labels],
-                os.path.join(self.processor.commit_path, f"deepjit_{save_part}.pkl"),
-            )
-            save_pkl(
-                [ids, messages, simcom_codes, labels],
-                os.path.join(self.processor.commit_path, f"simcom_{save_part}.pkl"),
-            )
 
         def get_change_indexes(commit_size, files_size, train_test_ratio, val_train_ratio):
             train_all_ratio = 1 / (1 + val_train_ratio + 1 / train_test_ratio)
@@ -134,14 +106,14 @@ class Splitter:
                         commit_ids = commit_ids[id+1:]
                         break
             return indexes
-
+        
         #split change data by id:commit:
         def change_level_split(indexes, prefix):
             for key in indexes:
                 save_part = f"{prefix}_{name}_{key}"
                 ids = self.get_values(self.processor.ids, indexes[key])
-                date = self.get_values(self.processor.date, indexes[key])
-                labels = self.get_values(self.processor.labels, indexes[key])
+                # date = self.get_values(self.processor.date, indexes[key])
+                # labels = self.get_values(self.processor.labels, indexes[key])
 
                 change_codes = {
                     "_id": [], "date": [], "file_name": [], "added_code": [], "removed_code": [], "deepjit": [], "simcom": [], "bug": []
@@ -159,56 +131,71 @@ class Splitter:
                     if id in ids:
                         for key in self.processor.change_features:
                             change_features[key].append(self.processor.change_features[key][index])
-                
-                # df1 = pd.DataFrame(
-                #     {
-                #         "_id": ids,
-                #         "date": date,
-                #         "bug": labels
-                #     } 
-                # )
-                # df1.to_csv(
-                #     os.path.join(self.processor.feature_path, f"labels_{save_part}.csv"),
-                #     index=False
-                # )
-                # del df1
 
                 df2 = pd.DataFrame(
                     change_features
                 )
-                # df2 = pd.merge(df2, df1, on=["_id", "date"], how="outer")
+
                 df2.to_csv(
                     os.path.join(self.processor.feature_path, f"change_features{save_part}.csv"),
                     index=False
                 )
                 del df2
 
-                save_pkl(
-                    [
-                        change_codes["_id"], 
-                        change_codes["file_name"], 
-                        change_codes["deepjit"],
-                        change_codes["bug"]
-                    ],
-                    os.path.join(self.processor.commit_path, f"change_codes_deepjit{save_part}.pkl")
-                )
+                change_deepjit_dict = [{
+                    "commit_id": change_codes["_id"][i],
+                    "file_name": change_codes["file_name"][i],
+                    "code_change": change_codes["deepjit"][i],
+                    "label": change_codes["bug"][i]
+                } for i in range(len(ids))]
+                save_jsonl(change_deepjit_dict, os.path.join(self.processor.commit_path, f"change_deepjit{save_part}.jsonl"))
 
-                save_pkl(
-                    [
-                        change_codes["_id"], 
-                        change_codes["file_name"], 
-                        change_codes["simcom"],
-                        change_codes["bug"]
-                    ],
-                    os.path.join(self.processor.commit_path, f"change_codes_simcom{save_part}.pkl")
-                )
+                change_simcom_dict = [{
+                    "commit_id": change_codes["_id"][i],
+                    "file_name": change_codes["file_name"][i],
+                    "code_change": change_codes["simcom"][i],
+                    "label": change_codes["bug"][i]
+                } for i in range(len(ids))]
+                save_jsonl(change_simcom_dict, os.path.join(self.processor.commit_path, f"change_simcom{save_part}.jsonl"))
 
         indexes = get_change_indexes(len(self.processor.ids), len(self.processor.labels), train_test_ratio, val_train_ratio)
         change_level_split(indexes, "")
 
-        #split by files:
-        # indexes = self.split_train_test_indexes(len(self.processor.labels), train_test_ratio)
-        # if val_train_ratio:
-        #     indexes = self.split_train_val_indexes(indexes, val_train_ratio)
-        # change_level_split(indexes, "files")
-                
+        for key in indexes:
+            save_part = f"{name}_{key}"
+            ids = self.get_values(self.processor.ids, indexes[key])
+            messages = self.get_values(self.processor.messages, indexes[key])
+            cc2vec_codes = self.get_values(self.processor.cc2vec_codes, indexes[key])
+            deepjit_codes = self.get_values(self.processor.deepjit_codes, indexes[key])
+            simcom_codes = self.get_values(self.processor.simcom_codes, indexes[key])
+            labels = self.get_values(self.processor.labels, indexes[key])
+            if key == "train":
+                train_dict = create_dict(messages, deepjit_codes)
+                save_json(
+                    train_dict,
+                    os.path.join(self.processor.commit_path, f"{save_part}_dict.json"),
+                )
+
+            cc2vec_dict = [{
+                "commit_id": ids[i],
+                "messages": messages[i],
+                "code_change": cc2vec_codes[i],
+                "label": labels[i]
+            } for i in range(len(ids))]
+            save_jsonl(cc2vec_dict, os.path.join(self.processor.commit_path, f"cc2vec_{save_part}.jsonl"))
+            
+            deepjit_dict = [{
+                "commit_id": ids[i],
+                "messages": messages[i],
+                "code_change": deepjit_codes[i],
+                "label": labels[i]
+            } for i in range(len(ids))]
+            save_jsonl(deepjit_dict, os.path.join(self.processor.commit_path, f"deepjit_{save_part}.jsonl"))
+
+            simcom_dict = [{
+                "commit_id": ids[i],
+                "messages": messages[i],
+                "code_change": simcom_codes[i],
+                "label": labels[i]
+            } for i in range(len(ids))]
+            save_jsonl(simcom_dict, os.path.join(self.processor.commit_path, f"simcom_{save_part}.jsonl"))

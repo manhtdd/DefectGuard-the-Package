@@ -1,8 +1,8 @@
 from .Repository import Repository
 from .Dict import create_dict
-from .utils import save_pkl, split_sentence
-from defectguard.utils.logger import logger
+from .utils import save_pkl, split_sentence, save_json, save_jsonl
 from datetime import datetime
+from operator import itemgetter
 import time
 import pandas as pd
 import numpy as np
@@ -22,33 +22,29 @@ class Processor:
         self.commit_path = os.path.join(self.repo_save_path, "commit")
         self.df = None
         self.ids = None
-        self.date = None
         self.messages = None
         self.cc2vec_codes = None
         self.deepjit_codes = None
         self.simcom_codes = None
-        self.change_codes = None
-        self.change_features = None
         self.labels = None
-        self.change_files = None
 
     def run(self, szz_output, extracted_date):
         self.create_dirs()
-        szz_bug_ids = self.process_szz_output(szz_output)
+        szz_bug_ids_file_paths, szz_bug_ids_fix_commit_hashs = self.process_szz_output(szz_output)
         time_upper_limit = 0
-        if szz_bug_ids:
-            date_df = self.process_features(szz_bug_ids, cols=["_id", "date"])
-            time_median = self.cal_median_fix_time(szz_bug_ids, date_df)
+        if szz_bug_ids_file_paths and szz_bug_ids_fix_commit_hashs:
+            date_df = self.process_features(szz_bug_ids_file_paths, cols=["_id", "date"])
+            time_median = self.cal_median_fix_time(szz_bug_ids_fix_commit_hashs, date_df)
             time_upper_limit = (
                 datetime.strptime(extracted_date, "%Y-%m-%d").timestamp()
                 if extracted_date
                 else int(time.time())
             ) - time_median
-        
+
         self.df = self.process_features(
-            bug_ids=szz_bug_ids, cols=[], time_upper_limit=time_upper_limit
+            bug_ids=szz_bug_ids_file_paths, cols=[], time_upper_limit=time_upper_limit
         )
-        self.process_diffs(szz_bug_ids)
+        self.process_diffs(szz_bug_ids_file_paths)
         if self.save:
             self.to_dataset()
 
@@ -67,31 +63,30 @@ class Processor:
         """
         Process szz output to get bug ids
         """
-        szz_bug_ids = {}
+        szz_bug_ids_file_paths = {}
+        szz_bug_ids_fix_commit_hashs = {}
         if szz_output:
             repo_name = szz_output[0]["repo_name"]
-            assert repo_name == os.path.join(
-                self.repo.owner, self.repo.name
-            ), f"Unmatch szz output vs repo's info: got {repo_name} and {self.repo.owner}/{self.repo.name}"
+            assert repo_name == self.repo.name 
+            f"Unmatch szz output vs repo's info: got {repo_name} and {self.repo.name}"
             for out in szz_output:
                 if out["inducing_commit_hash"]:
                     for id in out["inducing_commit_hash"]:
-                        if id['commit'] not in szz_bug_ids:
-                            szz_bug_ids[id['commit']] = []
-                        szz_bug_ids[id['commit']].append(id["file_path"])
-        return szz_bug_ids
+                        if id['commit'] not in szz_bug_ids_file_paths:
+                            szz_bug_ids_file_paths[id['commit']] = []
+                        if id['commit'] not in szz_bug_ids_fix_commit_hashs:
+                            szz_bug_ids_fix_commit_hashs[id['commit']] = []
+                        szz_bug_ids_file_paths[id['commit']].append(id["file_path"])
+                        szz_bug_ids_fix_commit_hashs[id['commit']].append(out["fix_commit_hash"])
+        return szz_bug_ids_file_paths, szz_bug_ids_fix_commit_hashs
 
     def process_features(self, bug_ids, cols=[], time_upper_limit=None):
         """
         Convert features to dataframe, and add bug label
         """
+        self.repo.load_features()        
+        self.repo.features = sorted(self.repo.features, key=itemgetter('date'))
 
-        def is_sorted_by_date(features):
-            dates = [features[id]["date"] for id in features]
-            return dates == sorted(dates)
-
-        self.repo.load_features()
-        # assert is_sorted_by_date(self.repo.features), "Features are not sorted by date"
         if not cols:
             cols = [
                 "_id",
@@ -113,13 +108,12 @@ class Processor:
                 "sexp",
             ]
         data = {key: [] for key in cols}
-        for commit_id in self.repo.features:
-            feature = self.repo.features[commit_id]
+        for feature in self.repo.features:
             if time_upper_limit and feature["date"] > time_upper_limit:
                 continue
             for key in cols:
                 if key == "bug":
-                    data[key].append(1 if commit_id in bug_ids else 0)
+                    data[key].append(1 if feature["_id"] in bug_ids else 0)
                 else:
                     data[key].append(feature[key])
         self.repo.features = {}
@@ -130,10 +124,10 @@ class Processor:
         Calculate median fix time for each bug
         """
         fix_times = []
-        for bug_id, fix_ids in bug_ids.items():
+        for bug_id, metadata in bug_ids.items():
             if bug_id in date_df["_id"].values:
                 bug_date = date_df[date_df["_id"] == bug_id]["date"].values[0]
-                fix_dates = date_df[date_df["_id"].isin(fix_ids)]["date"].values
+                fix_dates = date_df[date_df["_id"].isin(metadata)]["date"].values
                 for fix_date in fix_dates:
                     fix_time = fix_date - bug_date
                     fix_time = fix_time / 86400
@@ -146,11 +140,7 @@ class Processor:
         Process diffs to get format [ids, messages, codes, and labels]
         """
         cfg = self.repo.get_last_config()
-        num_files = (
-            cfg["num_files"]
-            if cfg["last_file_num_commits"] == 0
-            else cfg["num_files"] + 1
-        )
+        num_files = cfg["num_files"]
 
         self.ids = []
         self.date = []
@@ -172,10 +162,9 @@ class Processor:
 
         for i in range(num_files):
             self.repo.load_commits(i)
-            for commit_id in self.repo.commits:
-                if commit_id not in df_ids:
+            for commit in self.repo.commits:
+                if commit["commit_id"] not in df_ids:
                     continue
-                commit = self.repo.commits[commit_id]
                 (
                     id,
                     mes,
@@ -209,8 +198,6 @@ class Processor:
                 self.change_files.append(change_files)
 
                 for feature, code, _label in zip(change_commit["change_features"], change_commit["change_codes"], change_labels):
-                    if _label == 1:
-                        logger(id, feature, _label)
                     self.change_codes["_id"].append(id)
                     self.change_codes["date"].append(date)
                     self.change_features["_id"].append(id)
@@ -224,6 +211,7 @@ class Processor:
                 
                 del commit, id, mes, cc2vec_commit, deepjit_commit, simcom_commit, label, change_commit
         self.code_dict = create_dict(self.messages, self.deepjit_codes)
+        
 
     def process_one_commit(self, commit):
         id = commit["commit_id"]
@@ -325,64 +313,52 @@ class Processor:
             os.path.join(self.feature_path, "features.csv"),
             index=False,
         )
-        save_pkl(
-            [self.ids, self.messages, self.cc2vec_codes, self.labels],
-            os.path.join(self.commit_path, "cc2vec.pkl"),
-        )
-        save_pkl(
-            [self.ids, self.messages, self.deepjit_codes, self.labels],
-            os.path.join(self.commit_path, "deepjit.pkl"),
-        )
-        save_pkl(
-            [self.ids, self.messages, self.simcom_codes, self.labels],
-            os.path.join(self.commit_path, "simcom.pkl"),
-        )
-        code_msg_dict = create_dict(self.messages, self.deepjit_codes)
-        save_pkl(code_msg_dict, os.path.join(self.commit_path, "dict.pkl"))
-        
-        #file change 
-        # df1 = pd.DataFrame(
-        #     {
-        #         "_id": self.ids,
-        #         "date": self.date,
-        #         "bug": self.labels
-        #     } 
-        # )
-        # df1.to_csv(
-        #     os.path.join(self.feature_path, "change_labels.csv"),
-        #     index=False
-        # )
-        # del df1
 
-        df2 = pd.DataFrame(
-            self.change_features
-        )
-        # df2 = pd.merge(df2, df1, on=["_id", "date"], how="outer")
-
-        df2.to_csv(
+        dataframe = pd.DataFrame(self.change_features)
+        dataframe.to_csv(
             os.path.join(self.feature_path, "change_features.csv"),
-            index=False
-        )
-        del df2
-
-        save_pkl(
-            [
-                self.change_codes["_id"], 
-                self.change_codes["file_name"], 
-                self.change_codes["deepjit"],
-                self.change_codes["bug"]
-            ],
-            os.path.join(self.commit_path, "change_deepjit_codes.pkl")
+            index=False,
         )
 
-        save_pkl(
-            [
-                self.change_codes["_id"], 
-                self.change_codes["file_name"], 
-                self.change_codes["simcom"],
-                self.change_codes["bug"]
-            ],
-            os.path.join(self.commit_path, "change_simcom_codes.pkl")
-        )
+        code_msg_dict = create_dict(self.messages, self.deepjit_codes)
+        save_json(code_msg_dict, os.path.join(self.commit_path, "dict.json"))
+
+        cc2vec_dict = [{
+            "commit_id": self.ids[i],
+            "messages": self.messages[i],
+            "code_change": self.cc2vec_codes[i],
+            "label": self.labels[i]
+        } for i in range(len(self.ids))]
+        save_jsonl(cc2vec_dict, os.path.join(self.commit_path, "cc2vec.jsonl"))
         
+        deepjit_dict = [{
+            "commit_id": self.ids[i],
+            "messages": self.messages[i],
+            "code_change": self.deepjit_codes[i],
+            "label": self.labels[i]
+        } for i in range(len(self.ids))]
+        save_jsonl(deepjit_dict, os.path.join(self.commit_path, "deepjit.jsonl"))
+
+        simcom_dict = [{
+            "commit_id": self.ids[i],
+            "messages": self.messages[i],
+            "code_change": self.simcom_codes[i],
+            "label": self.labels[i]
+        } for i in range(len(self.ids))]
+        save_jsonl(simcom_dict, os.path.join(self.commit_path, "simcom.jsonl"))
         
+        change_deepjit_dict = [{
+            "commit_id": self.change_codes["_id"][i],
+            "file_path": self.change_codes["file_name"][i],
+            "code_change": self.change_codes["deepjit"][i],
+            "label": self.change_codes["bug"][i]
+        } for i in range(len(self.ids))]
+        save_jsonl(change_deepjit_dict, os.path.join(self.commit_path, "change_deepjit.jsonl"))
+
+        change_simcom_dict = [{
+            "commit_id": self.change_codes["_id"][i],
+            "file_path": self.change_codes["file_name"][i],
+            "code_change": self.change_codes["simcom"][i],
+            "label": self.change_codes["bug"][i]
+        } for i in range(len(self.ids))]
+        save_jsonl(change_simcom_dict, os.path.join(self.commit_path, "change_simcom.jsonl"))

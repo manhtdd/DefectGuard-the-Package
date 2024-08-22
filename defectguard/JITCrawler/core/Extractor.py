@@ -5,7 +5,8 @@ from tqdm import tqdm
 import numpy as np
 import pandas as pd
 import datetime
-from defectguard.utils.logger import logger
+from multiprocessing import Manager
+import concurrent.futures as cf
 
 class Extractor:
     def __init__(
@@ -17,6 +18,7 @@ class Extractor:
         save: bool = True,
         force_reextract: bool = False,
         check_uncommit:bool=False,
+        workers:int = 1,
     ):
         self.start = start
         self.end = end
@@ -27,6 +29,7 @@ class Extractor:
         self.save = save
         self.force_reextract = force_reextract
         self.check_uncommit = check_uncommit
+        self.workers = workers
 
     def set_repo(self, repo: Repository):
         self.repo = repo
@@ -41,8 +44,6 @@ class Extractor:
     def load_config(self, config):
         keys = [
             "num_commits_per_file",
-            "last_file_num_commits",
-            "num_files",
             "language",
         ]
         if config:
@@ -61,7 +62,6 @@ class Extractor:
         config = {
             "date": self.date,
             "num_commits_per_file": self.num_commits_per_file,
-            "last_file_num_commits": self.last_file_num_commits,
             "num_files": self.num_files,
             "language": self.language,
         }
@@ -81,15 +81,13 @@ class Extractor:
             self.repo.uncommit = {}
         self.extract_repo_commit_diffs()
         self.extract_repo_commits_features()
-        if self.save:
-            self.save_config()
         os.chdir(cur_dir)
 
     def extract_repo_commit_ids(self):
         """
         Extract the repository's commit ids
         """
-        return get_commit_hashes(self.start, self.end, self.repo.get_path())
+        return get_commit_hashes(self.start, self.end)
 
     def extract_repo_top_commit_ids(self, num_commits: int):
         """
@@ -103,7 +101,7 @@ class Extractor:
         os.chdir(cur_dir)
         return ids
 
-    def extract_one_commit_diff(self, commit_id: str, languages=[], pull_log=None):
+    def extract_one_commit_diff(self, commit_id: str, languages=[]):
         """
         Input:
             commit_id: the id of the commit
@@ -119,26 +117,23 @@ class Extractor:
                 |- diff: the dict of files diff in the commit
                 |- blame: the dict of files blame in the commit
         """
-        if pull_log is None:
-            command = 'git show {} --name-only --pretty=format:"%H%n%P%n%an%n%ct%n%s%n%B%n[ALL CHANGE FILES]"'
+        command = "git show {} --name-only --pretty=format:'%H%n%P%n%an%n%ct%n%s%n%B%n[ALL CHANGE FILES]'"
 
-            show_msg = exec_cmd(command.format(commit_id))
-            show_msg = [msg.strip() for msg in show_msg]
-            file_index = show_msg.index("[ALL CHANGE FILES]")
+        show_msg = exec_cmd(command.format(commit_id))
+        show_msg = [msg.strip() for msg in show_msg]
+        file_index = show_msg.index("[ALL CHANGE FILES]")
 
-            subject = show_msg[4]
-            head = show_msg[:5]
-            commit_msg = show_msg[5:file_index]
+        subject = show_msg[4]
+        head = show_msg[:5]
+        commit_msg = show_msg[5:file_index]
 
-            parent_id = head[1]
-            author = head[2]
-            commit_date = head[3]
-            commit_msg = " ".join(commit_msg)
+        parent_id = head[1]
+        author = head[2]
+        commit_date = head[3]
+        commit_msg = " ".join(commit_msg)
 
-            command = 'git show {} --pretty=format: --unified=999999999'
-            diff_log = split_diff_log(exec_cmd(command.format(commit_id)))
-        else:
-            diff_log = split_diff_log(pull_log)
+        command = "git show {} --pretty=format: --unified=999999999"
+        diff_log = split_diff_log(exec_cmd(command.format(commit_id)))
         commit_diff = {}
         commit_blame = {}
         files = []
@@ -169,66 +164,83 @@ class Extractor:
                     if file_language not in languages:
                         continue
 
-                if pull_log is None:
-                    command = 'git blame -t -n -l {} "{}"'
-                    file_blame_log = exec_cmd(command.format(parent_id, file_name_a))
-                    if not file_blame_log:
-                        continue
-                    file_blame = get_file_blame(file_blame_log)
+                command = "git blame -t -n -l {} '{}'"
+                file_blame_log = exec_cmd(command.format(parent_id, file_name_a))
+                if not file_blame_log:
+                    continue
+                file_blame = get_file_blame(file_blame_log)
 
-                    commit_blame[file_name_b] = file_blame
+                commit_blame[file_name_b] = file_blame
                 commit_diff[file_name_b] = file_diff
                 files.append(file_name_b)
-        
-        if pull_log is None:
-            commit = {
-                "commit_id": commit_id,
-                "parent_id": parent_id,
-                "subject": subject,
-                "message": commit_msg,
-                "author": author,
-                "date": int(commit_date),
-                "files": files,
-                "diff": commit_diff,
-                "blame": commit_blame,
-            }
-        else:
-            commit = {
-                "files": files,
-                "diff": commit_diff,
-            }
+
+        commit = {
+            "commit_id": commit_id,
+            "parent_id": parent_id,
+            "subject": subject,
+            "message": commit_msg,
+            "author": author,
+            "date": int(commit_date),
+            "files": files,
+            "diff": commit_diff,
+            "blame": commit_blame,
+        }
         return commit
 
-    def extract_repo_commit_diffs(self):
-        print("Collecting commits information ...")
-        if not self.num_commits_per_file:
-            self.num_commits_per_file = len(self.repo.ids)
-        extracting_ids = [id for id in self.repo.ids if self.repo.ids[id] == -1]
-        if len(extracting_ids) == 0:
-            return
+    def parallel_extract(self, extracting_ids, core):
+        extracted = []
         bug_fix_ids = []
-        if self.last_file_num_commits > 0:
-            self.repo.load_commits(self.num_files)
-
+        ids = {}
+        num_file = 0
+        num_core_file = len(extracting_ids) // self.num_commits_per_file
         for commit_id in tqdm(extracting_ids):
             try:
-                commit = self.extract_one_commit_diff(commit_id=commit_id, languages=self.language)
+                commit = self.extract_one_commit_diff(commit_id, self.language)
                 if not commit["diff"]:
-                    self.repo.ids[commit_id] = -2
+                    ids[commit_id] = -2
                     continue
-                self.repo.commits[commit_id] = commit
-                self.repo.ids[commit_id] = self.num_files
-                self.last_file_num_commits += 1
+                extracted.append(commit)
+                ids[commit_id] = core
                 if check_fix(commit["message"]):
                     bug_fix_ids.append(commit_id)
             except Exception:
-                self.repo.ids[commit_id] = -3
+                ids[commit_id] = -3
+            if len(extracted) == self.num_commits_per_file and self.save:
+                save_jsonl(extracted, self.repo.get_commits_path(f"{num_core_file * core + num_file}"))
+                extracted = []
+                num_file += 1
+        
+        if self.save:
+            if extracted:
+                save_jsonl(extracted, self.repo.get_commits_path(f"{num_core_file * core + num_file}"))
 
-            if self.last_file_num_commits == self.num_commits_per_file and self.save:
-                self.repo.save_commits(self.num_files)
-                self.last_file_num_commits = 0
-                self.num_files += 1
-                self.repo.commits = {}
+        return extracted, bug_fix_ids, ids
+
+    def extract_repo_commit_diffs(self):
+        print("Collecting commits information ...")
+        extracting_ids = [id for id in self.repo.ids if self.repo.ids[id] == -1]
+        if len(extracting_ids) == 0:
+            return
+
+        total = len(extracting_ids)
+        sublist_length = total // self.workers
+        sublists = [extracting_ids] if sublist_length == 0 else [extracting_ids[i:i + sublist_length] for i in range(0, total, sublist_length)]
+        num_workers = min(self.workers, len(sublists))
+        self.num_commits_per_file = min(self.num_commits_per_file, total) if sublist_length == 0 else min(self.num_commits_per_file, sublist_length)
+        self.num_files = 1 if sublist_length == 0 else int(num_workers * (sublist_length // self.num_commits_per_file))
+
+        manager = Manager()
+        futures = []
+        with cf.ProcessPoolExecutor(self.workers) as pp:
+            for worker in range(num_workers):
+                futures.append(pp.submit(self.parallel_extract, sublists[worker], worker))
+
+        bug_fix_ids = []
+        for future in cf.as_completed(futures):
+            result = future.result()
+            self.repo.commits.extend(result[0])
+            bug_fix_ids.extend(result[1])
+            self.repo.ids.update(result[2])
 
         if self.check_uncommit:
             uncommit = self.extract_repo_uncommit()
@@ -236,10 +248,8 @@ class Extractor:
                 self.repo.uncommit["commit"] = uncommit
 
         if self.save:
-            if self.repo.commits:
-                self.repo.save_commits(self.num_files)
             self.repo.save_bug_fix(bug_fix_ids)
-            self.repo.save_ids()
+            self.save_config()
 
     def extract_one_commit_features(self, commit):
         commit_id = commit["commit_id"]
@@ -324,18 +334,16 @@ class Extractor:
         print("Extracting features ...")
         self.repo.files = {}
         self.repo.authors = {}
-        self.repo.features = {}
+        self.repo.commits = []
+        
+        for i in range(self.num_files):
+            self.repo.commits.extend(load_jsonl(self.repo.get_commits_path(i)))
+        if len(self.repo.commits) == 0:
+            return
 
-        num_file = (
-            self.num_files if self.last_file_num_commits == 0 else self.num_files + 1
-        )
-        for num in range(num_file):
-            self.repo.load_commits(num)
-            for commit_id in tqdm(self.repo.commits):
-                commit_feature = self.extract_one_commit_features(
-                    self.repo.commits[commit_id]
-                )
-                self.repo.features[commit_id] = commit_feature
+        for commit in tqdm(self.repo.commits):
+            commit_feature = self.extract_one_commit_features(commit)
+            self.repo.features.append(commit_feature)
         if self.check_uncommit:
             if self.repo.uncommit and self.repo.uncommit["commit"]:
                 commit_feature = self.extract_one_commit_features(
@@ -344,8 +352,8 @@ class Extractor:
                 self.repo.uncommit["feature"] = commit_feature
         if self.save:
             self.repo.save_features()
-        self.repo.files = {}
-        self.repo.authors = {}
+        # self.repo.files = {}
+        # self.repo.authors = {}
 
     def extract_repo_uncommit(self):
         command = "git config --get user.name"

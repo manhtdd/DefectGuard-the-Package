@@ -32,5 +32,5 @@ repo_names=(
 for ((i=0; i<${#repos[@]}; i++)); do
   repo="${repos[$i]}"
   repo_name="${repo_names[$i]}"
-  git clone "$repo" "./input/java_top10/$repo_name"
+  echo "!git -C /kaggle/working/input clone $repo $repo_name"
 done

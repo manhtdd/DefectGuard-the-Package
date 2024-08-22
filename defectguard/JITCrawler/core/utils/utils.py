@@ -5,15 +5,16 @@ import re
 import pickle
 import json
 
+
 def clone_repo(clone_path: str, owner: str, name: str, url: str):
     """
     Clones a repository to the current directory
     """
-    assert owner and name and url, "Invalid repository info"
+    assert (owner and name) or url, "Invalid repository info"
     cur_dir = os.getcwd()
-    if owner not in os.listdir(clone_path):
-        os.mkdir(os.path.join(clone_path, owner))
-    os.chdir(os.path.join(clone_path, owner))
+    # if owner not in os.listdir(clone_path):
+    #     os.mkdir(os.path.join(clone_path, owner))
+    os.chdir(clone_path)
     if name not in os.listdir():
         print(f"Cloning ... {url}")
         command = "git clone {}"
@@ -25,35 +26,28 @@ def clone_repo(clone_path: str, owner: str, name: str, url: str):
     os.chdir(cur_dir)
 
 
-def exec_cmd(command: str, print_output: bool = False):
+def exec_cmd(command: str):
     """
-    Get output of executing a command, optionally printing real-time output to stdout.
+    Get ouput of executing a command
     """
-    if print_output:
-        print()
-        print("-----------Exec command-----------")
-        print(f"cmd: {command}")
-        print()
-        result = subprocess.run(command, shell=True)
-        return None
-    else:
-        result = subprocess.run(command, shell=True, capture_output=True, text=False)
-        output = result.stdout.strip(b"\n").split(b"\n") if result.stdout else []
-        output = [line.decode(encoding="utf8", errors="replace") for line in output]
-        return output
+    result = subprocess.run(command, shell=True, capture_output=True, text=False)
+    output = result.stdout.strip(b"\n").split(b"\n") if result.stdout else []
+    output = [line.decode(encoding="utf8", errors="replace") for line in output]
+    return output
 
-def get_commit_hashes(start=None, end=None, repo_dir='.'):
+
+def get_commit_hashes(start=None, end=None):
     """
     Get commit hashes of a repository between `start` and `end` in the format of '%Y-%m-%d'
     """
     if start is None and end is None:
-        command = f'git -C {repo_dir} log --all --no-decorate --no-merges --pretty=format:"%H"'
+        command = 'git log --all --no-decorate --no-merges --pretty=format:"%H"'
     elif start is None:
-        command = f'git -C {repo_dir} log --all --before={end} --no-decorate --no-merges --pretty=format:"%H"'
+        command = f'git log --all --before={end} --no-decorate --no-merges --pretty=format:"%H"'
     elif end is None:
-        command = f'git -C {repo_dir} log --all --after={start} --no-decorate --no-merges --pretty=format:"%H"'
+        command = f'git log --all --after={start} --no-decorate --no-merges --pretty=format:"%H"'
     else:
-        command = f'git -C {repo_dir} log --all --after={start} --before={end} --no-decorate --no-merges --pretty=format:"%H"'
+        command = f'git log --all --after={start} --before={end} --no-decorate --no-merges --pretty=format:"%H"'
     return exec_cmd(command)
 
 def get_top_commit_hashes(n=10):
@@ -189,6 +183,20 @@ def calc_entropy(totalLOCModified, locModifiedPerFile):
 
     return entropy
 
+# STRONG_VUL = re.compile(r'(?i)(denial.of.service|remote.code.execution|\bopen.redirect|OSVDB|\bXSS\b|\bReDoS\b|\bNVD\b|malicious|x−frame−options|attack|cross.site|exploit|directory.traversal|\bRCE\b|\bdos\b|\bXSRF\b|clickjack|session.fixation|hijack|advisory|insecure|security|\bcross−origin\b|unauthori[z|s]ed|infinite.loop)')
+# MEDIUM_VUL =re.compile(r'(?i)(authenticat(e|ion)|bruteforce|bypass|constant.time|crack|credential|\bDoS\b|expos(e|ing)|hack|harden|injection|lockout|overflow|password|\bPoC\b|proof.of.concept|poison|privelage|\b(in)?secur(e|ity)|(de)?serializ|spoof|timing|traversal)')
+
+# def check_fix(msg):
+#     # List of keywords indicating bug fixes
+#     if not isinstance(msg, str) and math.isnan(msg):
+#         return 0
+        
+#     m = STRONG_VUL.search(msg)
+#     n = MEDIUM_VUL.search(msg)
+#     if m or n:
+#         return 1
+#     else:
+#         return 0
 
 def check_fix(msg):
     # List of keywords indicating bug fixes
@@ -198,7 +206,6 @@ def check_fix(msg):
         if not any(keyword in msg for keyword in wrong_keywords):
             return 1
     return 0
-
 
 def get_prev_time(blame, file):
     if not file in blame:
@@ -292,19 +299,18 @@ def load_pkl(path):
 def load_json(path):
     if not os.path.exists(path):
         return {}
-    with open(path, "rb") as f:
+    with open(path, "r") as f:
         data = json.load(f)
     return data
 
 def load_jsonl(path):
     if not os.path.exists(path):
+        print("no file")
         return []
-    
     data = []
-    with open(path, "r") as f:
+    with open(path, 'r') as f:
         for line in f:
             data.append(json.loads(line))
-    
     return data
 
 def save_pkl(data, path):
@@ -316,6 +322,10 @@ def save_json(data, path):
     with open(path, "w") as f:
         json.dump(data, f, indent=4)
 
+def save_jsonl(data, path, mode="w"):
+    with open(path, mode) as f:
+        for d in data:
+            f.write(json.dumps(d) + '\n')
 
 def split_sentence(sentence):
     sentence = (

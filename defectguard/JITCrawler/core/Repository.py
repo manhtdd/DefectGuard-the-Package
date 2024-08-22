@@ -1,4 +1,4 @@
-from .utils import load_json, load_pkl, save_json, save_pkl
+from .utils import load_json, load_pkl, load_jsonl, save_json, save_pkl, save_jsonl
 import os
 
 
@@ -21,9 +21,9 @@ class Repository:
         --save_path
         |   --repo_name
         |   |   --extracted_info.json
-        |   |   --commit_ids.pkl
-        |   |   --repo_commits_<num>.pkl
-        |   |   --repo_features.csv
+        |   |   --commit_ids.json
+        |   |   --repo_commits_<num>.jsonl
+        |   |   --repo_features.jsonl
         |   |   --repo_bug_fix.json
         |   |   --bszz.yml
         """
@@ -45,13 +45,13 @@ class Repository:
                 self.save_path, self.owner, self.name, "extracted_info.json"
             ),
             "ids": os.path.join(
-                self.save_path, self.owner, self.name, "commit_ids.pkl"
+                self.save_path, self.owner, self.name, "commit_ids.json"
             ),
             "commits": os.path.join(
-                self.save_path, self.owner, self.name, "repo_commits_{}.pkl"
+                self.save_path, self.owner, self.name, "repo_commits_{}.jsonl"
             ),
             "features": os.path.join(
-                self.save_path, self.owner, self.name, "repo_features.pkl"
+                self.save_path, self.owner, self.name, "repo_features.jsonl"
             ),
             "bug_fix": os.path.join(
                 self.save_path, self.owner, self.name, "repo_bug_fix.json"
@@ -59,19 +59,19 @@ class Repository:
             "pyszz_conf": os.path.join(self.save_path, self.owner, self.name, "{}.yml"),
         }
         self.ids = {}
-        self.commits = {}
-        self.features = {}
+        self.commits = []
+        self.features = []
         self.uncommit = {}
 
     # load
     def load_ids(self):
-        self.ids = load_pkl(self.paths["ids"])
+        self.ids = load_json(self.paths["ids"])
 
     def load_commits(self, num):
-        self.commits = load_pkl(self.paths["commits"].format(num))
+        self.commits = load_jsonl(self.paths["commits"].format(num))
 
     def load_features(self):
-        self.features = load_pkl(self.paths["features"])
+        self.features = load_jsonl(self.paths["features"])
 
     def get_last_config(self):
         config = load_json(self.paths["extracted_info"])
@@ -94,7 +94,7 @@ class Repository:
         return self.paths["pyszz_conf"].format(conf)
 
     def get_path(self):
-        return os.path.join(self.repo_path, self.owner, self.name)
+        return os.path.join(self.repo_path, self.name)
 
     def get_bug_fix_path(self):
         return self.paths["bug_fix"]
@@ -106,14 +106,14 @@ class Repository:
         return self.language
 
     def get_save_path(self):
-        return os.path.join(self.save_path, self.owner, self.name)
+        return os.path.join(self.save_path, self.name)
 
     # save
     def save_ids(self):
-        save_pkl(self.ids, self.paths["ids"])
+        save_json(self.ids, self.paths["ids"])
 
     def save_commits(self, num):
-        save_pkl(self.commits, self.paths["commits"].format(num))
+        save_jsonl(self.commits, self.paths["commits"].format(num))
 
     def save_bug_fix(self, ids):
         bug_fix = load_json(self.paths["bug_fix"])
@@ -125,13 +125,13 @@ class Repository:
                 bug_fix.append(
                     {
                         "fix_commit_hash": id,
-                        "repo_name": os.path.join(self.owner, self.name),
+                        "repo_name": self.name,
                     }
                 )
         save_json(bug_fix, self.paths["bug_fix"])
 
     def save_features(self):
-        save_pkl(self.features, self.paths["features"])
+        save_jsonl(self.features, self.paths["features"])
 
     def save_config(self, config):
         cfg = {
